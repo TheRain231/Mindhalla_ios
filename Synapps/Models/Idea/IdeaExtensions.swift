@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+extension Idea: Equatable {
+  static func ==(lhs: Idea, rhs: Idea) -> Bool {
+    lhs.id == rhs.id
+  }
+}
+
 extension Idea {
   static func color(for type: IdeaType) -> Color {
     switch type {
