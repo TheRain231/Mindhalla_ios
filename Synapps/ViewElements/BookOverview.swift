@@ -10,19 +10,6 @@ import SwiftUI
 struct BookOverview: View {
   let book: Book
 
-  // MARK: - Helpers
-
-  private var timeToReadText: String {
-    let minutes = book.timeToRead / 60.0
-    if minutes > 60 {
-      let hours = Int(ceil(minutes / 60.0))
-      return "\(hours) ч"
-    } else {
-      let mins = Int(ceil(minutes))
-      return "\(mins) мин"
-    }
-  }
-
   var body: some View {
     VStack(alignment: .leading) {
       header
@@ -99,6 +86,19 @@ struct BookOverview: View {
           .padding()
       }
       .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+  }
+
+  // MARK: - Helpers
+
+  private var timeToReadText: String {
+    let minutes = book.timeToRead / 60.0
+    if minutes > 60 {
+      let hours = Int(ceil(minutes / 60.0))
+      return "\(hours) ч"
+    } else {
+      let mins = Int(ceil(minutes))
+      return "\(mins) мин"
     }
   }
 }

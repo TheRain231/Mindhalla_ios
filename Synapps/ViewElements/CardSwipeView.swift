@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum SwipeDirection {
-  case left, right
+  case left, right, undefined
 }
 
 public struct CardSwiperView<Item, Content: View>: View {
@@ -21,12 +21,21 @@ public struct CardSwiperView<Item, Content: View>: View {
   var initialOffsetY: CGFloat = 5
   var initialRotationAngle: Double = 0.5
 
+  @State var currentIndex: Int = 0 {
+    didSet {
+      currentIndexBinding = currentIndex
+    }
+  }
+
+  @Binding private var currentIndexBinding: Int
+
   init(
     ideas: [Item],
     onCardSwiped: ((SwipeDirection, Int) -> Void)? = nil,
     onCardDragged: ((SwipeDirection, Int, CGSize) -> Void)? = nil,
     initialOffsetY: CGFloat = 5,
     initialRotationAngle: Double = 0.5,
+    currentIndex currentIndexBinding: Binding<Int>? = nil,
     @ViewBuilder content: @escaping (Item) -> Content
   ) {
     self.ideas = ideas
@@ -35,6 +44,7 @@ public struct CardSwiperView<Item, Content: View>: View {
     self.initialOffsetY = initialOffsetY
     self.initialRotationAngle = initialRotationAngle
     self.contentBuilder = content
+    self._currentIndexBinding = currentIndexBinding ?? .constant(0)
   }
 
   public var body: some View {
@@ -44,6 +54,9 @@ public struct CardSwiperView<Item, Content: View>: View {
           index: index,
           onCardSwiped: { swipeDirection in
             onCardSwiped?(swipeDirection, index)
+            if swipeDirection != .undefined {
+              currentIndex -= 1
+            }
           },
           onCardDragged: { direction, index, offset in
             onCardDragged?(direction, index, offset)
@@ -55,12 +68,14 @@ public struct CardSwiperView<Item, Content: View>: View {
           initialRotationAngle: initialRotationAngle,
           zIndex: Double(ideas.count - index)
         )
-        .id(UUID())
       }
+    }.onAppear {
+      currentIndex = ideas.count - 1
     }
   }
 
   private struct CardView<CardContent: View>: View {
+    let id = UUID()
     var index: Int
     var onCardSwiped: ((SwipeDirection) -> Void)?
     var onCardDragged: ((SwipeDirection, Int, CGSize) -> Void)?
@@ -108,38 +123,39 @@ public struct CardSwiperView<Item, Content: View>: View {
     }
 
     func handleCardDragging(_ offset: CGSize) {
-      var swipeDirection: SwipeDirection = .left
+      var swipeDirection: SwipeDirection = .undefined
 
       switch (offset.width, offset.height) {
       case (-500...(-150), _):
         swipeDirection = .left
       case (150...500, _):
         swipeDirection = .right
-      default:
-        break
+      case (_, _):
+        swipeDirection = .undefined
       }
 
       onCardDragged?(swipeDirection, index, offset)
     }
 
     func handleSwipe(offsetWidth: CGFloat, offsetHeight: CGFloat) {
-      var swipeDirection: SwipeDirection = .left
+      var swipeDirection: SwipeDirection
 
       switch (offsetWidth, offsetHeight) {
       case (-500...(-150), _):
         swipeDirection = .left
         offset = CGSize(width: -350, height: 0)
         isRemoved = true
-        onCardSwiped?(swipeDirection)
       case (150...500, _):
         swipeDirection = .right
         offset = CGSize(width: 350, height: 0)
         isRemoved = true
-        onCardSwiped?(swipeDirection)
       default:
+        swipeDirection = .undefined
         offset = .zero
         overlayColor = .clear
       }
+
+      onCardSwiped?(swipeDirection)
     }
   }
 }

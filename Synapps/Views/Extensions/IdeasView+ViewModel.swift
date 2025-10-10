@@ -10,9 +10,15 @@ import SwiftUI
 extension IdeasView {
   final class ViewModel: ObservableObject {
     @Published var ideas: [Idea]
+    @Published var topCardIndex: Int
 
     init(ideas: [Idea]) {
       self.ideas = ideas
+      topCardIndex = ideas.count - 1
+    }
+
+    var topCard: Idea? {
+      ideas[topCardIndex]
     }
   }
 }
