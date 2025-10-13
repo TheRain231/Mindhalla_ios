@@ -14,14 +14,14 @@ struct CardsView: View {
     VStack {
       cardsStack
     }
+    .id(viewModel.viewId) // for "Reset Cards" button in Preview
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(
       LinearGradient(
-        colors: backgroundColors(for: viewModel.topCard?.type), // пока не разобрался как получать нужный цвет
+        colors: backgroundColors(for: viewModel.topCard?.type),
         startPoint: .bottom,
         endPoint: .top
       )
-      .ignoresSafeArea()
     )
   }
 
@@ -63,6 +63,7 @@ private func backgroundColors(for type: CardType?) -> [Color] {
 
   ZStack {
     CardsView(viewModel: viewModel)
+      .ignoresSafeArea()
 
     VStack {
       Spacer()
@@ -76,10 +77,11 @@ private func backgroundColors(for type: CardType?) -> [Color] {
 
 extension CardsView.ViewModel {
   fileprivate func resetCards() {
-    cards = Card.mocks()
+    viewId = UUID()
   }
 }
 
 #Preview() {
   CardsView(viewModel: .init(cards: Card.mocks()))
+    .ignoresSafeArea()
 }
