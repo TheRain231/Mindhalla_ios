@@ -12,7 +12,7 @@ enum SwipeDirection {
 }
 
 public struct CardSwiperView<Item, Content: View>: View {
-  var ideas: [Item]
+  var cards: [Item]
 
   let contentBuilder: (Item) -> Content
 
@@ -30,7 +30,7 @@ public struct CardSwiperView<Item, Content: View>: View {
   @Binding private var currentIndexBinding: Int
 
   init(
-    ideas: [Item],
+    cards: [Item],
     onCardSwiped: ((SwipeDirection, Int) -> Void)? = nil,
     onCardDragged: ((SwipeDirection, Int, CGSize) -> Void)? = nil,
     initialOffsetY: CGFloat = 5,
@@ -38,7 +38,7 @@ public struct CardSwiperView<Item, Content: View>: View {
     currentIndex currentIndexBinding: Binding<Int>? = nil,
     @ViewBuilder content: @escaping (Item) -> Content
   ) {
-    self.ideas = ideas
+    self.cards = cards
     self.onCardSwiped = onCardSwiped
     self.onCardDragged = onCardDragged
     self.initialOffsetY = initialOffsetY
@@ -49,7 +49,7 @@ public struct CardSwiperView<Item, Content: View>: View {
 
   public var body: some View {
     ZStack {
-      ForEach(ideas.indices, id: \.self) { index in
+      ForEach(cards.indices, id: \.self) { index in
         CardView(
           index: index,
           onCardSwiped: { swipeDirection in
@@ -62,15 +62,15 @@ public struct CardSwiperView<Item, Content: View>: View {
             onCardDragged?(direction, index, offset)
           },
           content: {
-            contentBuilder(ideas[index])
+            contentBuilder(cards[index])
           },
           initialOffsetY: initialOffsetY,
           initialRotationAngle: initialRotationAngle,
-          zIndex: Double(ideas.count - index)
+          zIndex: Double(cards.count - index)
         )
       }
     }.onAppear {
-      currentIndex = ideas.count - 1
+      currentIndex = cards.count - 1
     }
   }
 

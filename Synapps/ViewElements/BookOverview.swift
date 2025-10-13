@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct BookOverview: View {
-  let book: Book
+  let book: BookSummary
 
   var body: some View {
     VStack(alignment: .leading) {
       header
       titleView
       authorView
-      savedIdeasView
+//      savedIdeasView
     }
     .padding()
     .background(cardBackground)
@@ -29,7 +29,7 @@ struct BookOverview: View {
       coverImage
         .frame(width: 100, height: 160)
       Spacer()
-      progressText
+//      progressText
     }
   }
 
@@ -39,20 +39,20 @@ struct BookOverview: View {
   }
 
   private var authorView: some View {
-    Text(book.author)
+    Text(book.authors)
       .font(.system(size: 20))
       .foregroundStyle(.secondary)
   }
 
-  private var savedIdeasView: some View {
-    Label("\(book.savedIdeasCount) сохраненных", systemImage: "bookmark")
-      .labelStyle(TextBadgeLabelStyle())
-  }
+//  private var savedIdeasView: some View {
+//    Label("\(book.savedIdeasCount) сохраненных", systemImage: "bookmark")
+//      .labelStyle(TextBadgeLabelStyle())
+//  }
 
-  private var progressText: some View {
-    Text("\(Int(ceil(book.percentageRead)))% • Еще \(timeToReadText)")
-      .padding()
-  }
+//  private var progressText: some View {
+//    Text("\(Int(ceil(book.percentageRead)))% • Еще \(timeToReadText)")
+//      .padding()
+//  }
 
   private var cardBackground: some View {
     RoundedRectangle(cornerRadius: 24)
@@ -91,16 +91,16 @@ struct BookOverview: View {
 
   // MARK: - Helpers
 
-  private var timeToReadText: String {
-    let minutes = book.timeToRead / 60.0
-    if minutes > 60 {
-      let hours = Int(ceil(minutes / 60.0))
-      return "\(hours) ч"
-    } else {
-      let mins = Int(ceil(minutes))
-      return "\(mins) мин"
-    }
-  }
+//  private var timeToReadText: String {
+//    let minutes = book.timeToRead / 60.0
+//    if minutes > 60 {
+//      let hours = Int(ceil(minutes / 60.0))
+//      return "\(hours) ч"
+//    } else {
+//      let mins = Int(ceil(minutes))
+//      return "\(mins) мин"
+//    }
+//  }
 }
 
 private struct TextBadgeLabelStyle: LabelStyle {
@@ -129,13 +129,13 @@ private struct TextBadgeLabelStyle: LabelStyle {
 }
 
 #Preview("Main") {
-  BookOverview(book: Book.mock())
+  BookOverview(book: BookSummary.mock())
 }
 
 #Preview("Without URL") {
-  BookOverview(book: Book.mockWithoutURL())
+  BookOverview(book: BookSummary.mockWithoutURL())
 }
 
 #Preview("URL Error") {
-  BookOverview(book: Book.mockWithURLError())
+  BookOverview(book: BookSummary.mockWithURLError())
 }
