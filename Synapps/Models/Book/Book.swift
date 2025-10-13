@@ -7,22 +7,35 @@
 
 import Foundation
 
-struct Book {
+struct BookSummary: Identifiable, Codable {
+  let id: String
   let title: String
-  let author: String
+  let editionNumber: Int
+  let year: Int
+  let publisher: String
+  let authors: String
+  let genres: String
+
+  // опционально — можно позже добавить image
   let coverImageUrl: URL?
-  let savedIdeasCount: Int
+}
 
-  let ideasCount: Int
-  let ideasRead: Int
+struct BookDetail: Identifiable, Codable {
+  let id: String
+  let title: String
+  let editionNumber: Int
+  let year: Int
+  let publisher: String
+  let language: String
+  let pages: Int
+  let cards: [Card]
+  let authorsBooks: [String]
+  let genresBooks: [String]
 
-  var percentageRead: Double {
-    guard ideasCount > 0 else { return 0 }
-    return (Double(ideasRead) / Double(ideasCount)) * 100
-  }
-
-  var timeToRead: TimeInterval {
-    let remainingideas = max(ideasCount - ideasRead, 0)
-    return TimeInterval(remainingideas) * 60
+  enum CodingKeys: String, CodingKey {
+    case id, title, editionNumber = "edition_number", year, publisher, language, pages
+    case cards
+    case authorsBooks = "authors_books"
+    case genresBooks = "genres_books"
   }
 }
