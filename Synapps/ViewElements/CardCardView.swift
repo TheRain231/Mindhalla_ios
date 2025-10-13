@@ -1,5 +1,5 @@
 //
-//  IdeaCardView.swift
+//  CardCardView.swift
 //  Synapps
 //
 //  Created by Andrey Stepanov on 29.09.2025.
@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-struct IdeaCardView: View {
-  let idea: Idea
+struct CardCardView: View {
+  let card: Card
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      ideaBadge
+      cardBadge
         .padding(.bottom, 16)
-      ideaText
+      cardText
         .padding(.bottom, 28)
-      ideaSource
+      cardSource
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(24)
@@ -27,32 +27,27 @@ struct IdeaCardView: View {
     }
   }
 
-  private var ideaSource: some View {
-    Text(idea.sourceDescription())
+  private var cardSource: some View {
+    Text(card.sourceDescription())
       .font(.caption)
       .foregroundStyle(.secondary)
   }
 
   @ViewBuilder
-  private var ideaText: some View {
+  private var cardText: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text(idea.text)
+      Text(card.context)
         .font(.title2)
-      if let author = idea.author {
-        Text("© \(author)")
-          .foregroundStyle(.secondary)
-          .font(.subheadline)
-      }
     }
   }
 
-  private var ideaBadge: some View {
-    let title = switch idea.type {
-    case .Thesis:
+  private var cardBadge: some View {
+    let title = switch card.type {
+    case .thesis:
       "Тезис"
-    case .Concept:
+    case .concept:
       "Концепция"
-    case .Quote:
+    case .idea:
       "Цитата"
     }
 
@@ -62,19 +57,19 @@ struct IdeaCardView: View {
       .padding(.horizontal, 10)
       .background {
         Capsule()
-          .fill(Idea.color(for: idea.type))
+          .fill(Card.color(for: card.type))
       }
   }
 }
 
 #Preview("Thesis") {
-  IdeaCardView(idea: Idea.mockThesis())
+  CardCardView(card: Card.mockThesis())
 }
 
 #Preview("Concept") {
-  IdeaCardView(idea: Idea.mockConcept())
+  CardCardView(card: Card.mockConcept())
 }
 
 #Preview("Quote") {
-  IdeaCardView(idea: Idea.mockQuote())
+  CardCardView(card: Card.mockQuote())
 }
