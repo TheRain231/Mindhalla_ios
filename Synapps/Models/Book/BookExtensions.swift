@@ -8,39 +8,45 @@
 import Foundation
 
 #if DEBUG
-extension Book {
-  static func mock() -> Book {
+extension BookSummary {
+  static func mock() -> BookSummary {
     let coverUrl = URL(string: "https://main-cdn.sbermegamarket.ru/hlr-system/131/227/639/991/113/50/600002347616b0.jpeg")!
-    return Book(
+    return BookSummary(
+      id: "sjdfjh_nfa3sd_afsef_q3efsd",
       title: "Mock Book",
-      author: "Mock Author",
-      coverImageUrl: coverUrl,
-      savedIdeasCount: 0,
-      ideasCount: 100,
-      ideasRead: 0
+      editionNumber: 0,
+      year: 2000,
+      publisher: "Pifagor",
+      authors: "Mock Author",
+      genres: "Fantasy",
+      coverImageUrl: coverUrl
     )
   }
 
-  static func mockWithoutURL() -> Book {
-    Book(
+  static func mockWithoutURL() -> BookSummary {
+    BookSummary(
+      id: "sjdfjh_nfa3sd_afsef_q3efsd",
       title: "Mock Book",
-      author: "Mock Author",
-      coverImageUrl: nil,
-      savedIdeasCount: 0,
-      ideasCount: 100,
-      ideasRead: 0
+      editionNumber: 0,
+      year: 2000,
+      publisher: "Pifagor",
+      authors: "Mock Author",
+      genres: "Fantasy",
+      coverImageUrl: nil
     )
   }
 
-  static func mockWithURLError() -> Book {
+  static func mockWithURLError() -> BookSummary {
     let coverUrl: URL? = URL(string: "https:tutcartinkinet.ry/cartinka.jpeg")!
-    return Book(
+    return BookSummary(
+      id: "sjdfjh_nfa3sd_afsef_q3efsd",
       title: "Mock Book",
-      author: "Mock Author",
-      coverImageUrl: coverUrl,
-      savedIdeasCount: 0,
-      ideasCount: 100,
-      ideasRead: 0
+      editionNumber: 0,
+      year: 2000,
+      publisher: "Pifagor",
+      authors: "Mock Author",
+      genres: "Fantasy",
+      coverImageUrl: coverUrl
     )
   }
 }
