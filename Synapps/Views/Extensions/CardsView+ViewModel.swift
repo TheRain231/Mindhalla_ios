@@ -11,6 +11,7 @@ extension CardsView {
   final class ViewModel: ObservableObject {
     @Published var cards: [Card]
     @Published var topCardIndex: Int
+    @Published var viewId = UUID()
 
     init(cards: [Card]) {
       self.cards = cards
@@ -18,7 +19,11 @@ extension CardsView {
     }
 
     var topCard: Card? {
-      cards[topCardIndex]
+      if topCardIndex < cards.count, topCardIndex >= 0 {
+        cards[topCardIndex]
+      } else {
+        nil
+      }
     }
   }
 }
