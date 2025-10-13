@@ -1,5 +1,5 @@
 //
-//  SwipableIdea.swift
+//  IdeaCardView.swift
 //  Synapps
 //
 //  Created by Andrey Stepanov on 29.09.2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SwipableIdea: View {
+struct IdeaCardView: View {
   let idea: Idea
 
   var body: some View {
@@ -37,13 +37,13 @@ struct SwipableIdea: View {
   private var ideaText: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text(idea.text)
-
+        .font(.title2)
       if let author = idea.author {
         Text("© \(author)")
           .foregroundStyle(.secondary)
+          .font(.subheadline)
       }
     }
-    .font(.title2)
   }
 
   private var ideaBadge: some View {
@@ -68,13 +68,13 @@ struct SwipableIdea: View {
 }
 
 #Preview("Thesis") {
-  SwipableIdea(idea: Idea.mockThesis())
+  IdeaCardView(idea: Idea.mockThesis())
 }
 
 #Preview("Concept") {
-  SwipableIdea(idea: Idea.mockConcept())
+  IdeaCardView(idea: Idea.mockConcept())
 }
 
 #Preview("Quote") {
-  SwipableIdea(idea: Idea.mockQuote())
+  IdeaCardView(idea: Idea.mockQuote())
 }
