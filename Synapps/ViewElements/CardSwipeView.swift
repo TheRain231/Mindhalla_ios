@@ -21,7 +21,8 @@ public struct CardSwiperView<Item, Content: View>: View {
   var initialOffsetY: CGFloat = 5
   var initialRotationAngle: Double = 0.5
 
-  @State var currentIndex: Int = 0 {
+  @State private var cardHeight: CGFloat = 0.0
+  @State private var currentIndex: Int = 0 {
     didSet {
       currentIndexBinding = currentIndex
     }
@@ -66,10 +67,20 @@ public struct CardSwiperView<Item, Content: View>: View {
           },
           initialOffsetY: initialOffsetY,
           initialRotationAngle: initialRotationAngle,
-          zIndex: Double(cards.count - index)
+          zIndex: Double(cards.count - index),
+          cardHeight: Binding(
+            get: { index == currentIndex ? cardHeight : 0 },
+            set: { newValue in
+              if index == currentIndex {
+                cardHeight = newValue
+              }
+            }
+          )
         )
       }
-    }.onAppear {
+    }
+    .frame(maxHeight: cardHeight)
+    .onAppear {
       currentIndex = cards.count - 1
     }
   }
@@ -84,6 +95,7 @@ public struct CardSwiperView<Item, Content: View>: View {
     var initialRotationAngle: Double
     var zIndex: Double
 
+    @Binding var cardHeight: CGFloat
     @State private var offset = CGSize.zero
     @State private var overlayColor: Color = .clear
     @State private var isRemoved = false
@@ -92,15 +104,25 @@ public struct CardSwiperView<Item, Content: View>: View {
     var body: some View {
       ZStack {
         content()
-          .frame(width: 320, height: 420)
-          .offset(x: offset.width * 1, y: offset.height * 0.3)
+          .fixedSize(horizontal: false, vertical: true)
+          .background(
+            GeometryReader { innerGeo in
+              Color.clear
+                .onAppear {
+                  cardHeight = innerGeo.size.height
+                }
+                .onChange(of: innerGeo.size.height) { _, newHeight in
+                  cardHeight = newHeight
+                }
+            }
+          )
+          .offset(x: offset.width, y: offset.height * 0.3)
           .rotationEffect(.degrees(Double(offset.width / 40)))
           .zIndex(zIndex)
 
         Rectangle()
           .foregroundColor(overlayColor)
           .opacity(isRemoved ? 0 : (activeCardIndex == index ? 1 : 0))
-          .frame(width: 320, height: 420)
           .cornerRadius(10)
           .blendMode(.overlay)
       }
@@ -157,5 +179,12 @@ public struct CardSwiperView<Item, Content: View>: View {
 
       onCardSwiped?(swipeDirection)
     }
+  }
+}
+
+private struct CardHeightKey: PreferenceKey {
+  static var defaultValue: CGFloat = 0
+  static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+    value = nextValue()
   }
 }

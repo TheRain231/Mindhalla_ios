@@ -97,7 +97,32 @@ extension Card {
   static func mockQuote() -> Card { mock(type: .idea) }
 
   static func mocks() -> [Card] {
-    [mockThesis(), mockConcept(), mockQuote()]
+    [mockLong(), mockThesis(), mockConcept(), mockQuote()]
+  }
+
+  static func mockLong() -> Card {
+    Card(
+      id: "a11b22cc-ef2e-46f9-823f-77afa820c201",
+      type: .thesis,
+      context: """
+      The Sorting Hat scene highlights a major moral principle of the series — the idea that personal choice defines character more than innate ability. 
+      Harry’s request *not* to be placed in Slytherin is a crucial early sign of his moral compass and courage to make his own path. 
+      Rowling uses this moment to suggest that destiny is not imposed but shaped through the sum of individual choices.
+      """,
+      references: .init(
+        pages: [87, 88, 89, 90],
+        originalTexts: [
+          "‘Not Slytherin, eh?’ said the small voice.",
+          "‘It is our choices, Harry, that show what we truly are, far more than our abilities.’",
+        ]
+      ),
+      tags: [
+        .init(id: UUID().uuidString, type: "system", name: "moral", description: "The key ethical theme in the novel."),
+        .init(id: UUID().uuidString, type: "system", name: "choice", description: "Freedom of choice over predestination."),
+        .init(id: UUID().uuidString, type: "custom", name: "sorting-hat", description: "Symbol of moral testing."),
+        .init(id: UUID().uuidString, type: "custom", name: "courage", description: "Acting according to conscience despite fear."),
+      ]
+    )
   }
 }
 #endif
