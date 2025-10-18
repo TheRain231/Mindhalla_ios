@@ -12,7 +12,7 @@ extension BookSummary {
   static func mock() -> BookSummary {
     let coverUrl = URL(string: "https://main-cdn.sbermegamarket.ru/hlr-system/131/227/639/991/113/50/600002347616b0.jpeg")!
     return BookSummary(
-      id: "sjdfjh_nfa3sd_afsef_q3efsd",
+      id: UUID().uuidString,
       title: "Mock Book",
       editionNumber: 0,
       year: 2000,
@@ -25,7 +25,7 @@ extension BookSummary {
 
   static func mockWithoutURL() -> BookSummary {
     BookSummary(
-      id: "sjdfjh_nfa3sd_afsef_q3efsd",
+      id: UUID().uuidString,
       title: "Mock Book",
       editionNumber: 0,
       year: 2000,
@@ -39,7 +39,7 @@ extension BookSummary {
   static func mockWithURLError() -> BookSummary {
     let coverUrl: URL? = URL(string: "https:tutcartinkinet.ry/cartinka.jpeg")!
     return BookSummary(
-      id: "sjdfjh_nfa3sd_afsef_q3efsd",
+      id: UUID().uuidString,
       title: "Mock Book",
       editionNumber: 0,
       year: 2000,
