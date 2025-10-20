@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		38EE21A22EA5FB610031C58E /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 38EE21A12EA5FB610031C58E /* OpenAPIRuntime */; };
+		38EE21A52EA5FB710031C58E /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 38EE21A42EA5FB710031C58E /* OpenAPIURLSession */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		380BB56B2E6EC94A007ABD85 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +34,22 @@
 		380BB5742E6EC94A007ABD85 /* SynappsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SynappsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		38EE21B92EA5FF990031C58E /* Exceptions for "Synapps" folder in "Synapps" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 380BB55C2E6EC949007ABD85 /* Synapps */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		380BB55F2E6EC949007ABD85 /* Synapps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				38EE21B92EA5FF990031C58E /* Exceptions for "Synapps" folder in "Synapps" target */,
+			);
 			path = Synapps;
 			sourceTree = "<group>";
 		};
@@ -52,6 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38EE21A52EA5FB710031C58E /* OpenAPIURLSession in Frameworks */,
+				38EE21A22EA5FB610031C58E /* OpenAPIRuntime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,12 +126,15 @@
 			buildRules = (
 			);
 			dependencies = (
+				38EE21A72EA5FB850031C58E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				380BB55F2E6EC949007ABD85 /* Synapps */,
 			);
 			name = Synapps;
 			packageProductDependencies = (
+				38EE21A12EA5FB610031C58E /* OpenAPIRuntime */,
+				38EE21A42EA5FB710031C58E /* OpenAPIURLSession */,
 			);
 			productName = Synapps;
 			productReference = 380BB55D2E6EC949007ABD85 /* Synapps.app */;
@@ -171,7 +194,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					380BB55C2E6EC949007ABD85 = {
 						CreatedOnToolsVersion = 16.4;
@@ -196,6 +219,11 @@
 			);
 			mainGroup = 380BB5542E6EC949007ABD85;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				38EE219B2EA5FB260031C58E /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
+				38EE21A02EA5FB610031C58E /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
+				38EE21A32EA5FB710031C58E /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 380BB55E2E6EC949007ABD85 /* Products */;
 			projectDirPath = "";
@@ -267,6 +295,10 @@
 			target = 380BB55C2E6EC949007ABD85 /* Synapps */;
 			targetProxy = 380BB5752E6EC94A007ABD85 /* PBXContainerItemProxy */;
 		};
+		38EE21A72EA5FB850031C58E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 38EE21A62EA5FB850031C58E /* OpenAPIGenerator */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -275,6 +307,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -329,6 +362,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -340,6 +374,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -387,6 +422,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
@@ -403,6 +439,7 @@
 				DEVELOPMENT_TEAM = 3DZAF454Q2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Synapps/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -431,6 +468,7 @@
 				DEVELOPMENT_TEAM = 3DZAF454Q2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Synapps/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -561,6 +599,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		38EE219B2EA5FB260031C58E /* XCRemoteSwiftPackageReference "swift-openapi-generator" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-generator";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.10.3;
+			};
+		};
+		38EE21A02EA5FB610031C58E /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-runtime";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.8.3;
+			};
+		};
+		38EE21A32EA5FB710031C58E /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-openapi-urlsession";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		38EE21A12EA5FB610031C58E /* OpenAPIRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 38EE21A02EA5FB610031C58E /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
+			productName = OpenAPIRuntime;
+		};
+		38EE21A42EA5FB710031C58E /* OpenAPIURLSession */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 38EE21A32EA5FB710031C58E /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */;
+			productName = OpenAPIURLSession;
+		};
+		38EE21A62EA5FB850031C58E /* OpenAPIGenerator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 38EE219B2EA5FB260031C58E /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
+			productName = "plugin:OpenAPIGenerator";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 380BB5552E6EC949007ABD85 /* Project object */;
 }
