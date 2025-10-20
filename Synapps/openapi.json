@@ -1,0 +1,753 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://45.90.33.93:8123",
+      "description": "dev server"
+    }
+  ],
+  "paths": {
+    "/api/v1/": {
+      "get": {
+        "summary": "Hello",
+        "operationId": "hello_api_v1__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/uploads": {
+      "post": {
+        "summary": "Upload",
+        "operationId": "upload_api_v1_uploads_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/books/{book_id}": {
+      "get": {
+        "summary": "Mock Get Book By Id",
+        "operationId": "mock_get_book_by_id_api_v1_books__book_id__get",
+        "parameters": [
+          {
+            "name": "book_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Book Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookFullResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/books": {
+      "get": {
+        "summary": "Mock Get Books",
+        "operationId": "mock_get_books_api_v1_books_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooksMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/get_url/": {
+      "post": {
+        "summary": "Get Url",
+        "operationId": "get_url_api_v1_get_url__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/S3Payload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BookAuthorResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "first_name": {
+            "type": "string",
+            "title": "First Name"
+          },
+          "last_name": {
+            "type": "string",
+            "title": "Last Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "first_name",
+          "last_name"
+        ],
+        "title": "BookAuthorResponse"
+      },
+      "BookCardResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "context": {
+            "type": "string",
+            "title": "Context"
+          },
+          "references": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "References"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/BookCardTagResponse"
+            },
+            "type": "array",
+            "title": "Tags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "context",
+          "references",
+          "tags"
+        ],
+        "title": "BookCardResponse"
+      },
+      "BookCardTagResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "name",
+          "description"
+        ],
+        "title": "BookCardTagResponse"
+      },
+      "BookFullResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "edition_number": {
+            "type": "integer",
+            "title": "Edition Number"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "publisher": {
+            "type": "string",
+            "title": "Publisher"
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 2,
+            "minLength": 2,
+            "title": "Language"
+          },
+          "pages": {
+            "type": "integer",
+            "title": "Pages"
+          },
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/BookCardResponse"
+            },
+            "type": "array",
+            "title": "Cards"
+          },
+          "authors_books": {
+            "items": {
+              "$ref": "#/components/schemas/BookAuthorResponse"
+            },
+            "type": "array",
+            "title": "Authors Books"
+          },
+          "genres_books": {
+            "items": {
+              "$ref": "#/components/schemas/BookGenreResponse"
+            },
+            "type": "array",
+            "title": "Genres Books"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "edition_number",
+          "year",
+          "publisher",
+          "language",
+          "pages",
+          "cards",
+          "authors_books",
+          "genres_books"
+        ],
+        "title": "BookFullResponse",
+        "example": {
+          "authors_books": [
+            {
+              "first_name": "J.K.",
+              "id": "2b3543b3-f6e3-4bfb-a8c1-b1a3bda4b56a",
+              "last_name": "Rowling"
+            }
+          ],
+          "cards": [
+            {
+              "context": "Introduction to the Dursleys...",
+              "id": "f8f4b3cc-ef8d-46f9-823f-89afae30c91a",
+              "references": {
+                "original_texts": [
+                  "Mr. and Mrs. Dursley of number four..."
+                ],
+                "pages": [
+                  1,
+                  2
+                ]
+              },
+              "tags": [
+                {
+                  "description": "some description 1",
+                  "id": "f8f4b3cc-ef8d-46f9-823f-89afae30c91a",
+                  "name": "some-tag-1",
+                  "type": "system"
+                },
+                {
+                  "description": "some description 2",
+                  "id": "f8f4b3cc-ef8d-46f9-823f-89afae30c912",
+                  "name": "some-tag-2",
+                  "type": "system"
+                },
+                {
+                  "description": "some description 3",
+                  "id": "f8f4b3cc-ef8d-46f9-823f-89afae30c913",
+                  "name": "some-tag-3",
+                  "type": "system"
+                }
+              ],
+              "type": "idea"
+            },
+            {
+              "context": "Harry receives his first letter from Hogwarts.",
+              "id": "b17b18cc-ef3d-46f9-823f-99afa830c101",
+              "references": {
+                "original_texts": [
+                  "No post on Sundays... except for one peculiar letter."
+                ],
+                "pages": [
+                  45,
+                  46
+                ]
+              },
+              "tags": [
+                {
+                  "description": "First sign of magic entering his life.",
+                  "id": "b17b18cc-ef3d-46f9-823f-99afa830c102",
+                  "name": "letter",
+                  "type": "custom"
+                },
+                {
+                  "description": "Beginning of the storyâ€™s main conflict.",
+                  "id": "b17b18cc-ef3d-46f9-823f-99afa830c103",
+                  "name": "plot-start",
+                  "type": "system"
+                }
+              ],
+              "type": "concept"
+            },
+            {
+              "context": "The Sorting Hat scene and its moral about choice and courage.",
+              "id": "c26b27dc-ef2e-46f9-823f-77afa820c202",
+              "references": {
+                "original_texts": [
+                  "It is our choices, Harry, that show what we truly are..."
+                ],
+                "pages": [
+                  88,
+                  90
+                ]
+              },
+              "tags": [
+                {
+                  "description": "Central moral lesson of the book.",
+                  "id": "c26b27dc-ef2e-46f9-823f-77afa820c203",
+                  "name": "moral",
+                  "type": "system"
+                },
+                {
+                  "description": "Key scene set in the Great Hall.",
+                  "id": "c26b27dc-ef2e-46f9-823f-77afa820c204",
+                  "name": "hogwarts",
+                  "type": "custom"
+                }
+              ],
+              "type": "thesis"
+            },
+            {
+              "context": "Hermioneâ€™s bravery and friendship save Ron and Harry from the troll.",
+              "id": "d35c36ec-ef1f-46f9-823f-55afa810c303",
+              "references": {
+                "original_texts": [
+                  "There are more important things â€” friendship and bravery."
+                ],
+                "pages": [
+                  119,
+                  121
+                ]
+              },
+              "tags": [
+                {
+                  "description": "Theme of unity and teamwork.",
+                  "id": "d35c36ec-ef1f-46f9-823f-55afa810c304",
+                  "name": "friendship",
+                  "type": "system"
+                },
+                {
+                  "description": "Symbolic first test of friendship.",
+                  "id": "d35c36ec-ef1f-46f9-823f-55afa810c305",
+                  "name": "troll-scene",
+                  "type": "custom"
+                }
+              ],
+              "type": "idea"
+            },
+            {
+              "context": "Final confrontation with Professor Quirrell and the discovery of the truth about Voldemort.",
+              "id": "e44d45fc-ef0a-46f9-823f-33afa800c404",
+              "references": {
+                "original_texts": [
+                  "There is no good and evil, there is only power..."
+                ],
+                "pages": [
+                  215,
+                  220
+                ]
+              },
+              "tags": [
+                {
+                  "description": "Main turning point of the story.",
+                  "id": "e44d45fc-ef0a-46f9-823f-33afa800c405",
+                  "name": "climax",
+                  "type": "system"
+                },
+                {
+                  "description": "Key artifact representing immortality and temptation.",
+                  "id": "e44d45fc-ef0a-46f9-823f-33afa800c406",
+                  "name": "philosopher-stone",
+                  "type": "custom"
+                }
+              ],
+              "type": "concept"
+            }
+          ],
+          "edition_number": 1,
+          "genres_books": [
+            {
+              "description": "A story of magic, friendship, and self-discovery.",
+              "id": "12c9a27e-5e68-4d4c-b7e4-6b3c2a2d4764",
+              "name": "Fantasy"
+            }
+          ],
+          "id": "58f4b32c-ec8d-45f9-823f-89afae30c91a",
+          "language": "en",
+          "pages": 223,
+          "publisher": "Bloomsbury",
+          "title": "Harry Potter and the Philosopher's Stone",
+          "year": 1997
+        }
+      },
+      "BookGenreResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "BookGenreResponse"
+      },
+      "BookMetaResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "edition_number": {
+            "type": "integer",
+            "title": "Edition Number"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "publisher": {
+            "type": "string",
+            "title": "Publisher"
+          },
+          "authors": {
+            "type": "string",
+            "title": "Authors"
+          },
+          "genres": {
+            "type": "string",
+            "title": "Genres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "edition_number",
+          "year",
+          "publisher",
+          "authors",
+          "genres"
+        ],
+        "title": "BookMetaResponse"
+      },
+      "BooksMetaResponse": {
+        "properties": {
+          "books": {
+            "items": {
+              "$ref": "#/components/schemas/BookMetaResponse"
+            },
+            "type": "array",
+            "title": "Books"
+          }
+        },
+        "type": "object",
+        "required": [
+          "books"
+        ],
+        "title": "BooksMetaResponse",
+        "example": {
+          "books": [
+            {
+              "authors": "J.K. Rowling",
+              "edition_number": 1,
+              "genres": "Fantasy",
+              "id": "58f4b32c-ec8d-45f9-823f-89afae30c91a",
+              "publisher": "Bloomsbury",
+              "title": "Harry Potter and the Philosopher's Stone",
+              "year": 1997
+            },
+            {
+              "authors": "J.R.R. Tolkien",
+              "edition_number": 1,
+              "genres": "Fantasy",
+              "id": "d39fa821-ec92-432e-847b-15dc11b9c9e1",
+              "publisher": "George Allen & Unwin",
+              "title": "The Lord of the Rings: The Fellowship of the Ring",
+              "year": 1954
+            },
+            {
+              "authors": "Harper Lee",
+              "edition_number": 1,
+              "genres": "Classic",
+              "id": "cc2f1bbd-4965-4c8a-84d0-7b9a64b6e8d2",
+              "publisher": "J.B. Lippincott & Co.",
+              "title": "To Kill a Mockingbird",
+              "year": 1960
+            },
+            {
+              "authors": "George Orwell",
+              "edition_number": 1,
+              "genres": "Dystopian",
+              "id": "ae24a437-bc63-48b9-bf07-9a47a219cc4d",
+              "publisher": "Secker & Warburg",
+              "title": "1984",
+              "year": 1949
+            },
+            {
+              "authors": "Jane Austen",
+              "edition_number": 1,
+              "genres": "Romance",
+              "id": "e7d982b2-515f-45e9-96e8-9b3f606a36c2",
+              "publisher": "T. Egerton, Whitehall",
+              "title": "Pride and Prejudice",
+              "year": 1813
+            }
+          ]
+        }
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "S3Payload": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "S3Payload"
+      },
+      "UploadFileInfoResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "s3_key": {
+            "type": "string",
+            "title": "S3 Key"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "mimetype": {
+            "type": "string",
+            "title": "Mimetype"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "s3_key",
+          "filename",
+          "mimetype",
+          "size"
+        ],
+        "title": "UploadFileInfoResponse"
+      },
+      "UploadRequest": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string",
+              "format": "binary"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Files"
+          }
+        },
+        "type": "object",
+        "title": "UploadRequest"
+      },
+      "UploadResponse": {
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/UploadFileInfoResponse"
+            },
+            "type": "array",
+            "title": "Files"
+          }
+        },
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "title": "UploadResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
