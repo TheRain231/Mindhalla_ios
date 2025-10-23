@@ -13,9 +13,12 @@ struct ContentView: View {
 
   var body: some View {
     TabView {
+      Tab("Share", systemImage: "circlebadge.2") {}
       Tab("Home", systemImage: "book.closed") {
         HomeView(viewModel: factory.createHomeViewModel())
       }
+      Tab("Saved", systemImage: "bookmark") {}
+      Tab("Profile", systemImage: "person") {}
     }
   }
 }
