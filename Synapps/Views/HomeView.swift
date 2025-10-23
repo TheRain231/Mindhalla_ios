@@ -9,7 +9,6 @@ import SwiftUI
 
 struct HomeView: View {
   @StateObject var viewModel: ViewModel
-  let columns = [GridItem(.flexible())]
 
   var body: some View {
     NavigationStack {
@@ -27,5 +26,5 @@ struct HomeView: View {
 }
 
 #Preview {
-  HomeView(viewModel: .init(books: (0..<10).map { _ in BookSummary.mock() }))
+  HomeView(viewModel: MockViewModelFactory().createHomeViewModel())
 }
