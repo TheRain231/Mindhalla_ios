@@ -8,16 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+  @Environment(\.viewModelFactory) var factory
   @ObservedObject var viewModel: ViewModel
 
   var body: some View {
-    VStack {
-      Image(systemName: "globe")
-        .imageScale(.large)
-        .foregroundStyle(.tint)
-      Text("Hello, world!")
+    TabView {
+      Tab("Home", systemImage: "book.closed") {
+        HomeView(viewModel: factory.createHomeViewModel())
+      }
     }
-    .padding()
   }
 }
 
