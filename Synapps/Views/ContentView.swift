@@ -12,13 +12,13 @@ struct ContentView: View {
   @ObservedObject var viewModel: ViewModel
 
   var body: some View {
-    TabView {
-      Tab("Share", systemImage: "circlebadge.2") {}
-      Tab("Home", systemImage: "book.closed") {
+    TabView(selection: $viewModel.selectedTab) {
+      Tab("Share", systemImage: "circlebadge.2", value: .share) {}
+      Tab("Home", systemImage: "book.closed", value: .home) {
         HomeView(viewModel: factory.createHomeViewModel())
       }
-      Tab("Saved", systemImage: "bookmark") {}
-      Tab("Profile", systemImage: "person") {}
+      Tab("Saved", systemImage: "bookmark", value: .saved) {}
+      Tab("Profile", systemImage: "person", value: .profile) {}
     }
   }
 }
