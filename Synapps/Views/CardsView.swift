@@ -59,7 +59,7 @@ private func backgroundColors(for type: CardType?) -> [Color] {
 }
 
 #Preview("Interactive") {
-  @Previewable var viewModel: CardsView.ViewModel = .init(cards: Card.mocks())
+  @Previewable var viewModel = MockViewModelFactory().createCardsViewModel()
 
   ZStack {
     CardsView(viewModel: viewModel)
@@ -82,6 +82,6 @@ extension CardsView.ViewModel {
 }
 
 #Preview() {
-  CardsView(viewModel: .init(cards: Card.mocks()))
+  CardsView(viewModel: MockViewModelFactory().createCardsViewModel())
     .ignoresSafeArea()
 }
