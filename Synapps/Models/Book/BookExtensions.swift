@@ -7,11 +7,47 @@
 
 import Foundation
 
+extension BookMetaResponse {
+  init(dto: Components.Schemas.BookMetaResponse) {
+    self.id = dto.id
+    self.title = dto.title
+    self.editionNumber = dto.edition_number
+    self.year = dto.year
+    self.publisher = dto.publisher
+    self.authors = dto.authors
+    self.genres = dto.genres
+
+    // У тебя в схеме нет прямого поля для картинки
+    self.coverImageUrl = nil
+  }
+}
+
+import Foundation
+
+extension BookFullResponse {
+  init(dto: Components.Schemas.BookFullResponse) {
+    self.id = dto.id
+    self.title = dto.title
+    self.editionNumber = dto.edition_number
+    self.year = dto.year
+    self.publisher = dto.publisher
+    self.language = dto.language
+    self.pages = dto.pages
+
+    // Cards — маппим напрямую в твой Card (если Card совпадает по структуре с BookCardResponse)
+    self.cards = dto.cards.map { Card(dto: $0) }
+
+    // Авторы и жанры — в виде массивов строк
+    self.authorsBooks = dto.authors_books.map { "\($0.first_name) \($0.last_name)" }
+    self.genresBooks = dto.genres_books.map(\.name)
+  }
+}
+
 #if DEBUG
-extension BookSummary {
-  static func mock() -> BookSummary {
+extension BookMetaResponse {
+  static func mock() -> BookMetaResponse {
     let coverUrl = URL(string: "https://main-cdn.sbermegamarket.ru/hlr-system/131/227/639/991/113/50/600002347616b0.jpeg")!
-    return BookSummary(
+    return BookMetaResponse(
       id: UUID().uuidString,
       title: "Mock Book",
       editionNumber: 0,
@@ -23,8 +59,8 @@ extension BookSummary {
     )
   }
 
-  static func mockWithoutURL() -> BookSummary {
-    BookSummary(
+  static func mockWithoutURL() -> BookMetaResponse {
+    BookMetaResponse(
       id: UUID().uuidString,
       title: "Mock Book",
       editionNumber: 0,
@@ -36,9 +72,9 @@ extension BookSummary {
     )
   }
 
-  static func mockWithURLError() -> BookSummary {
+  static func mockWithURLError() -> BookMetaResponse {
     let coverUrl: URL? = URL(string: "https:tutcartinkinet.ry/cartinka.jpeg")!
-    return BookSummary(
+    return BookMetaResponse(
       id: UUID().uuidString,
       title: "Mock Book",
       editionNumber: 0,

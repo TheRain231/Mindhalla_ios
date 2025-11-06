@@ -9,9 +9,9 @@ import SwiftUI
 
 extension HomeView {
   final class ViewModel: ObservableObject {
-    @Published var books: [BookSummary]
+    @Published var books: [BookMetaResponse]
 
-    init(books: [BookSummary]) {
+    init(books: [BookMetaResponse]) {
       self.books = books
     }
   }

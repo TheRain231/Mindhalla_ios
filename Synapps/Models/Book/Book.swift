@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BookSummary: Identifiable, Codable {
+struct BookMetaResponse: Identifiable, Codable {
   let id: String
   let title: String
   let editionNumber: Int
@@ -20,7 +20,7 @@ struct BookSummary: Identifiable, Codable {
   let coverImageUrl: URL?
 }
 
-struct BookDetail: Identifiable, Codable {
+struct BookFullResponse: Identifiable, Codable {
   let id: String
   let title: String
   let editionNumber: Int

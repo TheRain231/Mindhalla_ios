@@ -53,7 +53,7 @@ private func backgroundColors(for type: CardType?) -> [Color] {
     [Color(UIColor(red: 228 / 255, green: 221 / 255, blue: 234 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 243 / 255, blue: 243 / 255, alpha: 1.0))]
   case .idea:
     [Color(UIColor(red: 245 / 255, green: 237 / 255, blue: 227 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 241 / 255, blue: 238 / 255, alpha: 1.0))]
-  case .none:
+  case .unknown, .none:
     [Color(.systemBackground)]
   }
 }
