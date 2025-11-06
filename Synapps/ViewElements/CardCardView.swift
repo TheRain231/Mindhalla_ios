@@ -49,6 +49,8 @@ struct CardCardView: View {
       "Концепция"
     case .idea:
       "Цитата"
+    case .unknown:
+      "Незвестный"
     }
 
     return Text(title)

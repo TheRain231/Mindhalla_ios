@@ -7,10 +7,11 @@
 
 import Foundation
 
-enum CardType: Codable {
+enum CardType: String, Codable {
   case thesis
   case concept
   case idea
+  case unknown
 }
 
 struct Card: Identifiable, Codable {

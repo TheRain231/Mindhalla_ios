@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Hello, world!" : {
+    "Home" : {
 
     },
     "my_books" : {
@@ -21,6 +21,15 @@
           }
         }
       }
+    },
+    "Profile" : {
+
+    },
+    "Saved" : {
+
+    },
+    "Share" : {
+
     }
   },
   "version" : "1.1"
