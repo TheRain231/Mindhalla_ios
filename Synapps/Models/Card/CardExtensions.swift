@@ -5,6 +5,7 @@
 //  Created by Andrey Stepanov on 29.09.2025.
 //
 
+import Foundation
 import SwiftUI
 
 extension Card: Equatable {
@@ -22,6 +23,8 @@ extension Card {
       .purple
     case .idea:
       .orange
+    case .unknown:
+      .gray
     }
   }
 }
@@ -30,6 +33,46 @@ extension Card {
   func sourceDescription() -> String {
     "Тут было описание главы до смены модели карточки"
 //    "Глава \(source.chapterNumber) • \(source.chapterName) • с \(source.pageNumber)"
+  }
+}
+
+extension Card {
+  init(dto: Components.Schemas.BookCardResponse) {
+    self.id = dto.id
+    self.context = dto.context
+
+    if let parsedType = CardType(rawValue: dto._type) {
+      self.type = parsedType
+    } else {
+      self.type = .idea
+    }
+
+    if let dict = dto.references as? [String: Any], // Здесь warning, но я пока не знаю как это обрабатывать
+       let pages = dict["pages"] as? [Int],
+       let originalTexts = dict["original_texts"] as? [String] {
+      self.references = References(pages: pages, originalTexts: originalTexts)
+    } else {
+      self.references = References(pages: [], originalTexts: [])
+    }
+
+    self.tags = dto.tags.map { Tag(dto: $0) }
+  }
+}
+
+extension References {
+  init(dto: [String: Codable]) {
+    let pages = dto["pages"] as? [Int] ?? []
+    let texts = dto["original_texts"] as? [String] ?? []
+    self.init(pages: pages, originalTexts: texts)
+  }
+}
+
+extension Tag {
+  init(dto: Components.Schemas.BookCardTagResponse) {
+    self.id = dto.id
+    self.type = dto._type
+    self.name = dto.name
+    self.description = dto.description
   }
 }
 
@@ -87,6 +130,21 @@ extension Card {
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c91a", type: "system", name: "some-tag-1", description: "some description 1"),
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c912", type: "system", name: "some-tag-2", description: "some description 2"),
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c913", type: "system", name: "some-tag-3", description: "some description 3"),
+        ]
+      )
+    case .unknown:
+      Card(
+        id: "0",
+        type: .unknown,
+        context: "...",
+        references: .init(
+          pages: [],
+          originalTexts: []
+        ),
+        tags: [
+          .init(id: "0", type: "system", name: "some-tag-1", description: "some description 1"),
+          .init(id: "0", type: "system", name: "some-tag-2", description: "some description 2"),
+          .init(id: "0", type: "system", name: "some-tag-3", description: "some description 3"),
         ]
       )
     }

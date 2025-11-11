@@ -18,6 +18,6 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   }
 
   func createHomeViewModel() -> HomeView.ViewModel {
-    HomeView.ViewModel(books: (0..<10).map { _ in BookSummary.mock() })
+    HomeView.ViewModel(books: (0..<10).map { _ in BookMetaResponse.mock() })
   }
 }

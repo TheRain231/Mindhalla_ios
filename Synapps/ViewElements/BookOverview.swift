@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct BookOverview: View {
-  let book: BookSummary
+  let book: BookMetaResponse
 
   var body: some View {
     VStack(alignment: .leading) {
@@ -129,13 +129,13 @@ private struct TextBadgeLabelStyle: LabelStyle {
 }
 
 #Preview("Main") {
-  BookOverview(book: BookSummary.mock())
+  BookOverview(book: BookMetaResponse.mock())
 }
 
 #Preview("Without URL") {
-  BookOverview(book: BookSummary.mockWithoutURL())
+  BookOverview(book: BookMetaResponse.mockWithoutURL())
 }
 
 #Preview("URL Error") {
-  BookOverview(book: BookSummary.mockWithURLError())
+  BookOverview(book: BookMetaResponse.mockWithURLError())
 }

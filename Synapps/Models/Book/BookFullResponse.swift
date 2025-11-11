@@ -1,5 +1,5 @@
 //
-//  Book.swift
+//  BookFullResponse.swift
 //  Synapps
 //
 //  Created by Andrey Stepanov on 29.09.2025.
@@ -7,20 +7,7 @@
 
 import Foundation
 
-struct BookSummary: Identifiable, Codable {
-  let id: String
-  let title: String
-  let editionNumber: Int
-  let year: Int
-  let publisher: String
-  let authors: String
-  let genres: String
-
-  // опционально — можно позже добавить image
-  let coverImageUrl: URL?
-}
-
-struct BookDetail: Identifiable, Codable {
+struct BookFullResponse: Identifiable, Codable {
   let id: String
   let title: String
   let editionNumber: Int
