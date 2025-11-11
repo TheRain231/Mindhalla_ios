@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		38B7E9952EBCB5210002D55F /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 38B7E9942EBCB5210002D55F /* AnyCodable */; };
 		38EE21A22EA5FB610031C58E /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 38EE21A12EA5FB610031C58E /* OpenAPIRuntime */; };
 		38EE21A52EA5FB710031C58E /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 38EE21A42EA5FB710031C58E /* OpenAPIURLSession */; };
 /* End PBXBuildFile section */
@@ -72,7 +71,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				38EE21A52EA5FB710031C58E /* OpenAPIURLSession in Frameworks */,
-				38B7E9952EBCB5210002D55F /* AnyCodable in Frameworks */,
 				38EE21A22EA5FB610031C58E /* OpenAPIRuntime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -137,7 +135,6 @@
 			packageProductDependencies = (
 				38EE21A12EA5FB610031C58E /* OpenAPIRuntime */,
 				38EE21A42EA5FB710031C58E /* OpenAPIURLSession */,
-				38B7E9942EBCB5210002D55F /* AnyCodable */,
 			);
 			productName = Synapps;
 			productReference = 380BB55D2E6EC949007ABD85 /* Synapps.app */;
@@ -226,7 +223,6 @@
 				38EE219B2EA5FB260031C58E /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
 				38EE21A02EA5FB610031C58E /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
 				38EE21A32EA5FB710031C58E /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
-				38B7E9932EBCB5210002D55F /* XCRemoteSwiftPackageReference "AnyCodable" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 380BB55E2E6EC949007ABD85 /* Products */;
@@ -605,14 +601,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		38B7E9932EBCB5210002D55F /* XCRemoteSwiftPackageReference "AnyCodable" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Flight-School/AnyCodable.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.6.7;
-			};
-		};
 		38EE219B2EA5FB260031C58E /* XCRemoteSwiftPackageReference "swift-openapi-generator" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-openapi-generator";
@@ -640,11 +628,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		38B7E9942EBCB5210002D55F /* AnyCodable */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 38B7E9932EBCB5210002D55F /* XCRemoteSwiftPackageReference "AnyCodable" */;
-			productName = AnyCodable;
-		};
 		38EE21A12EA5FB610031C58E /* OpenAPIRuntime */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 38EE21A02EA5FB610031C58E /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
