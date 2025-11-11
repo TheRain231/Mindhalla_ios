@@ -13,6 +13,9 @@ struct CardsView: View {
   var body: some View {
     VStack {
       cardsStack
+        .onAppear {
+          viewModel.fetch()
+        }
     }
     .id(viewModel.viewId) // for "Reset Cards" button in Preview
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -59,7 +62,7 @@ private func backgroundColors(for type: CardType?) -> [Color] {
 }
 
 #Preview("Interactive") {
-  @Previewable var viewModel = MockViewModelFactory().createCardsViewModel()
+  @Previewable var viewModel = MockViewModelFactory().createCardsViewModel(cardID: "insteractive_preview")
 
   ZStack {
     CardsView(viewModel: viewModel)
@@ -82,6 +85,6 @@ extension CardsView.ViewModel {
 }
 
 #Preview() {
-  CardsView(viewModel: MockViewModelFactory().createCardsViewModel())
+  CardsView(viewModel: MockViewModelFactory().createCardsViewModel(cardID: "preview"))
     .ignoresSafeArea()
 }

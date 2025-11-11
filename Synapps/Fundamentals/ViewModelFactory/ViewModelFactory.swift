@@ -6,17 +6,36 @@
 //
 
 import Foundation
+import OpenAPIRuntime
+import OpenAPIURLSession
 
 final class ViewModelFactory: ViewModelFactoryProtocol {
+  let client: Client
+  let networkManager: NetworkManagerProtocol
+
+  init() {
+    do {
+      let serverURL = try Servers.Server1.url()
+      let transport = URLSessionTransport()
+      client = Client(
+        serverURL: serverURL,
+        transport: transport
+      )
+      networkManager = NetworkManager(client: client)
+    } catch {
+      fatalError("OpenAPI.json has no url. Please, insert correct url. \nError: \(error.localizedDescription)")
+    }
+  }
+
   func createContentViewModel() -> ContentView.ViewModel {
     ContentView.ViewModel()
   }
 
-  func createCardsViewModel() -> CardsView.ViewModel {
-    CardsView.ViewModel(cards: [])
+  func createCardsViewModel(cardID: String) -> CardsView.ViewModel {
+    CardsView.ViewModel(cardID: cardID, networkManager: networkManager)
   }
 
   func createHomeViewModel() -> HomeView.ViewModel {
-    HomeView.ViewModel(books: [])
+    HomeView.ViewModel(networkManager: networkManager)
   }
 }
