@@ -5,7 +5,6 @@
 //  Created by Andrey Stepanov on 29.09.2025.
 //
 
-import AnyCodable
 import Foundation
 import SwiftUI
 
@@ -61,9 +60,9 @@ extension Card {
 }
 
 extension References {
-  init(dto: [String: AnyCodable]) {
-    let pages = dto["pages"]?.value as? [Int] ?? []
-    let texts = dto["original_texts"]?.value as? [String] ?? []
+  init(dto: [String: Codable]) {
+    let pages = dto["pages"] as? [Int] ?? []
+    let texts = dto["original_texts"] as? [String] ?? []
     self.init(pages: pages, originalTexts: texts)
   }
 }

@@ -1,5 +1,5 @@
 //
-//  BookExtensions.swift
+//  BookMetaResponseExtensions.swift
 //  Synapps
 //
 //  Created by Andrey Stepanov on 29.09.2025.
@@ -17,29 +17,7 @@ extension BookMetaResponse {
     self.authors = dto.authors
     self.genres = dto.genres
 
-    // У тебя в схеме нет прямого поля для картинки
     self.coverImageUrl = nil
-  }
-}
-
-import Foundation
-
-extension BookFullResponse {
-  init(dto: Components.Schemas.BookFullResponse) {
-    self.id = dto.id
-    self.title = dto.title
-    self.editionNumber = dto.edition_number
-    self.year = dto.year
-    self.publisher = dto.publisher
-    self.language = dto.language
-    self.pages = dto.pages
-
-    // Cards — маппим напрямую в твой Card (если Card совпадает по структуре с BookCardResponse)
-    self.cards = dto.cards.map { Card(dto: $0) }
-
-    // Авторы и жанры — в виде массивов строк
-    self.authorsBooks = dto.authors_books.map { "\($0.first_name) \($0.last_name)" }
-    self.genresBooks = dto.genres_books.map(\.name)
   }
 }
 
