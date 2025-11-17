@@ -8,10 +8,10 @@
 import Foundation
 
 extension BookMetaResponse {
-  init(dto: Components.Schemas.BookMetaResponse) {
+  init(dto: BookMetaResponseDTO) {
     self.id = dto.id
     self.title = dto.title
-    self.editionNumber = dto.edition_number
+    self.editionNumber = dto.editionNumber
     self.year = dto.year
     self.publisher = dto.publisher
     self.authors = dto.authors

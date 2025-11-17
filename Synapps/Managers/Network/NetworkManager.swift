@@ -6,40 +6,54 @@
 //
 
 import Foundation
-import OpenAPIURLSession
 
 final class NetworkManager: NetworkManagerProtocol {
-  private let client: Client
+  private let client: ClientProtocol
 
-  init(client: Client) {
+  init(client: ClientProtocol) {
     self.client = client
   }
 
   func getAllBooks() async throws -> [BookMetaResponse] {
-    let response = try await client.mock_get_books_api_v1_books_get()
+    try await withCheckedThrowingContinuation { continuation in
+      client.getAllBooks { response, error in
+        if let error {
+          continuation.resume(throwing: error)
+          return
+        }
 
-    switch response {
-    case let .ok(okResponse):
-      let dto: Components.Schemas.BooksMetaResponse = try okResponse.body.json
-      return dto.books.map { BookMetaResponse(dto: $0) }
-    case let .undocumented(statusCode, _):
-      throw NetworkError.invalidStatus(statusCode)
+        guard let response else {
+          continuation.resume(throwing: NetworkError.invalidResponse("No data received for getAllBooks"))
+          return
+        }
+
+        let books = response.books.map { BookMetaResponse(dto: $0) }
+        continuation.resume(returning: books)
+      }
     }
   }
 
-  func getBook(by id: String) async throws -> BookFullResponse {
-    let response = try await client.mock_get_book_by_id_api_v1_books__book_id__get(
-      path: .init(book_id: id)
-    )
+  func uploadBook(_: URL) async throws -> String {
+    // TODO: Реализовать загрузку файла
+    ""
+  }
 
-    switch response {
-    case let .ok(okResponse):
-      let dto = try okResponse.body.json
-      return BookFullResponse(dto: dto)
-    case let .undocumented(statusCode: statusCode, _):
-      throw NetworkError.invalidStatus(statusCode)
-    case .unprocessableContent:
-      throw NetworkError.decodingFailed
+  func getBook(by id: String) async throws -> BookFullResponse {
+    try await withCheckedThrowingContinuation { continuation in
+      client.getBookById(id: id) { response, error in
+        if let error {
+          continuation.resume(throwing: error)
+          return
+        }
+
+        guard let response else {
+          continuation.resume(throwing: NetworkError.invalidResponse("No data received for getBookById"))
+          return
+        }
+
+        let book = BookFullResponse(dto: response)
+        continuation.resume(returning: book)
+      }
     }
   }
 }
