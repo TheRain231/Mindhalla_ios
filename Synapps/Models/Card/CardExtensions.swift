@@ -37,11 +37,11 @@ extension Card {
 }
 
 extension Card {
-  init(dto: Components.Schemas.BookCardResponse) {
+  init(dto: BookCardResponseDTO) {
     self.id = dto.id
     self.context = dto.context
 
-    if let parsedType = CardType(rawValue: dto._type) {
+    if let parsedType = CardType(rawValue: dto.type) {
       self.type = parsedType
     } else {
       self.type = .idea
@@ -68,9 +68,9 @@ extension References {
 }
 
 extension Tag {
-  init(dto: Components.Schemas.BookCardTagResponse) {
+  init(dto: BookCardTagResponseDTO) {
     self.id = dto.id
-    self.type = dto._type
+    self.type = dto.type
     self.name = dto.name
     self.description = dto.description
   }

@@ -6,25 +6,15 @@
 //
 
 import Foundation
-import OpenAPIRuntime
-import OpenAPIURLSession
 
 final class ViewModelFactory: ViewModelFactoryProtocol {
-  let client: Client
   let networkManager: NetworkManagerProtocol
 
   init() {
-    do {
-      let serverURL = try Servers.Server1.url()
-      let transport = URLSessionTransport()
-      client = Client(
-        serverURL: serverURL,
-        transport: transport
-      )
-      networkManager = NetworkManager(client: client)
-    } catch {
-      fatalError("OpenAPI.json has no url. Please, insert correct url. \nError: \(error.localizedDescription)")
-    }
+    let urlSession = URLSession.shared
+    let apiService = APIService(urlSession: urlSession)
+    let client = Client(service: apiService)
+    networkManager = NetworkManager(client: client)
   }
 
   func createContentViewModel() -> ContentView.ViewModel {
