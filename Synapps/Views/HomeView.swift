@@ -9,18 +9,29 @@ import SwiftUI
 
 struct HomeView: View {
   @StateObject var viewModel: ViewModel
+  @Environment(\.viewModelFactory) var factory
 
   var body: some View {
     NavigationStack {
       ScrollView {
         LazyVStack(spacing: 20) {
           ForEach(viewModel.books) { book in
-            BookOverview(book: book)
+            NavigationLink(value: book) {
+              BookOverview(book: book)
+            }
+            .buttonStyle(.plain)
           }
         }
         .padding(.horizontal)
       }
       .navigationTitle("my_books")
+      .navigationDestination(for: BookMetaResponse.self) { book in
+        CardsView(viewModel: factory.createCardsViewModel(cardID: book.id))
+          .ignoresSafeArea()
+      }
+    }
+    .onAppear {
+      viewModel.fetch()
     }
   }
 }

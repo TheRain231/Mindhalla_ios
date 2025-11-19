@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BookMetaResponse: Identifiable, Codable {
+struct BookMetaResponse: Identifiable, Hashable, Codable {
   let id: String
   let title: String
   let editionNumber: Int
