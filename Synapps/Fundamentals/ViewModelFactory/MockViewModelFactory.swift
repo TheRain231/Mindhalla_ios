@@ -9,15 +9,17 @@ import Foundation
 import SwiftUI
 
 final class MockViewModelFactory: ViewModelFactoryProtocol {
+  let networkManager: NetworkManagerProtocol = MockNetworkManager()
+
   func createContentViewModel() -> ContentView.ViewModel {
     ContentView.ViewModel()
   }
 
-  func createCardsViewModel() -> CardsView.ViewModel {
-    CardsView.ViewModel(cards: Card.mocks())
+  func createCardsViewModel(cardID: String) -> CardsView.ViewModel {
+    CardsView.ViewModel(cardID: cardID, networkManager: networkManager)
   }
 
   func createHomeViewModel() -> HomeView.ViewModel {
-    HomeView.ViewModel(books: (0..<10).map { _ in BookMetaResponse.mock() })
+    HomeView.ViewModel(networkManager: networkManager)
   }
 }
