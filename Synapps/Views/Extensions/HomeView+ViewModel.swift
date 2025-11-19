@@ -20,10 +20,12 @@ extension HomeView {
     }
 
     func fetch() {
-      Task { @MainActor in
+      Task {
         do {
           let fetchedBooks = try await networkManager.getAllBooks()
-          self.books = fetchedBooks
+          await MainActor.run {
+            self.books = fetchedBooks
+          }
         } catch {
           // TODO: добавить обработку ошибок
           print(error)
