@@ -33,11 +33,13 @@ extension CardsView {
     }
 
     func fetch() {
-      Task { @MainActor in
+      Task {
         do {
           let fetchedCards = try await networkManager.getBook(by: cardID).cards
-          cards = fetchedCards
-          topCardIndex = cards.count - 1
+          await MainActor.run {
+            cards = fetchedCards
+            topCardIndex = cards.count - 1
+          }
         } catch {
           print(error.localizedDescription)
           // TODO: добавить обработку ошибок
