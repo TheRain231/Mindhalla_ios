@@ -10,7 +10,7 @@ import Foundation
 protocol ClientProtocol {
   func getAllBooks(completion: @escaping (BooksMetaResponseDTO?, NetworkError?) -> Void)
   func getBookById(id: String, completion: @escaping (BookFullResponseDTO?, NetworkError?) -> Void)
-  func uploadBook(_ uploadRequest: UploadRequestDTO, completion: @escaping (UploadResponseDTO?, NetworkError?) -> Void)
+  func uploadBook(_ fileURL: URL, completion: @escaping (UploadResponseDTO?, NetworkError?) -> Void)
 }
 
 final class Client: ClientProtocol {
@@ -42,8 +42,8 @@ final class Client: ClientProtocol {
     }
   }
 
-  func uploadBook(_ uploadRequest: UploadRequestDTO, completion: @escaping (UploadResponseDTO?, NetworkError?) -> Void) {
-    guard let urlRequest = Endpoint.uploadBook(request: uploadRequest).request else {
+  func uploadBook(_ fileURL: URL, completion: @escaping (UploadResponseDTO?, NetworkError?) -> Void) {
+    guard let urlRequest = Endpoint.uploadBook(fileURL: fileURL).request else {
       completion(nil, .invalidResponse("Invalid URLRequest for uploadBook"))
       return
     }

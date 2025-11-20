@@ -16,7 +16,13 @@ final class MockNetworkManager: NetworkManagerProtocol {
     .init(id: id, title: "", editionNumber: 0, year: 0, publisher: "", language: "", pages: 0, cards: Card.mocks(), authorsBooks: [], genresBooks: []) // Заполним когда будет использоваться
   }
 
-  func uploadBook(_: URL) async throws -> String {
-    ""
+  func uploadBook(_: URL) async throws -> UploadFileInfoResponse {
+    UploadFileInfoResponse(
+      id: UUID().uuidString,
+      s3Key: "mock/s3/key",
+      filename: "mock.pdf",
+      mimetype: "application/pdf",
+      size: 1024
+    )
   }
 }

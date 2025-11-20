@@ -33,9 +33,28 @@ final class NetworkManager: NetworkManagerProtocol {
     }
   }
 
-  func uploadBook(_: URL) async throws -> String {
-    // TODO: Реализовать загрузку файла
-    ""
+  func uploadBook(_ fileURL: URL) async throws -> UploadFileInfoResponse {
+    try await withCheckedThrowingContinuation { continuation in
+      client.uploadBook(fileURL) { response, error in
+        if let error {
+          continuation.resume(throwing: error)
+          return
+        }
+
+        guard let response else {
+          continuation.resume(throwing: NetworkError.invalidResponse("No data received for uploadBook"))
+          return
+        }
+
+        guard let firstFile = response.files.first else {
+          continuation.resume(throwing: NetworkError.invalidResponse("No files in upload response"))
+          return
+        }
+
+        let uploadFileInfo = UploadFileInfoResponse(dto: firstFile)
+        continuation.resume(returning: uploadFileInfo)
+      }
+    }
   }
 
   func getBook(by id: String) async throws -> BookFullResponse {

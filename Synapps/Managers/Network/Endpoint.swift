@@ -10,7 +10,7 @@ import Foundation
 enum Endpoint {
   case getAllBooks
   case getBookById(id: String)
-  case uploadBook(request: UploadRequestDTO)
+  case uploadBook(fileURL: URL)
 
   var path: String {
     switch self {
@@ -39,17 +39,49 @@ enum Endpoint {
 
     var request = URLRequest(url: url)
     request.httpMethod = method.rawValue
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     switch self {
-    case let .uploadBook(uploadRequest):
-      if let jsonData = try? JSONEncoder().encode(uploadRequest) {
-        request.httpBody = jsonData
+    case let .uploadBook(fileURL):
+      let boundary = UUID().uuidString
+      request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+      if let body = createMultipartBody(fileURL: fileURL, boundary: boundary) {
+        request.httpBody = body
+      } else {
+        return nil
       }
     default:
       break
     }
 
     return request
+  }
+
+  private func createMultipartBody(fileURL: URL, boundary: String) -> Data? {
+    guard let fileData = try? Data(contentsOf: fileURL) else {
+      return nil
+    }
+
+    let filename = fileURL.lastPathComponent
+    let mimeType = "application/pdf"
+
+    var body = Data()
+
+    guard let boundaryStart = "--\(boundary)\r\n".data(using: .utf8),
+          let contentDisposition = "Content-Disposition: form-data; name=\"files\"; filename=\"\(filename)\"\r\n".data(using: .utf8),
+          let contentType = "Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8),
+          let boundaryEnd = "\r\n--\(boundary)--\r\n".data(using: .utf8) else {
+      return nil
+    }
+
+    body.append(boundaryStart)
+    body.append(contentDisposition)
+    body.append(contentType)
+
+    body.append(fileData)
+
+    body.append(boundaryEnd)
+
+    return body
   }
 }

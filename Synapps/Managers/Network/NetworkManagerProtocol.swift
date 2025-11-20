@@ -11,5 +11,5 @@ protocol NetworkManagerProtocol {
   func getAllBooks() async throws -> [BookMetaResponse]
   func getBook(by id: String) async throws -> BookFullResponse
 
-  func uploadBook(_ fileURL: URL) async throws -> String
+  func uploadBook(_ fileURL: URL) async throws -> UploadFileInfoResponse
 }
