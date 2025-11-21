@@ -55,6 +55,9 @@ public struct CardSwiperView<Item, Content: View>: View {
           onCardSwiped: { swipeDirection in
             onCardSwiped?(swipeDirection, index)
             if swipeDirection != .undefined {
+              if currentIndex != currentIndexBinding {
+                currentIndex = currentIndexBinding
+              }
               currentIndex -= 1
             }
           },
