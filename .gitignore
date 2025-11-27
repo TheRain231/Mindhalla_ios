@@ -1,2 +1,31 @@
+# Xcode
+#
 Synapps.xcodeproj/project.xcworkspace/xcuserdata/
+Synapps.xcodeproj/project.pbxproj
 .DS_Store
+build/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.project.pbxproj
+*.xcworkspace/xcshareddata/
+*.xcodeproj/
+*.pbxproj
+
+# Swift Package Manager
+#
+.build/
+Packages/
+Package.pins
+Package.resolved
+.swiftpm/
+
+# Fastlane
+#
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
