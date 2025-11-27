@@ -13,12 +13,30 @@ struct ContentView: View {
 
   var body: some View {
     TabView(selection: $viewModel.selectedTab) {
-      Tab("Share", systemImage: "circlebadge.2", value: .share) {}
-      Tab("Home", systemImage: "book.closed", value: .home) {
-        HomeView(viewModel: factory.createHomeViewModel())
-      }
-      Tab("Saved", systemImage: "bookmark", value: .saved) {}
-      Tab("Profile", systemImage: "person", value: .profile) {}
+      Text("Share")
+        .tabItem {
+          Image(systemName: "circlebadge.2")
+          Text("Share")
+        }
+        .tag(TabItem.share)
+      HomeView(viewModel: factory.createHomeViewModel())
+        .tabItem {
+          Image(systemName: "book.closed")
+          Text("Home")
+        }
+        .tag(TabItem.home)
+      Text("Saved")
+        .tabItem {
+          Image(systemName: "bookmark")
+          Text("Saved")
+        }
+        .tag(TabItem.saved)
+      Text("Profile")
+        .tabItem {
+          Image(systemName: "person")
+          Text("Profile")
+        }
+        .tag(TabItem.profile)
     }
   }
 }
