@@ -24,10 +24,20 @@ struct HomeView: View {
         }
         .padding(.horizontal)
       }
+      .fileImporter(isPresented: $viewModel.showAddBookModal, allowedContentTypes: [.pdf], onCompletion: viewModel.onAddBookCompletion)
       .navigationTitle("my_books")
       .navigationDestination(for: BookMetaResponse.self) { book in
         CardsView(viewModel: factory.createCardsViewModel(cardID: book.id))
           .ignoresSafeArea()
+      }
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          Button {
+            viewModel.addBookAction()
+          } label: {
+            Image(systemName: "plus")
+          }
+        }
       }
     }
     .onAppear {
