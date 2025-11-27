@@ -12,9 +12,30 @@ extension HomeView {
     let networkManager: NetworkManagerProtocol
 
     @Published var books: [BookMetaResponse]
+    @Published var showAddBookModal: Bool = false
+    var onAddBookCompletion: (Result<URL, Error>) -> Void
 
     init(networkManager: NetworkManagerProtocol) {
       self.networkManager = networkManager
+      self.onAddBookCompletion = { result in
+        switch result {
+        case let .success(url):
+          Task {
+            do {
+              let uploadResult = try await networkManager.uploadBook(url)
+              print(uploadResult) // TODO: Поменять на алерт или что-нибудь
+              await MainActor.run {
+                // TODO: После успешной загрузки обновляем список книг
+              }
+            } catch {
+              // TODO: добавить обработку ошибок
+              print("Ошибка загрузки файла: \(error)")
+            }
+          }
+        default:
+          break
+        }
+      }
 
       self.books = [] // обязательно вызывать fetch на onAppear
     }
@@ -31,6 +52,10 @@ extension HomeView {
           print(error)
         }
       }
+    }
+
+    func addBookAction() {
+      showAddBookModal = true
     }
   }
 }
