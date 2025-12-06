@@ -8,18 +8,24 @@
 import Foundation
 
 extension BookFullResponse {
-  init(dto: BookFullResponseDTO) {
-    self.id = dto.id
-    self.title = dto.title
-    self.editionNumber = dto.editionNumber
-    self.year = dto.year
-    self.publisher = dto.publisher
-    self.language = dto.language
-    self.pages = dto.pages
-
-    self.cards = dto.cards.map { Card(dto: $0) }
-
-    self.authorsBooks = dto.authorsBooks.map { "\($0.firstName) \($0.lastName)" }
-    self.genresBooks = dto.genresBooks.map(\.name)
+  convenience init(dto: BookFullResponseDTO) {
+    self.init(
+      id: dto.id,
+      title: dto.title,
+      editionNumber: dto.editionNumber,
+      year: dto.year,
+      publisher: dto.publisher,
+      language: dto.language,
+      pages: dto.pages,
+      cards: dto.cards.map {
+        Card(
+          dto: $0
+        )
+      },
+      authorsBooks: dto.authorsBooks.map {
+        "\($0.firstName) \($0.lastName)"
+      },
+      genresBooks: dto.genresBooks.map(\.name)
+    )
   }
 }
