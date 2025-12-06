@@ -37,25 +37,27 @@ extension Card {
 }
 
 extension Card {
-  init(dto: BookCardResponseDTO) {
-    self.id = dto.id
-    self.context = dto.context
-
-    if let parsedType = CardType(rawValue: dto.type) {
-      self.type = parsedType
+  convenience init(dto: BookCardResponseDTO) {
+    let type: CardType = if let parsedType = CardType(rawValue: dto.type) {
+      parsedType
     } else {
-      self.type = .idea
+      .idea
     }
 
-    if let dict = dto.references as? [String: Any], // Здесь warning, но я пока не знаю как это обрабатывать
-       let pages = dict["pages"] as? [Int],
-       let originalTexts = dict["original_texts"] as? [String] {
-      self.references = References(pages: pages, originalTexts: originalTexts)
+    let references = if let dict = dto.references as? [String: Any], // Здесь warning, но я пока не знаю как это обрабатывать
+                        let pages = dict["pages"] as? [Int],
+                        let originalTexts = dict["original_texts"] as? [String] {
+      References(pages: pages, originalTexts: originalTexts)
     } else {
-      self.references = References(pages: [], originalTexts: [])
+      References(pages: [], originalTexts: [])
     }
-
-    self.tags = dto.tags.map { Tag(dto: $0) }
+    self.init(
+      id: dto.id,
+      type: type,
+      context: dto.context,
+      references: references,
+      tags: dto.tags.map { Tag(dto: $0) }
+    )
   }
 }
 
