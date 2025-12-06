@@ -45,7 +45,7 @@ extension HomeView {
         do {
           let fetchedBooks = try await networkManager.getAllBooks()
           await MainActor.run {
-            self.books = fetchedBooks
+            self.books = fetchedBooks // TODO: Надо разобраться и исправить warning
           }
         } catch {
           // TODO: добавить обработку ошибок
