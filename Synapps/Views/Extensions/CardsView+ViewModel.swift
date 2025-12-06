@@ -37,7 +37,7 @@ extension CardsView {
         do {
           let fetchedCards = try await networkManager.getBook(by: cardID).cards
           await MainActor.run {
-            cards = fetchedCards
+            cards = fetchedCards // TODO: Надо разобраться и исправить warning
             topCardIndex = cards.count - 1
           }
         } catch {
