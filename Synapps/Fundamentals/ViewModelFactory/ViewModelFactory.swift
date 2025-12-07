@@ -6,15 +6,31 @@
 //
 
 import Foundation
+import SwiftData
 
 final class ViewModelFactory: ViewModelFactoryProtocol {
   let networkManager: NetworkManagerProtocol
+  let modelContainer: ModelContainer
 
   init() {
     let urlSession = URLSession.shared
     let apiService = APIService(urlSession: urlSession)
     let client = Client(service: apiService)
     networkManager = NetworkManager(client: client)
+    modelContainer = {
+      let schema = Schema([BookFullResponse.self, BookMetaResponse.self])
+      let cfg = ModelConfiguration(for: BookFullResponse.self, BookMetaResponse.self)
+
+      #if DEBUG
+      print("Located at \(cfg.url.path(percentEncoded: false))")
+      #endif
+
+      do {
+        return try ModelContainer(for: schema, configurations: [cfg])
+      } catch {
+        fatalError("Could not create ModelContainer for SwiftData: \(error)")
+      }
+    }()
   }
 
   func createContentViewModel() -> ContentView.ViewModel {
