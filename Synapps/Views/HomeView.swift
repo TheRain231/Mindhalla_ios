@@ -49,5 +49,8 @@ struct HomeView: View {
 }
 
 #Preview {
-  HomeView(viewModel: MockViewModelFactory().createHomeViewModel())
+  let factory = MockViewModelFactory()
+
+  HomeView(viewModel: factory.createHomeViewModel())
+    .modelContainer(factory.modelContainer)
 }
