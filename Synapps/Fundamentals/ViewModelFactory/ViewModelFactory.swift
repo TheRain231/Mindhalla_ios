@@ -33,15 +33,18 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
     }()
   }
 
+  @MainActor
   func createContentViewModel() -> ContentView.ViewModel {
     ContentView.ViewModel()
   }
 
+  @MainActor
   func createCardsViewModel(cardID: String) -> CardsView.ViewModel {
     CardsView.ViewModel(cardID: cardID, networkManager: networkManager)
   }
 
+  @MainActor
   func createHomeViewModel() -> HomeView.ViewModel {
-    HomeView.ViewModel(networkManager: networkManager)
+    HomeView.ViewModel(networkManager: networkManager, modelContext: modelContainer.mainContext)
   }
 }
