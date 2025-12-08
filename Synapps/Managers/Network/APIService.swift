@@ -30,7 +30,7 @@ class APIService: Service {
       }
 
       if let resp = resp as? HTTPURLResponse, 500..<600 ~= resp.statusCode {
-        guard let data else {
+        guard let data else { // warning потому что мы ошибки с сервера не обрабатываем
           completion(nil, .serverError())
           return
         }

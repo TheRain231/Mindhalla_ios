@@ -5,17 +5,19 @@
 //  Created by Andrey Stepanov on 14.10.2025.
 //
 
+import SwiftData
 import SwiftUI
 
 struct HomeView: View {
   @StateObject var viewModel: ViewModel
   @Environment(\.viewModelFactory) var factory
+  @Query private var books: [BookMetaResponse]
 
   var body: some View {
     NavigationStack {
       ScrollView {
         LazyVStack(spacing: 20) {
-          ForEach(viewModel.books) { book in
+          ForEach(books) { book in
             NavigationLink(value: book) {
               BookOverview(book: book)
             }

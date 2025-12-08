@@ -44,7 +44,7 @@ extension Card {
       .idea
     }
 
-    let references = if let dict = dto.references as? [String: Any], // Здесь warning, но я пока не знаю как это обрабатывать
+    let references = if let dict = dto.references as? [String: Any], // TODO: Надо разобраться и исправить warning
                         let pages = dict["pages"] as? [Int],
                         let originalTexts = dict["original_texts"] as? [String] {
       References(pages: pages, originalTexts: originalTexts)
