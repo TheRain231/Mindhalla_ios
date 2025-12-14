@@ -5,6 +5,7 @@
 //  Created by Andrey Stepanov on 08.09.2025.
 //
 
+import SwiftData
 import SwiftUI
 
 @main
@@ -18,6 +19,7 @@ struct SynappsApp: App {
   var body: some Scene {
     WindowGroup {
       ContentView(viewModel: viewModelFactory.createContentViewModel())
+        .modelContainer(viewModelFactory.modelContainer)
         .environment(\.viewModelFactory, viewModelFactory)
     }
   }

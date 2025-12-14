@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 
 enum CardType: String, Codable {
   case thesis
@@ -14,12 +15,21 @@ enum CardType: String, Codable {
   case unknown
 }
 
-struct Card: Identifiable, Codable {
-  let id: String
-  let type: CardType
-  let context: String
-  let references: References
-  let tags: [Tag]
+@Model
+final class Card {
+  var id: String
+  var type: CardType
+  var context: String
+  var references: References
+  var tags: [Tag]
+
+  init(id: String, type: CardType, context: String, references: References, tags: [Tag]) {
+    self.id = id
+    self.type = type
+    self.context = context
+    self.references = references
+    self.tags = tags
+  }
 }
 
 struct References: Codable {
