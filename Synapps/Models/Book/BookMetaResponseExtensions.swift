@@ -29,6 +29,31 @@ extension BookMetaResponse {
     )
   }
 
+  static func mockForScreenshot() -> [BookMetaResponse] {
+    [
+      BookMetaResponse(
+        id: UUID().uuidString,
+        title: "Психология влияния",
+        editionNumber: 0,
+        year: 2024,
+        publisher: "Pifagor",
+        authors: "Роберт Чалдини",
+        genres: "Fantasy",
+        coverImageUrl: URL(string: "https://cdn.litres.ru/pub/c/cover_415/6994167.webp")!
+      ),
+      BookMetaResponse(
+        id: UUID().uuidString,
+        title: "Гарри Поттер и Узник Аскабана",
+        editionNumber: 0,
+        year: 2003,
+        publisher: "Pifagor",
+        authors: "Дж. К. Ролинг",
+        genres: "Fantasy",
+        coverImageUrl: URL(string: "https://avatars.mds.yandex.net/get-mpic/5238069/img_id7344419894101235815.jpeg/orig")!
+      ),
+    ]
+  }
+
   static func mockWithoutURL() -> BookMetaResponse {
     BookMetaResponse(
       id: UUID().uuidString,
