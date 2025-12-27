@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UploadFileInfoResponse: Identifiable, Codable {
+struct UploadFileInfoResponse: Identifiable {
   let id: String
   let s3Key: String
   let filename: String
