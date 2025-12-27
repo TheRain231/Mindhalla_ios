@@ -35,11 +35,6 @@ final class Card {
 struct References: Codable {
   let pages: [Int]
   let originalTexts: [String]
-
-  enum CodingKeys: String, CodingKey {
-    case pages
-    case originalTexts = "original_texts"
-  }
 }
 
 struct Tag: Identifiable, Codable {
