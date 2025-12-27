@@ -13,7 +13,7 @@ final class MockNetworkManager: NetworkManagerProtocol {
   }
 
   func getBook(by id: String) async throws -> BookFullResponse {
-    .init(id: id, title: "", editionNumber: 0, year: 0, publisher: "", language: "", pages: 0, cards: Card.mocks(), authorsBooks: [], genresBooks: []) // Заполним когда будет использоваться
+    .init(id: id, title: "", editionNumber: 0, year: 0, publisher: "", language: "", pages: 0, cards: Card.mocks() + [Card.mock(type: .unknown)], authorsBooks: [], genresBooks: []) // Заполним когда будет использоваться
   }
 
   func uploadBook(_: URL) async throws -> UploadFileInfoResponse {
