@@ -37,6 +37,7 @@ struct CardsView: View {
         case .left:
           print("Card swiped Left direction at index \(index)")
         case .right:
+          viewModel.saveCard(viewModel.cards[index])
           print("Card swiped Right direction at index \(index)")
         case .undefined:
           print("Not enough movement for card to be swipen")
