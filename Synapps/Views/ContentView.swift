@@ -13,28 +13,28 @@ struct ContentView: View {
 
   var body: some View {
     TabView(selection: $viewModel.selectedTab) {
-      Text("Share")
+      Text(verbatim: "Share")
         .tabItem {
           Image(systemName: "circlebadge.2")
-          Text("Share")
+          Text(verbatim: "Share")
         }
         .tag(TabItem.share)
       HomeView(viewModel: factory.createHomeViewModel())
         .tabItem {
           Image(systemName: "book.closed")
-          Text("Home")
+          Text("my_books")
         }
         .tag(TabItem.home)
-      Text("Saved")
+      SavedView(viewModel: factory.createSavedViewModel())
         .tabItem {
           Image(systemName: "bookmark")
-          Text("Saved")
+          Text("saved_books")
         }
         .tag(TabItem.saved)
-      Text("Profile")
+      Text(verbatim: "Profile")
         .tabItem {
           Image(systemName: "person")
-          Text("Profile")
+          Text(verbatim: "Profile")
         }
         .tag(TabItem.profile)
     }
