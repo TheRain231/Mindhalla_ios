@@ -13,7 +13,7 @@ struct SynappsApp: App {
   let viewModelFactory: ViewModelFactoryProtocol
 
   init() {
-    viewModelFactory = ViewModelFactory()
+    viewModelFactory = MockViewModelFactory() // Оставить до фикса DTO (issue #38)
   }
 
   var body: some Scene {

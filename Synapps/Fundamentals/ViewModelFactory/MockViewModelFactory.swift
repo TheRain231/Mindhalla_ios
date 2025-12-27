@@ -35,7 +35,7 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createCardsViewModel(cardID: String) -> CardsView.ViewModel {
-    CardsView.ViewModel(cardID: cardID, networkManager: networkManager)
+    CardsView.ViewModel(cardID: cardID, networkManager: networkManager, modelContext: modelContainer.mainContext)
   }
 
   @MainActor
