@@ -51,7 +51,16 @@ extension CardsView {
     }
 
     func saveCard(_ card: Card) {
-      modelContext.insert(card)
+      // Добавляем карточку в контекст только если её там ещё нет (по уникальному id)
+      let targetId = card.id
+      let predicate = #Predicate<Card> { $0.id == targetId }
+      var descriptor: FetchDescriptor<Card> = FetchDescriptor(predicate: predicate)
+      descriptor.fetchLimit = 1
+
+      if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
+        modelContext.insert(card)
+        try? modelContext.save()
+      }
     }
   }
 }
