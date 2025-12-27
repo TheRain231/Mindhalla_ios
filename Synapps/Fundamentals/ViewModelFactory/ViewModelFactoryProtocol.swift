@@ -14,4 +14,5 @@ protocol ViewModelFactoryProtocol: AnyObject {
   func createContentViewModel() -> ContentView.ViewModel
   func createCardsViewModel(cardID: String) -> CardsView.ViewModel
   func createHomeViewModel() -> HomeView.ViewModel
+  func createSavedViewModel() -> SavedView.ViewModel
 }

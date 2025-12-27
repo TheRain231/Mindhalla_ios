@@ -39,4 +39,9 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   func createHomeViewModel() -> HomeView.ViewModel {
     HomeView.ViewModel(networkManager: networkManager, modelContext: modelContainer.mainContext)
   }
+
+  @MainActor
+  func createSavedViewModel() -> SavedView.ViewModel {
+    SavedView.ViewModel()
+  }
 }
