@@ -5,20 +5,23 @@
 //  Created by Andrey Stepanov on 02.10.2025.
 //
 
+import SwiftData
 import SwiftUI
 
 extension CardsView {
   final class ViewModel: ObservableObject {
     let cardID: String
     let networkManager: NetworkManagerProtocol
+    let modelContext: ModelContext
 
     @Published var cards: [Card]
     @Published var topCardIndex: Int
     @Published var viewId = UUID()
 
-    init(cardID: String, networkManager: NetworkManagerProtocol) {
+    init(cardID: String, networkManager: NetworkManagerProtocol, modelContext: ModelContext) {
       self.cardID = cardID
       self.networkManager = networkManager
+      self.modelContext = modelContext
 
       self.cards = [] // Обязательно вызвать fetch() на onAppear
       self.topCardIndex = 0
@@ -45,6 +48,10 @@ extension CardsView {
           // TODO: добавить обработку ошибок
         }
       }
+    }
+
+    func saveCard(_ card: Card) {
+      modelContext.insert(card)
     }
   }
 }
