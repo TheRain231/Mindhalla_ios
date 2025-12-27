@@ -50,6 +50,6 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createSavedViewModel() -> SavedView.ViewModel {
-    SavedView.ViewModel()
+    SavedView.ViewModel(modelContext: modelContainer.mainContext)
   }
 }

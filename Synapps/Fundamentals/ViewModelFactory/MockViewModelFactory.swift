@@ -21,6 +21,9 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
     for _ in 0..<10 {
       container.mainContext.insert(BookMetaResponse.mock())
     }
+    for card in Card.mocks() {
+      container.mainContext.insert(card)
+    }
 
     return container
   }()
@@ -42,6 +45,6 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createSavedViewModel() -> SavedView.ViewModel {
-    SavedView.ViewModel()
+    SavedView.ViewModel(modelContext: modelContainer.mainContext)
   }
 }
