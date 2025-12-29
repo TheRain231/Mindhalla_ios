@@ -9,7 +9,16 @@ import Foundation
 
 extension BookMetaResponse {
   convenience init(dto: BookMetaResponseDTO) {
-    self.init(id: dto.id, title: dto.title, editionNumber: dto.editionNumber, year: dto.year, publisher: dto.publisher, authors: dto.authors, genres: dto.genres)
+    self.init(
+      id: dto.id,
+      title: dto.title,
+      editionNumber: dto.editionNumber,
+      year: dto.year,
+      publisher: dto.publisher,
+      authors: dto.authors,
+      genres: dto.genres,
+      coverImageUrl: nil
+    )
   }
 }
 

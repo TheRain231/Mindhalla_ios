@@ -8,7 +8,7 @@
 import Foundation
 
 protocol Service {
-  func makeRequest<T: Codable>(with request: URLRequest, respModel: T.Type, completion: @escaping (T?, NetworkError?) -> Void)
+  func makeRequest<T: Decodable>(with request: URLRequest, respModel: T.Type, completion: @escaping (T?, NetworkError?) -> Void)
 }
 
 class APIService: Service {
@@ -18,7 +18,7 @@ class APIService: Service {
     self.urlSession = urlSession
   }
 
-  func makeRequest<T: Codable>(
+  func makeRequest<T: Decodable>(
     with request: URLRequest,
     respModel _: T.Type,
     completion: @escaping (T?, NetworkError?) -> Void

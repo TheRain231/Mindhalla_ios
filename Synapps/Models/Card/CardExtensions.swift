@@ -44,13 +44,15 @@ extension Card {
       .idea
     }
 
-    let references = if let dict = dto.references as? [String: Any], // TODO: Надо разобраться и исправить warning
-                        let pages = dict["pages"] as? [Int],
-                        let originalTexts = dict["original_texts"] as? [String] {
-      References(pages: pages, originalTexts: originalTexts)
+    let references: References
+    // dto.references is [String: AnyCodable]; try to extract pages and original_texts
+    let dict = dto.references
+    if let pagesAny = dict["pages"]?.value as? [Int], let textsAny = dict["original_texts"]?.value as? [String] {
+      references = References(pages: pagesAny, originalTexts: textsAny)
     } else {
-      References(pages: [], originalTexts: [])
+      references = References(pages: [], originalTexts: [])
     }
+
     self.init(
       id: dto.id,
       type: type,
@@ -74,7 +76,7 @@ extension Tag {
     self.id = dto.id
     self.type = dto.type
     self.name = dto.name
-    self.description = dto.description
+    self.description = dto.description ?? ""
   }
 }
 
