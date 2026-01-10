@@ -21,7 +21,7 @@ public struct CardSwiperView<Item, Content: View>: View {
   private var visibleCardsCount: Int = 2
   private var initialOffsetY: CGFloat = 5
   private var initialRotationAngle: Double = 0.5
-    
+
   @State private var activeCardIndex: Int?
   @State private var currentIndex: Int = 0 {
     didSet {
@@ -63,8 +63,8 @@ public struct CardSwiperView<Item, Content: View>: View {
             if swipeDirection != .undefined {
               if currentIndex != currentIndexBinding {
                 currentIndex = currentIndexBinding
-                }
-                currentIndex -= 1
+              }
+              currentIndex -= 1
             }
           },
           onCardDragged: { direction, index, offset in
@@ -119,11 +119,11 @@ public struct CardSwiperView<Item, Content: View>: View {
           .blendMode(.overlay)
           .overlay(
             Image("bookmark")
-                .resizable()
-                .frame(width: 60, height: 60)
-                .scaleEffect(x: 1.0, y: 0.8)
-                .shadow(color: .black.opacity(0.1), radius: 4)
-                .opacity(bookmarkOpacity),
+              .resizable()
+              .frame(width: 60, height: 60)
+              .scaleEffect(x: 1.0, y: 0.8)
+              .shadow(color: .black.opacity(0.1), radius: 4)
+              .opacity(bookmarkOpacity),
             alignment: .center
           )
       }
@@ -134,7 +134,7 @@ public struct CardSwiperView<Item, Content: View>: View {
             activeCardIndex = index
             isDismissed = true
             withAnimation {
-                onCardDragged?(swipeDirection, index, offset)
+              onCardDragged?(swipeDirection, index, offset)
             }
           }
           .onEnded { _ in
@@ -151,15 +151,15 @@ public struct CardSwiperView<Item, Content: View>: View {
     }
 
     private var scale: CGFloat {
-        return 1 - CGFloat(clamped) * 0.07
+      1 - CGFloat(clamped) * 0.07
     }
 
     private var extraOffset: CGFloat {
-        -CGFloat(clamped) * 20
+      -CGFloat(clamped) * 20
     }
 
     private var clamped: Int {
-        min(relativeIndex, visibleCardsCount)
+      min(relativeIndex, visibleCardsCount)
     }
 
     private var dragProgress: CGFloat {
@@ -169,28 +169,28 @@ public struct CardSwiperView<Item, Content: View>: View {
 
     private var blurRadius: CGFloat {
       guard let active = activeCardIndex else {
-          return 0
+        return 0
       }
 
       return active == index ? 0 : 3 + (3 * dragProgress)
     }
 
     private var bookmarkOpacity: Double {
-        isDismissed ? 1 : 0
+      isDismissed ? 1 : 0
     }
 
     private var swipeDirection: SwipeDirection {
-        switch offset.width {
-        case -500...(-150):
-          return .left
-        case 150...500:
-          return .right
-        default:
-          return .undefined
-        }
+      switch offset.width {
+      case -500...(-150):
+        .left
+      case 150...500:
+        .right
+      default:
+        .undefined
+      }
     }
 
-    func handleSwipe(offsetWidth: CGFloat, offsetHeight: CGFloat) {
+    func handleSwipe(offsetWidth _: CGFloat, offsetHeight _: CGFloat) {
       switch swipeDirection {
       case .left:
         offset = CGSize(width: -350, height: 0)
