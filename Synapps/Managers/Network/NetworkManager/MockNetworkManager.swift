@@ -9,7 +9,8 @@ import Foundation
 
 final class MockNetworkManager: NetworkManagerProtocol {
   func getAllBooks() async throws -> [BookMetaResponse] {
-    (0..<10).map { _ in BookMetaResponse.mock() }
+    try await Task.sleep(for: .seconds(2))
+    return (0..<10).map { _ in BookMetaResponse.mock() }
   }
 
   func getBook(by id: String) async throws -> BookFullResponse {
