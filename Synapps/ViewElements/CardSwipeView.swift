@@ -12,22 +12,24 @@ enum SwipeDirection {
 }
 
 public struct CardSwiperView<Item, Content: View>: View {
-  var cards: [Item]
+  private var cards: [Item]
 
-  let contentBuilder: (Item) -> Content
+  private let contentBuilder: (Item) -> Content
 
-  var onCardSwiped: ((SwipeDirection, Int) -> Void)?
-  var onCardDragged: ((SwipeDirection, Int, CGSize) -> Void)?
-  var initialOffsetY: CGFloat = 5
-  var initialRotationAngle: Double = 0.5
-
-  @State var currentIndex: Int = 0 {
+  private var onCardSwiped: ((SwipeDirection, Int) -> Void)?
+  private var onCardDragged: ((SwipeDirection, Int, CGSize) -> Void)?
+  private var visibleCardsCount: Int = 2
+  private var initialOffsetY: CGFloat = 5
+  private var initialRotationAngle: Double = 0.5
+    
+  @State private var activeCardIndex: Int?
+  @State private var currentIndex: Int = 0 {
     didSet {
       currentIndexBinding = currentIndex
     }
   }
 
-  @Binding private var currentIndexBinding: Int
+  @Binding var currentIndexBinding: Int
 
   init(
     cards: [Item],
@@ -50,15 +52,19 @@ public struct CardSwiperView<Item, Content: View>: View {
   public var body: some View {
     ZStack {
       ForEach(cards.indices, id: \.self) { index in
+        let relative = max(currentIndexBinding - index, currentIndex - index)
+
         CardView(
           index: index,
+          relativeIndex: relative,
+          visibleCardsCount: visibleCardsCount,
           onCardSwiped: { swipeDirection in
             onCardSwiped?(swipeDirection, index)
             if swipeDirection != .undefined {
               if currentIndex != currentIndexBinding {
                 currentIndex = currentIndexBinding
-              }
-              currentIndex -= 1
+                }
+                currentIndex -= 1
             }
           },
           onCardDragged: { direction, index, offset in
@@ -69,17 +75,19 @@ public struct CardSwiperView<Item, Content: View>: View {
           },
           initialOffsetY: initialOffsetY,
           initialRotationAngle: initialRotationAngle,
-          zIndex: Double(cards.count - index)
+          zIndex: Double(cards.count - index),
+          activeCardIndex: $activeCardIndex
         )
       }
-    }.onAppear {
-      currentIndex = cards.count - 1
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
   }
 
   private struct CardView<CardContent: View>: View {
     let id = UUID()
     var index: Int
+    var relativeIndex: Int
+    var visibleCardsCount: Int
     var onCardSwiped: ((SwipeDirection) -> Void)?
     var onCardDragged: ((SwipeDirection, Int, CGSize) -> Void)?
     var content: () -> CardContent
@@ -89,16 +97,19 @@ public struct CardSwiperView<Item, Content: View>: View {
 
     @State private var offset = CGSize.zero
     @State private var overlayColor: Color = .clear
+    @State private var isDismissed = false
     @State private var isRemoved = false
-    @State private var activeCardIndex: Int?
+    @Binding var activeCardIndex: Int?
 
     var body: some View {
       ZStack {
         content()
           .frame(width: 320, height: 420)
-          .offset(x: offset.width * 1, y: offset.height * 0.3)
+          .offset(x: offset.width * 1, y: extraOffset + offset.height * 0.3)
+          .scaleEffect(scale, anchor: .top)
           .rotationEffect(.degrees(Double(offset.width / 40)))
           .zIndex(zIndex)
+          .opacity(relativeIndex <= visibleCardsCount ? 1 : 0)
 
         Rectangle()
           .foregroundColor(overlayColor)
@@ -106,58 +117,91 @@ public struct CardSwiperView<Item, Content: View>: View {
           .frame(width: 320, height: 420)
           .cornerRadius(10)
           .blendMode(.overlay)
+          .overlay(
+            Image("bookmark")
+                .resizable()
+                .frame(width: 60, height: 60)
+                .scaleEffect(x: 1.0, y: 0.8)
+                .shadow(color: .black.opacity(0.1), radius: 4)
+                .opacity(bookmarkOpacity),
+            alignment: .center
+          )
       }
       .gesture(
         DragGesture()
           .onChanged { gesture in
             offset = gesture.translation
             activeCardIndex = index
+            isDismissed = true
             withAnimation {
-              handleCardDragging(offset)
+                onCardDragged?(swipeDirection, index, offset)
             }
           }
           .onEnded { _ in
             withAnimation {
               handleSwipe(offsetWidth: offset.width, offsetHeight: offset.height)
             }
+            activeCardIndex = nil
+            isDismissed = false
           }
       )
       .opacity(isRemoved ? 0 : 1)
+      .blur(radius: blurRadius)
+      .animation(.linear(duration: 0.4), value: activeCardIndex)
     }
 
-    func handleCardDragging(_ offset: CGSize) {
-      var swipeDirection: SwipeDirection = .undefined
+    private var scale: CGFloat {
+        return 1 - CGFloat(clamped) * 0.07
+    }
 
-      switch (offset.width, offset.height) {
-      case (-500...(-150), _):
-        swipeDirection = .left
-      case (150...500, _):
-        swipeDirection = .right
-      case (_, _):
-        swipeDirection = .undefined
+    private var extraOffset: CGFloat {
+        -CGFloat(clamped) * 20
+    }
+
+    private var clamped: Int {
+        min(relativeIndex, visibleCardsCount)
+    }
+
+    private var dragProgress: CGFloat {
+      let maxWidth: CGFloat = 160
+      return min(abs(offset.width) / maxWidth, 1)
+    }
+
+    private var blurRadius: CGFloat {
+      guard let active = activeCardIndex else {
+          return 0
       }
 
-      onCardDragged?(swipeDirection, index, offset)
+      return active == index ? 0 : 3 + (3 * dragProgress)
+    }
+
+    private var bookmarkOpacity: Double {
+        isDismissed ? 1 : 0
+    }
+
+    private var swipeDirection: SwipeDirection {
+        switch offset.width {
+        case -500...(-150):
+          return .left
+        case 150...500:
+          return .right
+        default:
+          return .undefined
+        }
     }
 
     func handleSwipe(offsetWidth: CGFloat, offsetHeight: CGFloat) {
-      var swipeDirection: SwipeDirection
-
-      switch (offsetWidth, offsetHeight) {
-      case (-500...(-150), _):
-        swipeDirection = .left
+      switch swipeDirection {
+      case .left:
         offset = CGSize(width: -350, height: 0)
         isRemoved = true
-      case (150...500, _):
-        swipeDirection = .right
+      case .right:
         offset = CGSize(width: 350, height: 0)
         isRemoved = true
       default:
-        swipeDirection = .undefined
         offset = .zero
         overlayColor = .clear
       }
-
       onCardSwiped?(swipeDirection)
     }
   }
