@@ -33,7 +33,6 @@ struct CardCardView: View {
       .foregroundStyle(.secondary)
   }
 
-  @ViewBuilder
   private var cardText: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text(card.context)

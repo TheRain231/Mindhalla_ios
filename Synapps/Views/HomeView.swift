@@ -39,31 +39,31 @@ struct HomeView: View {
         Text("Чтобы добавить книгу, нужно выбрать PDF-файл с устройства. Разрешить доступ к файлам?")
       }
       .fullScreenCover(item: $viewModel.uploadState) { state in
-          switch state {
-          case .loading:
-              BookLoadingContainer(viewModel: bookLoadingViewModel)
-          case .success:
-              BookDownloadStatusView(
-                presentable: .success(onReadCards: { // go to cards
-                }),
-                configuration: .fullWidthLeftAlignment
-              )
-          case .processingError:
-              BookDownloadStatusView(
-                  presentable: .processingError(onRetry: { viewModel.retryUpload() }),
-                  configuration: .default
-              )
-          case .uploadError:
-              BookDownloadStatusView(
-                  presentable: .uploadError(onRetry: { viewModel.retryUpload() }),
-                  configuration: .default
-              )
-          case .networkError:
-              BookDownloadStatusView(
-                  presentable: .networkError(onRetry: { viewModel.retryUpload() }),
-                  configuration: .default
-              )
-          }
+        switch state {
+        case .loading:
+          BookLoadingContainer(viewModel: bookLoadingViewModel)
+        case .success:
+          BookDownloadStatusView(
+            presentable: .success(onReadCards: { // go to cards
+            }),
+            configuration: .fullWidthLeftAlignment
+          )
+        case .processingError:
+          BookDownloadStatusView(
+            presentable: .processingError(onRetry: { viewModel.retryUpload() }),
+            configuration: .default
+          )
+        case .uploadError:
+          BookDownloadStatusView(
+            presentable: .uploadError(onRetry: { viewModel.retryUpload() }),
+            configuration: .default
+          )
+        case .networkError:
+          BookDownloadStatusView(
+            presentable: .networkError(onRetry: { viewModel.retryUpload() }),
+            configuration: .default
+          )
+        }
       }
       .navigationTitle("my_books")
       .navigationDestination(for: BookMetaResponse.self) { book in
