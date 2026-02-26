@@ -2,24 +2,29 @@ import SwiftUI
 
 @MainActor @Observable
 final class BookLoadingViewModel {
-    var timer: Timer?
+    private var rotationTask: Task<Void, Never>?
+    private var currentMessageIndex: Int = 0
+
     var currentMessage: String {
         BookLoadingViewModel.messages[currentMessageIndex]
     }
 
     private let showMessageInterval: TimeInterval = 2.5
-    private var currentMessageIndex: Int = 0
 
     func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: showMessageInterval, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
-                self.currentMessageIndex = (self.currentMessageIndex + 1) % BookLoadingViewModel.messages.count
+        guard rotationTask == nil else { return }
+        rotationTask = Task { [showMessageInterval] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(showMessageInterval))
+                if Task.isCancelled { break }
+                currentMessageIndex = (currentMessageIndex + 1) % BookLoadingViewModel.messages.count
             }
         }
-        if let timer {
-            RunLoop.main.add(timer, forMode: .common)
-        }
+    }
+
+    func stopTimer() {
+        rotationTask?.cancel()
+        rotationTask = nil
     }
 }
 

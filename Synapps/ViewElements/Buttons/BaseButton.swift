@@ -4,6 +4,16 @@ struct BaseButton: View {
     let title: String
     let action: () -> Void
     let configuration: Configuration
+    
+    init(
+        title: String,
+        action: @escaping () -> Void,
+        configuration: Configuration = .init()
+    ) {
+        self.title = title
+        self.action = action
+        self.configuration = configuration
+    }
 
     var body: some View {
         Button(title, action: action)
@@ -20,6 +30,14 @@ extension BaseButton {
     struct Configuration {
         let height: CGFloat
         let width: CGFloat
+        
+        init(
+            height: CGFloat = 40,
+            width: CGFloat = 322
+        ) {
+            self.height = height
+            self.width = width
+        }
     }
 }
 
@@ -27,13 +45,13 @@ extension BaseButton {
     static let tryAgain: BaseButton = .init(
         title: "Повторить",
         action: { },
-        configuration: .init(height: 40, width: 322)
+        configuration: .init()
     )
     
     static let downloadAgain: BaseButton = .init(
         title: "Загрузить заново",
         action: { },
-        configuration: .init(height: 40, width: 322)
+        configuration: .init()
     )
 }
 
