@@ -1,4 +1,5 @@
 import SwiftUI
+import Lottie
 
 struct BookLoadingView: View {
     let presentable: Presentable
@@ -7,25 +8,27 @@ struct BookLoadingView: View {
         VStack(alignment: .center, spacing: 50) {
             Text(presentable.title)
                 .bookLoadingTitleStyle()
-            imageView
+            LoadingAnimationView()
             Text(presentable.message)
                 .bookLoadingSubtitleStyle()
                 .padding()
         }
         .padding()
     }
-    
-    private var imageView: some View {
-        Image("bookLoadingProgress")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 261, height: 261)
-            .overlay {
-                Image("bookLoading")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 150, height: 150)
-            }
+}
+
+extension BookLoadingView {
+    private struct LoadingAnimationView: View {
+        var body: some View {
+            Image("bookLoadingProgress")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 261, height: 261)
+                .overlay {
+                    LottieView(animation: .named("BookLoadingAnimation"))
+                        .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
+                }
+        }
     }
 }
 

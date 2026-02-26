@@ -12,30 +12,34 @@ extension HomeView {
   final class ViewModel: ObservableObject {
     let networkManager: NetworkManagerProtocol
     let modelContext: ModelContext
+      
+    private var lastUploadURL: URL?
 
     @Published var showAddBookModal: Bool = false
-    var onAddBookCompletion: (Result<URL, Error>) -> Void
+    @Published var showFileAccessAlert: Bool = false
+    @Published var uploadState: BookUploadState?
 
     init(networkManager: NetworkManagerProtocol, modelContext: ModelContext) {
       self.networkManager = networkManager
       self.modelContext = modelContext
+    }
 
-      self.onAddBookCompletion = { result in
+    func onAddBookCompletion(result: Result<URL, Error>) {
         switch result {
         case let .success(url):
-          Task {
-            do {
-              let uploadResult = try await networkManager.uploadBook(url)
-              print(uploadResult) // TODO: Поменять на алерт или что-нибудь
-            } catch {
-              // TODO: добавить обработку ошибок
-              print("Ошибка загрузки файла: \(error)")
+            lastUploadURL = url
+            Task { @MainActor in
+                uploadState = .loading
+                do {
+                    _ = try await networkManager.uploadBook(url)
+                    uploadState = .success
+                } catch {
+                    uploadState = uploadState(from: error)
+                }
             }
-          }
         default:
-          break
+            break
         }
-      }
     }
 
     func fetch() {
@@ -50,6 +54,14 @@ extension HomeView {
           print(error)
         }
       }
+    }
+      
+    func retryUpload() {
+        guard let url = lastUploadURL else {
+            uploadState = nil
+            return
+        }
+        onAddBookCompletion(result: .success(url))
     }
 
     private func syncBooks(fetchedBooks: [BookMetaResponse]) {
@@ -84,7 +96,53 @@ extension HomeView {
     }
 
     func addBookAction() {
-      showAddBookModal = true
+        let fileAccessAllowed = UserDefaults.standard.bool(forKey: UserDefaultsKeys.fileAccessAllowedKey)
+
+        if fileAccessAllowed {
+            showAddBookModal = true
+        } else {
+            showFileAccessAlert = true
+        }
+    }
+
+    /// Вызывается при нажатии «Разрешить» в алерте доступа к файлам — открывает окно выбора файла.
+    func confirmFileAccessAndOpenPicker() {
+        UserDefaults.standard.set(true, forKey: UserDefaultsKeys.fileAccessAllowedKey)
+        showFileAccessAlert = false
+        showAddBookModal = true
+    }
+
+    /// Вызывается при отказе в алерте — окно выбора не открываем, при следующем нажатии «+» алерт покажется снова.
+    func declineFileAccess() {
+      showFileAccessAlert = false
     }
   }
+}
+
+// MARK: - Book Upload State
+
+extension HomeView.ViewModel {
+    enum BookUploadState: Identifiable {
+        case loading
+        case success
+        case processingError   // не удалось обработать (формат/декодирование)
+        case uploadError       // книга не была загружена (общая)
+        case networkError      // потеряно соединение с интернетом
+        
+        var id: String { String(describing: self) }
+    }
+    
+    private func uploadState(from error: Error) -> BookUploadState {
+        guard let networkError = error as? NetworkError else {
+            return .uploadError
+        }
+        switch networkError {
+        case .urlSessionError:
+            return .networkError
+        case .decodingError, .invalidResponse:
+            return .processingError
+        case .serverError:
+            return .uploadError
+        }
+    }
 }

@@ -10,6 +10,6 @@ struct BookLoadingContainer: View {
     var body: some View {
         BookLoadingView(presentable: presentable)
             .onAppear { viewModel.startTimer() }
-            .onDisappear { viewModel.timer?.invalidate() }
+            .onDisappear { viewModel.stopTimer() }
     }
 }
