@@ -12,7 +12,7 @@ extension HomeView {
   final class ViewModel: ObservableObject {
     let networkManager: NetworkManagerProtocol
     let modelContext: ModelContext
-      
+
     private var lastUploadURL: URL?
 
     @Published var showAddBookModal: Bool = false
@@ -25,21 +25,21 @@ extension HomeView {
     }
 
     func onAddBookCompletion(result: Result<URL, Error>) {
-        switch result {
-        case let .success(url):
-            lastUploadURL = url
-            Task { @MainActor in
-                uploadState = .loading
-                do {
-                    _ = try await networkManager.uploadBook(url)
-                    uploadState = .success
-                } catch {
-                    uploadState = uploadState(from: error)
-                }
-            }
-        default:
-            break
+      switch result {
+      case let .success(url):
+        lastUploadURL = url
+        Task { @MainActor in
+          uploadState = .loading
+          do {
+            _ = try await networkManager.uploadBook(url)
+            uploadState = .success
+          } catch {
+            uploadState = uploadState(from: error)
+          }
         }
+      default:
+        break
+      }
     }
 
     func fetch() {
@@ -55,13 +55,13 @@ extension HomeView {
         }
       }
     }
-      
+
     func retryUpload() {
-        guard let url = lastUploadURL else {
-            uploadState = nil
-            return
-        }
-        onAddBookCompletion(result: .success(url))
+      guard let url = lastUploadURL else {
+        uploadState = nil
+        return
+      }
+      onAddBookCompletion(result: .success(url))
     }
 
     private func syncBooks(fetchedBooks: [BookMetaResponse]) {
@@ -96,20 +96,20 @@ extension HomeView {
     }
 
     func addBookAction() {
-        let fileAccessAllowed = UserDefaults.standard.bool(forKey: UserDefaultsKeys.fileAccessAllowedKey)
+      let fileAccessAllowed = UserDefaults.standard.bool(forKey: UserDefaultsKeys.fileAccessAllowedKey)
 
-        if fileAccessAllowed {
-            showAddBookModal = true
-        } else {
-            showFileAccessAlert = true
-        }
+      if fileAccessAllowed {
+        showAddBookModal = true
+      } else {
+        showFileAccessAlert = true
+      }
     }
 
     /// Вызывается при нажатии «Разрешить» в алерте доступа к файлам — открывает окно выбора файла.
     func confirmFileAccessAndOpenPicker() {
-        UserDefaults.standard.set(true, forKey: UserDefaultsKeys.fileAccessAllowedKey)
-        showFileAccessAlert = false
-        showAddBookModal = true
+      UserDefaults.standard.set(true, forKey: UserDefaultsKeys.fileAccessAllowedKey)
+      showFileAccessAlert = false
+      showAddBookModal = true
     }
 
     /// Вызывается при отказе в алерте — окно выбора не открываем, при следующем нажатии «+» алерт покажется снова.
@@ -122,27 +122,27 @@ extension HomeView {
 // MARK: - Book Upload State
 
 extension HomeView.ViewModel {
-    enum BookUploadState: Identifiable {
-        case loading
-        case success
-        case processingError   // не удалось обработать (формат/декодирование)
-        case uploadError       // книга не была загружена (общая)
-        case networkError      // потеряно соединение с интернетом
-        
-        var id: String { String(describing: self) }
+  enum BookUploadState: Identifiable {
+    case loading
+    case success
+    case processingError // не удалось обработать (формат/декодирование)
+    case uploadError // книга не была загружена (общая)
+    case networkError // потеряно соединение с интернетом
+
+    var id: String { String(describing: self) }
+  }
+
+  private func uploadState(from error: Error) -> BookUploadState {
+    guard let networkError = error as? NetworkError else {
+      return .uploadError
     }
-    
-    private func uploadState(from error: Error) -> BookUploadState {
-        guard let networkError = error as? NetworkError else {
-            return .uploadError
-        }
-        switch networkError {
-        case .urlSessionError:
-            return .networkError
-        case .decodingError, .invalidResponse:
-            return .processingError
-        case .serverError:
-            return .uploadError
-        }
+    switch networkError {
+    case .urlSessionError:
+      return .networkError
+    case .decodingError, .invalidResponse:
+      return .processingError
+    case .serverError:
+      return .uploadError
     }
+  }
 }
