@@ -82,13 +82,14 @@ struct BookFullResponseDTO: Codable {
 }
 
 struct BookMetaResponseDTO: Codable {
-  let id: String
+  let id: String?
   let title: String
-  let editionNumber: Int
-  let year: Int
+  let editionNumber: Int?
+  let year: Int?
   let publisher: String
-  let authors: String
-  let genres: String
+  let language: String?
+  let authors: [BooksAuthor]
+  let genres: [BooksGenre]
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -96,13 +97,33 @@ struct BookMetaResponseDTO: Codable {
     case editionNumber = "edition_number"
     case year
     case publisher
+    case language
     case authors
     case genres
   }
 }
 
+struct BooksAuthor: Codable {
+  let id: String?
+  let firstName: String
+  let lastName: String
+}
+
+struct BooksGenre: Codable {
+  let id: String?
+  let name: String
+  let desciption: String?
+}
+
 struct BooksMetaResponseDTO: Codable {
   let books: [BookMetaResponseDTO]
+  let meta: [BooksMeta]
+}
+
+struct BooksMeta: Codable {
+  let total: Int
+  let limit: Int
+  let offset: Int
 }
 
 struct HTTPValidationErrorDTO: Codable {
