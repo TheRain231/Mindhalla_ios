@@ -39,7 +39,7 @@ struct BookOverview: View {
   }
 
   private var authorView: some View {
-    Text(book.authors)
+    Text(book.authors.joined(separator: ", "))
       .font(.system(size: 20))
       .foregroundStyle(.secondary)
   }

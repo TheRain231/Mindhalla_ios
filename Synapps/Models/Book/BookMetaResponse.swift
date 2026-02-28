@@ -15,12 +15,12 @@ final class BookMetaResponse {
   var editionNumber: Int
   var year: Int
   var publisher: String
-  var authors: String
-  var genres: String
+  var authors: [String]
+  var genres: [String]
 
   var coverImageUrl: URL?
 
-  init(id: String, title: String, editionNumber: Int, year: Int, publisher: String, authors: String, genres: String, coverImageUrl: URL? = nil) {
+  init(id: String, title: String, editionNumber: Int, year: Int, publisher: String, authors: [String], genres: [String], coverImageUrl: URL? = nil) {
     self.id = id
     self.title = title
     self.editionNumber = editionNumber
