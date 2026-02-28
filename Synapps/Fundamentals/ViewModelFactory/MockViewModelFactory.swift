@@ -13,8 +13,8 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   let networkManager: NetworkManagerProtocol = MockNetworkManager()
   @MainActor // для mainContext
   let modelContainer: ModelContainer = {
-    let schema = Schema([BookFullResponse.self, BookMetaResponse.self])
-    let cfg = ModelConfiguration(for: BookFullResponse.self, BookMetaResponse.self, isStoredInMemoryOnly: true)
+    let schema = Schema([BookByIdResponse.self, BookMetaResponse.self])
+    let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self, isStoredInMemoryOnly: true)
 
     let container = try! ModelContainer(for: schema, configurations: [cfg])
 

@@ -13,7 +13,7 @@ final class MockNetworkManager: NetworkManagerProtocol {
     return (0..<10).map { _ in BookMetaResponse.mock() }
   }
 
-  func getBook(by id: String) async throws -> BookFullResponse {
+  func getBook(by id: String) async throws -> BookByIdResponse {
     .init(id: id, title: "", editionNumber: 0, year: 0, publisher: "", language: "", pages: 0, cards: Card.mocks() + [Card.mock(type: .unknown)], authorsBooks: [], genresBooks: []) // Заполним когда будет использоваться
   }
 
