@@ -1,3 +1,4 @@
+import UIKit
 import SwiftUI
 
 @MainActor @Observable
@@ -5,7 +6,7 @@ final class BookLoadingViewModel {
   private var rotationTask: Task<Void, Never>?
   private var currentMessageIndex: Int = 0
 
-  var currentMessage: String {
+  var currentMessage: LocalizedStringKey {
     BookLoadingViewModel.messages[currentMessageIndex]
   }
 
@@ -13,11 +14,14 @@ final class BookLoadingViewModel {
 
   func startTimer() {
     guard rotationTask == nil else { return }
-    rotationTask = Task { [showMessageInterval] in
-      while !Task.isCancelled {
-        try? await Task.sleep(for: .seconds(showMessageInterval))
+    rotationTask = Task { [weak self] in
+        guard let self else { return }
+        while !Task.isCancelled {
+        try? await Task.sleep(for: .seconds(self.showMessageInterval))
         if Task.isCancelled { break }
-        currentMessageIndex = (currentMessageIndex + 1) % BookLoadingViewModel.messages.count
+        withAnimation {
+            self.currentMessageIndex = (self.currentMessageIndex + 1) % BookLoadingViewModel.messages.count
+        }
       }
     }
   }
@@ -29,21 +33,27 @@ final class BookLoadingViewModel {
 }
 
 extension BookLoadingViewModel {
-  static let messages: [String] = [
-    "Выжимаем информационный сок",
-    "Переводим на человеческий",
-    "Листаем 300 страниц",
-    "Отделяем факты от воды",
-    "Сжимаем главы до тезисов",
-    "Подсвечиваем ключевые мысли маркером",
-    "Вытаскиваем смысл между строк",
-    "Складываем аргументы по полочкам",
-    "Моем текст от канцелярита",
-    "Перевариваем идеи без потерь вкуса",
-    "Переплавляем главы в чек-листы",
-    "Находим повторы и вычеркиваем лишнее",
-    "Соединяем  мысли в систему",
-    "Готовим краткий конспект к подаче",
-    "Сканируем цитаты великих",
+  static let messages: [LocalizedStringKey] = [
+    "Loading.DynamicMessage.Squeezing out the information juice",
+    "Loading.DynamicMessage.Translating into human",
+    "Loading.DynamicMessage.Flipping through 300 pages",
+    "Loading.DynamicMessage.Separating facts from water",
+    "Loading.DynamicMessage.Condensing chapters into theses",
+    "Loading.DynamicMessage.Highlighting key ideas with a marker",
+    "Loading.DynamicMessage.Extracting meaning between the lines",
+    "Loading.DynamicMessage.Putting the arguments in order",
+    "Loading.DynamicMessage.Washing the text from officialese",
+    "Loading.DynamicMessage.Digesting ideas without losing taste",
+    "Loading.DynamicMessage.Turning chapters into checklists",
+    "Loading.DynamicMessage.Finding repetitions and cross out unnecessary ones",
+    "Loading.DynamicMessage.Connecting thoughts into a system",
+    "Loading.DynamicMessage.Preparing a short outline for submission",
+    "Loading.DynamicMessage.Scanning quotes from greats",
   ]
+}
+
+extension BookLoadingViewModel {
+    private enum Localized {
+        
+    }
 }

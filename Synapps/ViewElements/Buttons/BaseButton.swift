@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct BaseButton: View {
-  let title: String
+  let title: LocalizedStringKey
   let action: () -> Void
   let configuration: Configuration
 
   init(
-    title: String,
+    title: LocalizedStringKey,
     action: @escaping () -> Void,
     configuration: Configuration = .init()
   ) {
@@ -42,20 +42,32 @@ extension BaseButton {
 }
 
 extension BaseButton {
-  static let tryAgain: BaseButton = .init(
-    title: "Повторить",
-    action: {},
-    configuration: .init()
-  )
+    static func readInCards(_ action: @escaping () -> Void) -> BaseButton {
+        Self(
+            title: "BaseButton.ReadInCards",
+            action: action,
+            configuration: .init()
+        )
+    }
 
-  static let downloadAgain: BaseButton = .init(
-    title: "Загрузить заново",
-    action: {},
-    configuration: .init()
-  )
+    static func tryAgain(_ action: @escaping () -> Void) -> BaseButton {
+        Self(
+            title: "BaseButton.TryAgain",
+            action: action,
+            configuration: .init()
+        )
+    }
+    
+    static func downloadAgain(_ action: @escaping () -> Void) -> BaseButton {
+        Self(
+            title: "BaseButton.DownloadAgain",
+            action: action,
+            configuration: .init()
+        )
+    }
 }
 
 #Preview {
-  BaseButton.tryAgain
-  BaseButton.downloadAgain
+    BaseButton.tryAgain({})
+    BaseButton.downloadAgain({})
 }

@@ -34,10 +34,13 @@ extension BookLoadingView {
 
 extension BookLoadingView {
   struct Presentable {
-    var title: String
-    let message: String
+    var title: LocalizedStringKey
+    let message: LocalizedStringKey
 
-    init(title: String, message: String = "Книга будет преобразована в набор карточек для прочтения. Мы оставим только самое важное для экономии вашего времени") {
+      init(
+        title: LocalizedStringKey,
+        message: LocalizedStringKey = Localized.defaultLoadingMessage
+      ) {
       self.title = title
       self.message = message
     }
@@ -46,9 +49,16 @@ extension BookLoadingView {
 
 extension BookLoadingView {
   static let `default` = BookLoadingView.Presentable(
-    title: "Вычленяем важное...",
-    message: "Книга будет преобразована в набор карточек для прочтения. Мы оставим только самое важное для экономии вашего времени"
+    title: Localized.defaultLoadingTitle,
+    message: Localized.defaultLoadingMessage
   )
+}
+
+extension BookLoadingView {
+    private enum Localized {
+        static let defaultLoadingTitle = LocalizedStringKey("Loading.DefaultTitle")
+        static let defaultLoadingMessage = LocalizedStringKey("Loading.DefaultMessage")
+    }
 }
 
 #Preview {
