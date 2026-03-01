@@ -1,5 +1,5 @@
-import UIKit
 import SwiftUI
+import UIKit
 
 @MainActor @Observable
 final class BookLoadingViewModel {
@@ -15,12 +15,12 @@ final class BookLoadingViewModel {
   func startTimer() {
     guard rotationTask == nil else { return }
     rotationTask = Task { [weak self] in
-        guard let self else { return }
-        while !Task.isCancelled {
+      guard let self else { return }
+      while !Task.isCancelled {
         try? await Task.sleep(for: .seconds(self.showMessageInterval))
         if Task.isCancelled { break }
         withAnimation {
-            self.currentMessageIndex = (self.currentMessageIndex + 1) % BookLoadingViewModel.messages.count
+          self.currentMessageIndex = (self.currentMessageIndex + 1) % BookLoadingViewModel.messages.count
         }
       }
     }
@@ -53,7 +53,5 @@ extension BookLoadingViewModel {
 }
 
 extension BookLoadingViewModel {
-    private enum Localized {
-        
-    }
+  private enum Localized {}
 }

@@ -42,32 +42,32 @@ extension BaseButton {
 }
 
 extension BaseButton {
-    static func readInCards(_ action: @escaping () -> Void) -> BaseButton {
-        Self(
-            title: "BaseButton.ReadInCards",
-            action: action,
-            configuration: .init()
-        )
-    }
+  static func readInCards(_ action: @escaping () -> Void) -> BaseButton {
+    Self(
+      title: "BaseButton.ReadInCards",
+      action: action,
+      configuration: .init()
+    )
+  }
 
-    static func tryAgain(_ action: @escaping () -> Void) -> BaseButton {
-        Self(
-            title: "BaseButton.TryAgain",
-            action: action,
-            configuration: .init()
-        )
-    }
-    
-    static func downloadAgain(_ action: @escaping () -> Void) -> BaseButton {
-        Self(
-            title: "BaseButton.DownloadAgain",
-            action: action,
-            configuration: .init()
-        )
-    }
+  static func tryAgain(_ action: @escaping () -> Void) -> BaseButton {
+    Self(
+      title: "BaseButton.TryAgain",
+      action: action,
+      configuration: .init()
+    )
+  }
+
+  static func downloadAgain(_ action: @escaping () -> Void) -> BaseButton {
+    Self(
+      title: "BaseButton.DownloadAgain",
+      action: action,
+      configuration: .init()
+    )
+  }
 }
 
 #Preview {
-    BaseButton.tryAgain({})
-    BaseButton.downloadAgain({})
+  BaseButton.tryAgain {}
+  BaseButton.downloadAgain {}
 }
