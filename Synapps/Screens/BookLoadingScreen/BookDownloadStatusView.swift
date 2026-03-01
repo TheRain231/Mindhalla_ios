@@ -54,8 +54,8 @@ struct BookDownloadStatusView: View {
     }
   }
 
-  private func imageView(_ image: UIImage) -> some View {
-    Image(uiImage: image)
+  private func imageView(_ image: Image) -> some View {
+    image
       .resizable()
       .scaledToFit()
       .frame(
@@ -78,7 +78,7 @@ extension BookDownloadStatusView {
   struct Presentable {
     let title: String
     let message: String
-    let image: UIImage
+    let image: Image
     let buttons: [BaseButton]
   }
 }
@@ -131,44 +131,84 @@ extension BookDownloadStatusView {
 extension BookDownloadStatusView.Presentable {
   static func success(onReadCards: @escaping () -> Void) -> Self {
     .init(
-      title: "Книга успешно загружена",
-      message: "И разбита на...",
-      image: UIImage(resource: .bookDownloadSuccess),
-      buttons: [BaseButton(title: "Читать в карточках", action: onReadCards)]
+      title: Localized.successLoadingTitle,
+      message: Localized.successLoadingMessage,
+      image: Image(.bookDownloadSuccess),
+      buttons: [.readInCards(onReadCards)]
     )
   }
 
   static func processingError(onRetry: @escaping () -> Void) -> Self {
     .init(
-      title: "Не удалось обработать книгу",
-      message: "Повторите попытку позже или обратитесь в поддержку",
-      image: UIImage(resource: .bookPileWithExclamationMark),
-      buttons: [BaseButton(title: "Повторить", action: onRetry)]
+        title: Localized.processingErrorTitle,
+      message: Localized.processingErrorMessage,
+      image: Image(.bookPileWithExclamationMark),
+        buttons: [.tryAgain(onRetry)]
     )
   }
 
   static func uploadError(onRetry: @escaping () -> Void) -> Self {
     .init(
-      title: "Книга не была загружена",
-      message: "Четыре соглашения. Тольтекская книга мудрости не загружена, повторите попытку",
-      image: UIImage(resource: .bookWithExclamationMark),
-      buttons: [
-        BaseButton(
-          title: "Загрузить заново",
-          action: onRetry
-        ),
-      ]
+        title: Localized.uploadErrorTitle,
+      message: Localized.uploadErrorMessage,
+      image: Image(.bookWithExclamationMark),
+      buttons: [.downloadAgain(onRetry)]
     )
   }
 
   static func networkError(onRetry: @escaping () -> Void) -> Self {
     .init(
-      title: "Потеряно соединение с интернетом",
-      message: "Возможно включен VPN. Выключите его и повторите попытку",
-      image: UIImage(resource: .tvTowerWithACross),
-      buttons: [BaseButton(title: "Повторить", action: onRetry)]
+        title: Localized.networkErrorTitle,
+      message: Localized.networkErrorMessage,
+      image: Image(.tvTowerWithACross),
+        buttons: [.tryAgain(onRetry)]
     )
   }
+}
+
+extension BookDownloadStatusView.Presentable {
+    private enum Localized {
+        static let successLoadingTitle = NSLocalizedString(
+            "Loading.Success.Title",
+            comment: "Loading. Успешная загрузка книги. Заголовок"
+        )
+
+        static let successLoadingMessage = NSLocalizedString(
+            "Loading.Success.Subtitle",
+            comment: "Loading. Успешная загрузка книги. Подзаголовок"
+        )
+
+        static let processingErrorTitle = NSLocalizedString(
+            "Loading.Error.Processing.Title",
+            comment: "Loading. Ошибка декодирования при загрузке книги. Заголовок"
+        )
+
+        static let processingErrorMessage = NSLocalizedString(
+            "Loading.Error.Processing.Subtitle",
+            comment: "Loading. Ошибка декодирования при загрузке книги. Подзаголовок"
+        )
+
+        static let uploadErrorTitle = NSLocalizedString(
+            "Loading.Error.Upload.Title",
+            comment: "Loading. Общая ошибка загрузки книги. Заголовок"
+        )
+
+        static let uploadErrorMessage = NSLocalizedString(
+            "Loading.Error.Upload.Subtitle",
+            comment: "Loading. Общая ошибка загрузки книги. Подзаголовок"
+        )
+
+        static let networkErrorTitle = NSLocalizedString(
+            "Loading.Error.Network.Title",
+            comment: "Loading. Ошибка сети при загрузке книги. Заголовок"
+        )
+
+        static let networkErrorMessage = NSLocalizedString(
+            "Loading.Error.Network.Subtitle",
+            comment: "Loading. Ошибка сети при загрузке книги. Подзаголовок"
+        )
+        
+    }
 }
 
 #Preview {
@@ -176,8 +216,8 @@ extension BookDownloadStatusView.Presentable {
     presentable: BookDownloadStatusView.Presentable(
       title: "Потеряно соединение с интернетом",
       message: "Возможно включен VPN. Выключите его и повторите попытку",
-      image: UIImage(resource: .tvTowerWithACross),
-      buttons: [.tryAgain]
+      image: Image(.tvTowerWithACross),
+      buttons: [.tryAgain({})]
     ),
     configuration: .default
   )
@@ -188,7 +228,7 @@ extension BookDownloadStatusView.Presentable {
     presentable: BookDownloadStatusView.Presentable(
       title: "Книга успешно загружена",
       message: "И разбита на...",
-      image: UIImage(resource: .bookDownloadSuccess),
+      image: Image(.bookDownloadSuccess),
       buttons: [BaseButton(
         title: "Читать в карточках",
         action: {},
