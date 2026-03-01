@@ -72,16 +72,24 @@ struct HomeView: View {
       }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
-          Button {
-            viewModel.addBookAction()
-          } label: {
-            Image(systemName: "plus")
+          if viewModel.isLoading {
+            ProgressView()
+              .progressViewStyle(.circular)
+          } else {
+            Button {
+              viewModel.addBookAction()
+            } label: {
+              Image(systemName: "plus")
+            }
           }
         }
       }
-    }
-    .onAppear {
-      viewModel.fetch()
+      .task(id: viewModel.loadTrigger) {
+        await viewModel.fetch()
+      }
+      .refreshable {
+        viewModel.reload()
+      }
     }
   }
 }

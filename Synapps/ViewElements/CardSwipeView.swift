@@ -52,7 +52,7 @@ public struct CardSwiperView<Item, Content: View>: View {
   public var body: some View {
     ZStack {
       ForEach(cards.indices, id: \.self) { index in
-        let relative = max(currentIndexBinding - index, currentIndex - index)
+        let relative = currentIndexBinding - index
 
         CardView(
           index: index,
@@ -176,7 +176,7 @@ public struct CardSwiperView<Item, Content: View>: View {
     }
 
     private var bookmarkOpacity: Double {
-      isDismissed ? 1 : 0
+      isDismissed && swipeDirection == .right ? 1 : 0
     }
 
     private var swipeDirection: SwipeDirection {
