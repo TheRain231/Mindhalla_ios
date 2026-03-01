@@ -32,7 +32,6 @@ extension HomeView {
           uploadState = .loading
           do {
             _ = try await networkManager.uploadBook(url)
-            try await Task.sleep(for: .seconds(30))
             uploadState = .success
           } catch {
             uploadState = uploadState(from: error)
