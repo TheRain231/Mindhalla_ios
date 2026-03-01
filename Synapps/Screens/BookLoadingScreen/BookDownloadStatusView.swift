@@ -140,16 +140,16 @@ extension BookDownloadStatusView.Presentable {
 
   static func processingError(onRetry: @escaping () -> Void) -> Self {
     .init(
-        title: Localized.processingErrorTitle,
+      title: Localized.processingErrorTitle,
       message: Localized.processingErrorMessage,
       image: Image(.bookPileWithExclamationMark),
-        buttons: [.tryAgain(onRetry)]
+      buttons: [.tryAgain(onRetry)]
     )
   }
 
   static func uploadError(onRetry: @escaping () -> Void) -> Self {
     .init(
-        title: Localized.uploadErrorTitle,
+      title: Localized.uploadErrorTitle,
       message: Localized.uploadErrorMessage,
       image: Image(.bookWithExclamationMark),
       buttons: [.downloadAgain(onRetry)]
@@ -158,57 +158,56 @@ extension BookDownloadStatusView.Presentable {
 
   static func networkError(onRetry: @escaping () -> Void) -> Self {
     .init(
-        title: Localized.networkErrorTitle,
+      title: Localized.networkErrorTitle,
       message: Localized.networkErrorMessage,
       image: Image(.tvTowerWithACross),
-        buttons: [.tryAgain(onRetry)]
+      buttons: [.tryAgain(onRetry)]
     )
   }
 }
 
 extension BookDownloadStatusView.Presentable {
-    private enum Localized {
-        static let successLoadingTitle = NSLocalizedString(
-            "Loading.Success.Title",
-            comment: "Loading. Успешная загрузка книги. Заголовок"
-        )
+  private enum Localized {
+    static let successLoadingTitle = NSLocalizedString(
+      "Loading.Success.Title",
+      comment: "Loading. Успешная загрузка книги. Заголовок"
+    )
 
-        static let successLoadingMessage = NSLocalizedString(
-            "Loading.Success.Subtitle",
-            comment: "Loading. Успешная загрузка книги. Подзаголовок"
-        )
+    static let successLoadingMessage = NSLocalizedString(
+      "Loading.Success.Subtitle",
+      comment: "Loading. Успешная загрузка книги. Подзаголовок"
+    )
 
-        static let processingErrorTitle = NSLocalizedString(
-            "Loading.Error.Processing.Title",
-            comment: "Loading. Ошибка декодирования при загрузке книги. Заголовок"
-        )
+    static let processingErrorTitle = NSLocalizedString(
+      "Loading.Error.Processing.Title",
+      comment: "Loading. Ошибка декодирования при загрузке книги. Заголовок"
+    )
 
-        static let processingErrorMessage = NSLocalizedString(
-            "Loading.Error.Processing.Subtitle",
-            comment: "Loading. Ошибка декодирования при загрузке книги. Подзаголовок"
-        )
+    static let processingErrorMessage = NSLocalizedString(
+      "Loading.Error.Processing.Subtitle",
+      comment: "Loading. Ошибка декодирования при загрузке книги. Подзаголовок"
+    )
 
-        static let uploadErrorTitle = NSLocalizedString(
-            "Loading.Error.Upload.Title",
-            comment: "Loading. Общая ошибка загрузки книги. Заголовок"
-        )
+    static let uploadErrorTitle = NSLocalizedString(
+      "Loading.Error.Upload.Title",
+      comment: "Loading. Общая ошибка загрузки книги. Заголовок"
+    )
 
-        static let uploadErrorMessage = NSLocalizedString(
-            "Loading.Error.Upload.Subtitle",
-            comment: "Loading. Общая ошибка загрузки книги. Подзаголовок"
-        )
+    static let uploadErrorMessage = NSLocalizedString(
+      "Loading.Error.Upload.Subtitle",
+      comment: "Loading. Общая ошибка загрузки книги. Подзаголовок"
+    )
 
-        static let networkErrorTitle = NSLocalizedString(
-            "Loading.Error.Network.Title",
-            comment: "Loading. Ошибка сети при загрузке книги. Заголовок"
-        )
+    static let networkErrorTitle = NSLocalizedString(
+      "Loading.Error.Network.Title",
+      comment: "Loading. Ошибка сети при загрузке книги. Заголовок"
+    )
 
-        static let networkErrorMessage = NSLocalizedString(
-            "Loading.Error.Network.Subtitle",
-            comment: "Loading. Ошибка сети при загрузке книги. Подзаголовок"
-        )
-        
-    }
+    static let networkErrorMessage = NSLocalizedString(
+      "Loading.Error.Network.Subtitle",
+      comment: "Loading. Ошибка сети при загрузке книги. Подзаголовок"
+    )
+  }
 }
 
 #Preview {
@@ -217,7 +216,7 @@ extension BookDownloadStatusView.Presentable {
       title: "Потеряно соединение с интернетом",
       message: "Возможно включен VPN. Выключите его и повторите попытку",
       image: Image(.tvTowerWithACross),
-      buttons: [.tryAgain({})]
+      buttons: [.tryAgain {}]
     ),
     configuration: .default
   )

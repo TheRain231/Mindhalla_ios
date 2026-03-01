@@ -37,10 +37,10 @@ extension BookLoadingView {
     var title: LocalizedStringKey
     let message: LocalizedStringKey
 
-      init(
-        title: LocalizedStringKey,
-        message: LocalizedStringKey = Localized.defaultLoadingMessage
-      ) {
+    init(
+      title: LocalizedStringKey,
+      message: LocalizedStringKey = Localized.defaultLoadingMessage
+    ) {
       self.title = title
       self.message = message
     }
@@ -55,10 +55,10 @@ extension BookLoadingView {
 }
 
 extension BookLoadingView {
-    private enum Localized {
-        static let defaultLoadingTitle = LocalizedStringKey("Loading.DefaultTitle")
-        static let defaultLoadingMessage = LocalizedStringKey("Loading.DefaultMessage")
-    }
+  private enum Localized {
+    static let defaultLoadingTitle = LocalizedStringKey("Loading.DefaultTitle")
+    static let defaultLoadingMessage = LocalizedStringKey("Loading.DefaultMessage")
+  }
 }
 
 #Preview {
