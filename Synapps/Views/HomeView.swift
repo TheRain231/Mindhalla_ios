@@ -12,6 +12,7 @@ struct HomeView: View {
   @StateObject var viewModel: ViewModel
   @Environment(\.viewModelFactory) var factory
   @Query private var books: [BookMetaResponse]
+  @State private var bookLoadingViewModel = BookLoadingViewModel()
 
   var body: some View {
     NavigationStack {
@@ -27,6 +28,43 @@ struct HomeView: View {
         .padding(.horizontal)
       }
       .fileImporter(isPresented: $viewModel.showAddBookModal, allowedContentTypes: [.pdf], onCompletion: viewModel.onAddBookCompletion)
+      .alert("Доступ к файлам", isPresented: $viewModel.showFileAccessAlert) {
+        Button("Разрешить") {
+          viewModel.confirmFileAccessAndOpenPicker()
+        }
+        Button("Не сейчас", role: .cancel) {
+          viewModel.declineFileAccess()
+        }
+      } message: {
+        Text("Чтобы добавить книгу, нужно выбрать PDF-файл с устройства. Разрешить доступ к файлам?")
+      }
+      .fullScreenCover(item: $viewModel.uploadState) { state in
+        switch state {
+        case .loading:
+          BookLoadingContainer(viewModel: bookLoadingViewModel)
+        case .success:
+          BookDownloadStatusView(
+            presentable: .success(onReadCards: { // go to cards
+            }),
+            configuration: .fullWidthLeftAlignment
+          )
+        case .processingError:
+          BookDownloadStatusView(
+            presentable: .processingError(onRetry: { viewModel.retryUpload() }),
+            configuration: .default
+          )
+        case .uploadError:
+          BookDownloadStatusView(
+            presentable: .uploadError(onRetry: { viewModel.retryUpload() }),
+            configuration: .default
+          )
+        case .networkError:
+          BookDownloadStatusView(
+            presentable: .networkError(onRetry: { viewModel.retryUpload() }),
+            configuration: .default
+          )
+        }
+      }
       .navigationTitle("my_books")
       .navigationDestination(for: BookMetaResponse.self) { book in
         CardsView(viewModel: factory.createCardsViewModel(cardID: book.id))
