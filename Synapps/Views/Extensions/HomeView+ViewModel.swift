@@ -15,9 +15,11 @@ extension HomeView {
 
     private var lastUploadURL: URL?
 
+    @Published var isLoading: Bool = false
     @Published var showAddBookModal: Bool = false
     @Published var showFileAccessAlert: Bool = false
     @Published var uploadState: BookUploadState?
+    @Published var loadTrigger = UUID()
 
     init(networkManager: NetworkManagerProtocol, modelContext: ModelContext) {
       self.networkManager = networkManager
@@ -42,17 +44,20 @@ extension HomeView {
       }
     }
 
-    func fetch() {
-      Task {
-        do {
-          let fetchedBooks = try await networkManager.getAllBooks()
-          await MainActor.run {
-            syncBooks(fetchedBooks: fetchedBooks) // TODO: Надо разобраться и исправить warning
-          }
-        } catch {
-          // TODO: добавить обработку ошибок
-          print(error)
-        }
+    func reload() {
+      loadTrigger = UUID()
+    }
+
+    @MainActor
+    func fetch() async {
+      isLoading = true
+      defer { isLoading = false }
+
+      do {
+        let fetchedBooks = try await networkManager.getAllBooks()
+        syncBooks(fetchedBooks: fetchedBooks)
+      } catch {
+        print(error)
       }
     }
 
