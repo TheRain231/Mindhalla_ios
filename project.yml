@@ -8,6 +8,9 @@ packages:
   AnyCodable:
     url: https://github.com/Flight-School/AnyCodable
     from: 0.6.0
+  Lottie:
+    url: https://github.com/airbnb/lottie-ios
+    from: 4.6.0
 settings:
   GENERATE_INFOPLIST_FILE: NO
 targets:
@@ -21,5 +24,6 @@ targets:
             INFOPLIST_FILE: "Synapps/Info.plist"
         dependencies:
           - package: AnyCodable
+          - package: Lottie
         
 

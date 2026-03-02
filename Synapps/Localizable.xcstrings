@@ -1,6 +1,508 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "BaseButton.DownloadAgain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download again"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузить заново"
+          }
+        }
+      }
+    },
+    "BaseButton.ReadInCards" : {
+      "comment" : "Book loading success button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read in the flashcards"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Читать в карточках"
+          }
+        }
+      }
+    },
+    "BaseButton.TryAgain" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
+          }
+        }
+      }
+    },
+    "Loading.DefaultMessage" : {
+      "comment" : "The subtitle of the loading view",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The book will be converted into a set of flashcards for you to read. We'll leave only the most important parts to save you time."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Книга будет преобразована в набор карточек для прочтения. Мы оставим только самое важное для экономии вашего времени"
+          }
+        }
+      }
+    },
+    "Loading.DefaultTitle" : {
+      "comment" : "The title of the loading view",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let's highlight the important..."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вычленяем важное…"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Condensing chapters into theses" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condensing chapters into theses"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сжимаем главы до тезисов"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Connecting thoughts into a system" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting thoughts into a system"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Соединяем  мысли в системy"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Digesting ideas without losing taste" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digesting ideas without losing taste"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перевариваем идеи без потерь вкуса"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Extracting meaning between the lines" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extracting meaning between the lines"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вытаскиваем смысл между строк"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Finding repetitions and cross out unnecessary ones" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finding repetitions and cross out unnecessary ones"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Находим повторы и вычеркиваем лишнее"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Flipping through 300 pages" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flipping through 300 pages"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Листаем 300 страниц"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Highlighting key ideas with a marker" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highlighting key ideas with a marker"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подсвечиваем ключевые мысли маркером"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Preparing a short outline for submission" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing a short outline for submission"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готовим краткий конспект к подаче"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Putting the arguments in order" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Putting the arguments in order"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Складываем аргументы по полочкам"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Scanning quotes from greats" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scanning quotes from greats"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сканируем цитаты великих"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Separating facts from water" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Separating facts from water"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отделяем факты от воды"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Squeezing out the information juice" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Squeezing out the information juice"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выжимаем информационный сок"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Translating into human" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Translating into human"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переводим на человеческий"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Turning chapters into checklists" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turning chapters into checklists"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переплавляем главы в чек-листы"
+          }
+        }
+      }
+    },
+    "Loading.DynamicMessage.Washing the text from officialese" : {
+      "comment" : "The dynamic loading message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Washing the text from officialese"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Моем текст от канцелярита"
+          }
+        }
+      }
+    },
+    "Loading.Error.Network.Subtitle" : {
+      "comment" : "Book loading error subtitle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your VPN may be turned on. Turn it off and try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Возможно включен VPN. Выключите его и повторите попытку"
+          }
+        }
+      }
+    },
+    "Loading.Error.Network.Title" : {
+      "comment" : "Book loading error title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet connection lost"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Потеряно соединение с интернетом"
+          }
+        }
+      }
+    },
+    "Loading.Error.Processing.Subtitle" : {
+      "comment" : "Book loading error subtitle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please try again later or contact support."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Повторите попытку позже или обратитесь в поддержку"
+          }
+        }
+      }
+    },
+    "Loading.Error.Processing.Title" : {
+      "comment" : "Book loading error title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to process the book"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Не удалось обработать книгу"
+          }
+        }
+      }
+    },
+    "Loading.Error.Upload.Subtitle" : {
+      "comment" : "Book loading error subtitle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Four Agreements. The Toltec Book of Wisdom failed to load. Please try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Четыре соглашения. Тольтекская книга мудрости не загружена, повторите попытку"
+          }
+        }
+      }
+    },
+    "Loading.Error.Upload.Title" : {
+      "comment" : "Book loading error title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The book was not downloaded"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Книга не была загружена"
+          }
+        }
+      }
+    },
+    "Loading.Success.Subtitle" : {
+      "comment" : "Book loading success subtitle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "And broken into..."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "И разбита на..."
+          }
+        }
+      }
+    },
+    "Loading.Success.Title" : {
+      "comment" : "Book loading success title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Book uploaded successfully"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Книга успешно загружена"
+          }
+        }
+      }
+    },
     "my_books" : {
       "comment" : "The title of the view that lists the user's books.",
       "isCommentAutoGenerated" : true,
@@ -33,6 +535,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сохраненные"
+          }
+        }
+      }
+    },
+    "Чтобы добавить книгу, нужно выбрать PDF-файл с устройства. Разрешить доступ к файлам?" : {
+      "comment" : "A message displayed in an alert when the user tries to add a book but hasn't granted file access permission.",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To add a book, you need to select a PDF file from your device. Allow access to files?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чтобы добавить книгу, нужно выбрать PDF-файл с устройства. Разрешить доступ к файлам?"
           }
         }
       }
