@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class BookFullResponse {
+final class BookByIdResponse {
   var id: String
   var title: String
   var editionNumber: Int

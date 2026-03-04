@@ -9,7 +9,7 @@ import Foundation
 
 protocol ClientProtocol {
   func getAllBooks(completion: @escaping (BooksMetaResponseDTO?, NetworkError?) -> Void)
-  func getBookById(id: String, completion: @escaping (BookFullResponseDTO?, NetworkError?) -> Void)
+  func getBookById(id: String, completion: @escaping (BookByIdResponseDTO?, NetworkError?) -> Void)
   func uploadBook(_ fileURL: URL, completion: @escaping (UploadResponseDTO?, NetworkError?) -> Void)
 }
 
@@ -31,13 +31,13 @@ final class Client: ClientProtocol {
     }
   }
 
-  func getBookById(id: String, completion: @escaping (BookFullResponseDTO?, NetworkError?) -> Void) {
+  func getBookById(id: String, completion: @escaping (BookByIdResponseDTO?, NetworkError?) -> Void) {
     guard let urlRequest = Endpoint.getBookById(id: id).request else {
       completion(nil, .invalidResponse("Invalid URLRequest for getBookById"))
       return
     }
 
-    service.makeRequest(with: urlRequest, respModel: BookFullResponseDTO.self) { response, error in
+    service.makeRequest(with: urlRequest, respModel: BookByIdResponseDTO.self) { response, error in
       completion(response, error)
     }
   }

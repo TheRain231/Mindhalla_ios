@@ -18,8 +18,8 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
     let client = Client(service: apiService)
     networkManager = NetworkManager(client: client)
     modelContainer = {
-      let schema = Schema([BookFullResponse.self, BookMetaResponse.self])
-      let cfg = ModelConfiguration(for: BookFullResponse.self, BookMetaResponse.self)
+      let schema = Schema([BookByIdResponse.self, BookMetaResponse.self])
+      let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self)
 
       #if DEBUG
       print("Located at \(cfg.url.path(percentEncoded: false))")

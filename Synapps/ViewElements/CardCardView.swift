@@ -35,7 +35,7 @@ struct CardCardView: View {
 
   private var cardText: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text(card.context)
+      Text(card.content)
         .font(.title2)
     }
   }

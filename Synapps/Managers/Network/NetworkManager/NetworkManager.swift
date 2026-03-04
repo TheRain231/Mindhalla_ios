@@ -57,7 +57,7 @@ final class NetworkManager: NetworkManagerProtocol {
     }
   }
 
-  func getBook(by id: String) async throws -> BookFullResponse {
+  func getBook(by id: String) async throws -> BookByIdResponse {
     try await withCheckedThrowingContinuation { continuation in
       client.getBookById(id: id) { response, error in
         if let error {
@@ -70,7 +70,7 @@ final class NetworkManager: NetworkManagerProtocol {
           return
         }
 
-        let book = BookFullResponse(dto: response)
+        let book = BookByIdResponse(dto: response)
         continuation.resume(returning: book)
       }
     }

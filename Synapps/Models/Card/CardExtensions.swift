@@ -38,23 +38,25 @@ extension Card {
 
 extension Card {
   convenience init(dto: BookCardResponseDTO) {
-    let type: CardType = if let parsedType = CardType(rawValue: dto.type) {
-      parsedType
-    } else {
-      .idea
-    }
+    let type: CardType = .idea
+//    if let parsedType = CardType(rawValue: dto.type) {
+//      parsedType
+//    } else {
+//      .idea
+//    }
 
-    let references = if let dict = dto.references as? [String: Any], // TODO: Надо разобраться и исправить warning
-                        let pages = dict["pages"] as? [Int],
+    let dict = dto.references as [String: Any]
+    let references = if let pages = dict["pages"] as? [Int],
                         let originalTexts = dict["original_texts"] as? [String] {
       References(pages: pages, originalTexts: originalTexts)
     } else {
       References(pages: [], originalTexts: [])
     }
+
     self.init(
       id: dto.id,
       type: type,
-      context: dto.context,
+      content: dto.content,
       references: references,
       tags: dto.tags.map { Tag(dto: $0) }
     )
@@ -74,7 +76,7 @@ extension Tag {
     self.id = dto.id
     self.type = dto.type
     self.name = dto.name
-    self.description = dto.description
+    self.description = dto.description ?? ""
   }
 }
 
@@ -86,7 +88,7 @@ extension Card {
       Card(
         id: "c26b27dc-ef2e-46f9-823f-77afa820c202",
         type: .thesis,
-        context: "The Sorting Hat scene and its moral about choice and courage.",
+        content: "The Sorting Hat scene and its moral about choice and courage.",
         references: .init(
           pages: [
             88,
@@ -103,7 +105,7 @@ extension Card {
       Card(
         id: "b17b18cc-ef3d-46f9-823f-99afa830c101",
         type: .concept,
-        context: "Harry receives his first letter from Hogwarts.",
+        content: "Harry receives his first letter from Hogwarts.",
         references: .init(
           pages: [
             45,
@@ -120,7 +122,7 @@ extension Card {
       Card(
         id: "f8f4b3cc-ef8d-46f9-823f-89afae30c91a",
         type: .idea,
-        context: "Introduction to the Dursleys...",
+        content: "Introduction to the Dursleys...",
         references: .init(
           pages: [
             1,
@@ -138,7 +140,7 @@ extension Card {
       Card(
         id: "0",
         type: .unknown,
-        context: "...",
+        content: "...",
         references: .init(
           pages: [],
           originalTexts: []

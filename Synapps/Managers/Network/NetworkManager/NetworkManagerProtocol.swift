@@ -9,7 +9,7 @@ import Foundation
 
 protocol NetworkManagerProtocol {
   func getAllBooks() async throws -> [BookMetaResponse]
-  func getBook(by id: String) async throws -> BookFullResponse
+  func getBook(by id: String) async throws -> BookByIdResponse
 
   func uploadBook(_ fileURL: URL) async throws -> UploadFileInfoResponse
 }
