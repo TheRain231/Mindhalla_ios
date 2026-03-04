@@ -19,14 +19,14 @@ enum CardType: String, Codable {
 final class Card {
   var id: String
   var type: CardType
-  var context: String
+  var content: String
   var references: References
   var tags: [Tag]
 
-  init(id: String, type: CardType, context: String, references: References, tags: [Tag]) {
+  init(id: String, type: CardType, content: String, references: References, tags: [Tag]) {
     self.id = id
     self.type = type
-    self.context = context
+    self.content = content
     self.references = references
     self.tags = tags
   }
