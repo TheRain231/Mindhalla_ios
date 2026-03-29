@@ -47,4 +47,9 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   func createSavedViewModel() -> SavedView.ViewModel {
     SavedView.ViewModel(modelContext: modelContainer.mainContext)
   }
+
+  @MainActor
+  func createQuizViewModel() -> QuizView.ViewModel {
+    QuizView.ViewModel()
+  }
 }
