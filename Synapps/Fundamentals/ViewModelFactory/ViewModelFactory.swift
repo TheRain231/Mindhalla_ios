@@ -52,4 +52,9 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
   func createSavedViewModel() -> SavedView.ViewModel {
     SavedView.ViewModel(modelContext: modelContainer.mainContext)
   }
+
+  @MainActor
+  func createQuizViewModel() -> QuizView.ViewModel {
+    QuizView.ViewModel()
+  }
 }

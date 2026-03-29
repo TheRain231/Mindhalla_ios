@@ -23,6 +23,10 @@ extension Card {
       .purple
     case .idea:
       .orange
+    case .question:
+      .indigo
+    case .answer:
+      .green
     case .unknown:
       .gray
     }
@@ -135,6 +139,22 @@ extension Card {
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c912", type: "system", name: "some-tag-2", description: "some description 2"),
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c913", type: "system", name: "some-tag-3", description: "some description 3"),
         ]
+      )
+    case .question:
+      Card(
+        id: "q-mock-1",
+        type: .question,
+        context: "Что показывает наш истинный характер?",
+        references: .init(pages: [], originalTexts: []),
+        tags: []
+      )
+    case .answer:
+      Card(
+        id: "a-mock-1",
+        type: .answer,
+        context: "Не наши способности определяют, кто мы, а наш выбор.",
+        references: .init(pages: [], originalTexts: []),
+        tags: []
       )
     case .unknown:
       Card(

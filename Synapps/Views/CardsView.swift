@@ -12,55 +12,70 @@ struct CardsView: View {
   @StateObject var viewModel: ViewModel
 
   var body: some View {
-    VStack {
-      cardsStack
-        .onAppear {
-          viewModel.fetch()
-        }
-    }
-    .id(viewModel.viewId) // for "Reset Cards" button in Preview
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(
-      LinearGradient(
-        colors: backgroundColors(for: viewModel.topCard?.type),
-        startPoint: .bottom,
-        endPoint: .top
-      )
-    )
-  }
-
-  private var cardsStack: some View {
-    CardSwiperView(
-      cards: viewModel.cards,
+    CardStackView(
+      viewModel: viewModel,
       onCardSwiped: { swipeDirection, index in
         switch swipeDirection {
         case .left:
           print("Card swiped Left direction at index \(index)")
         case .right:
-          viewModel.saveCard(viewModel.cards[index])
+          viewModel.saveCard(viewModel.items[index])
           print("Card swiped Right direction at index \(index)")
         case .undefined:
           print("Not enough movement for card to be swipen")
         }
       },
-      currentIndex: $viewModel.topCardIndex
-    ) { card in
-      CardCardView(card: card)
+      content: { card in
+        CardCardView(card: card)
+      },
+      overlay: {
+        buttonsStack
+      }
+    )
+    .sheet(isPresented: $viewModel.isSaveViewPresented) {
+        EmptyView()
     }
+    .presentationDetents([.medium])
+    .presentationDragIndicator(.visible)
   }
-}
+    
+    private var buttonsStack: some View {
+        HStack {
+            NavigationLink(value: QuizDestination()) {
+                Image(systemName: "questionmark.app.fill")
+                    .foregroundColor(.gray.opacity(0.6))
+                    .frame(width: 24, height: 24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(.white)
+                            .frame(width: 56, height: 56)
+                            .shadow(color: .black.opacity(0.2), radius: 7)
+                    )
+            }
+            Spacer()
 
-private func backgroundColors(for type: CardType?) -> [Color] {
-  switch type {
-  case .thesis:
-    [Color(UIColor(red: 220 / 255, green: 227 / 255, blue: 234 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 243 / 255, blue: 243 / 255, alpha: 1.0))]
-  case .concept:
-    [Color(UIColor(red: 228 / 255, green: 221 / 255, blue: 234 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 243 / 255, blue: 243 / 255, alpha: 1.0))]
-  case .idea:
-    [Color(UIColor(red: 245 / 255, green: 237 / 255, blue: 227 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 241 / 255, blue: 238 / 255, alpha: 1.0))]
-  case .unknown, .none:
-    [Color(.systemBackground)]
-  }
+            Text("\(viewModel.currentCardIndex + 1) / \(viewModel.items.count)")
+            
+            Spacer()
+            
+            Button {
+                viewModel.isSaveViewPresented.toggle()
+            } label: {
+                Image("bookmark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color(hex: "9B60E9"))
+                            .frame(width: 56, height: 56)
+                            .shadow(color: .black.opacity(0.2), radius: 7)
+                    )
+            }
+        }
+        .padding(.horizontal, 60)
+        .padding(.bottom, 60)
+    }
 }
 
 #Preview("Interactive") {
@@ -69,14 +84,6 @@ private func backgroundColors(for type: CardType?) -> [Color] {
   ZStack {
     CardsView(viewModel: viewModel)
       .ignoresSafeArea()
-
-    VStack {
-      Spacer()
-      Button("Reset Cards") {
-        viewModel.resetCards()
-      }
-      .buttonStyle(.borderedProminent)
-    }
   }
 }
 
