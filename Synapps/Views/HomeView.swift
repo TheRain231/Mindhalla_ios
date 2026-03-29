@@ -70,6 +70,10 @@ struct HomeView: View {
         CardsView(viewModel: factory.createCardsViewModel(cardID: book.id))
           .ignoresSafeArea()
       }
+      .navigationDestination(for: QuizDestination.self) { _ in
+        QuizView(viewModel: factory.createQuizViewModel())
+          .ignoresSafeArea()
+      }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {
           if viewModel.isLoading {

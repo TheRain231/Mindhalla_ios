@@ -17,6 +17,7 @@ extension CardsView {
     @Published var cards: [Card]
     @Published var topCardIndex: Int
     @Published var viewId = UUID()
+      @Published var isSaveViewPresented: Bool = false
 
     init(cardID: String, networkManager: NetworkManagerProtocol, modelContext: ModelContext) {
       self.cardID = cardID
@@ -62,5 +63,16 @@ extension CardsView {
         try? modelContext.save()
       }
     }
+  }
+}
+
+extension CardsView.ViewModel: CardStackViewModel {
+  var items: [Card] {
+    get { cards }
+    set { cards = newValue }
+  }
+
+  func cardType(for item: Card) -> CardType? {
+    item.type
   }
 }
