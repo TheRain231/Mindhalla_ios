@@ -33,10 +33,10 @@ struct CardsView: View {
       }
     )
     .sheet(isPresented: $viewModel.isSaveViewPresented) {
-        EmptyView()
+        SaveBottomsheetView()
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
     }
-    .presentationDetents([.medium])
-    .presentationDragIndicator(.visible)
   }
     
     private var buttonsStack: some View {
