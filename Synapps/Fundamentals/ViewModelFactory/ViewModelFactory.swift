@@ -18,8 +18,8 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
     let client = Client(service: apiService)
     networkManager = NetworkManager(client: client)
     modelContainer = {
-      let schema = Schema([BookByIdResponse.self, BookMetaResponse.self])
-      let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self)
+      let schema = Schema([BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self])
+      let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self)
 
       #if DEBUG
       print("Located at \(cfg.url.path(percentEncoded: false))")
@@ -56,5 +56,15 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
   @MainActor
   func createQuizViewModel() -> QuizView.ViewModel {
     QuizView.ViewModel()
+  }
+
+  @MainActor
+  func createQuoteCollectionCardsViewModel() -> QuoteCollectionCardsViewModel {
+    QuoteCollectionCardsViewModel(modelContext: modelContainer.mainContext)
+  }
+
+  @MainActor
+  func createSaveBottomsheetViewModel() -> SaveBottomsheetViewModel {
+    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext)
   }
 }
