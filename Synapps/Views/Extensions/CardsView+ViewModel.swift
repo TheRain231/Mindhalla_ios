@@ -17,7 +17,8 @@ extension CardsView {
     @Published var cards: [Card]
     @Published var topCardIndex: Int
     @Published var viewId = UUID()
-      @Published var isSaveViewPresented: Bool = false
+    @Published var isSaveViewPresented: Bool = false
+    @Published var isSavedMessageVisible: Bool = false
 
     init(cardID: String, networkManager: NetworkManagerProtocol, modelContext: ModelContext) {
       self.cardID = cardID
@@ -52,7 +53,6 @@ extension CardsView {
     }
 
     func saveCard(_ card: Card) {
-      // Добавляем карточку в контекст только если её там ещё нет (по уникальному id)
       let targetId = card.id
       let predicate = #Predicate<Card> { $0.id == targetId }
       var descriptor: FetchDescriptor<Card> = FetchDescriptor(predicate: predicate)
@@ -61,6 +61,15 @@ extension CardsView {
       if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
         modelContext.insert(card)
         try? modelContext.save()
+        showSavedMessage()
+      }
+    }
+
+    private func showSavedMessage() {
+      isSavedMessageVisible = true
+      Task { @MainActor in
+        try? await Task.sleep(for: .seconds(3))
+        isSavedMessageVisible = false
       }
     }
   }

@@ -15,7 +15,7 @@ struct FlipCardView: View {
         .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
     }
     .onTapGesture {
-        withAnimation(.spring(duration: 0.5, bounce: 0.2)) {
+      withAnimation(.spring(duration: 0.5, bounce: 0.2)) {
         isFlipped.toggle()
       }
     }
@@ -30,8 +30,8 @@ struct FlipCardView: View {
   }
 }
 
-private extension FlashCard {
-  var questionCard: Card {
+extension FlashCard {
+  fileprivate var questionCard: Card {
     Card(
       id: id + "-q",
       type: .question,
@@ -41,7 +41,7 @@ private extension FlashCard {
     )
   }
 
-  var answerCard: Card {
+  fileprivate var answerCard: Card {
     Card(
       id: id + "-a",
       type: .answer,

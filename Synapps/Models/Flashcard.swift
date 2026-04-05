@@ -4,13 +4,13 @@ struct FlashCard: Identifiable {
   let id: String
   let question: String
   let answer: String
-    let isQuestionVisible: Bool = true
+  let isQuestionVisible: Bool = true
 }
 
 extension FlashCard {
-    var type: CardType {
-        isQuestionVisible ? .question : .answer
-    }
+  var type: CardType {
+    isQuestionVisible ? .question : .answer
+  }
 }
 
 #if DEBUG

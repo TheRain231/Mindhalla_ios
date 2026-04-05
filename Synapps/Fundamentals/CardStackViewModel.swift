@@ -16,9 +16,9 @@ extension CardStackViewModel {
     guard topCardIndex >= 0, topCardIndex < items.count else { return nil }
     return cardType(for: items[topCardIndex])
   }
-    
-    var currentCardIndex: Int {
-        guard topCardIndex >= 0, topCardIndex < items.count else { return 0 }
-        return items.count - topCardIndex - 1
-    }
+
+  var currentCardIndex: Int {
+    guard topCardIndex >= 0, topCardIndex < items.count else { return 0 }
+    return items.count - topCardIndex - 1
+  }
 }

@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct CardsView: View {
+  @Environment(\.viewModelFactory) var factory
   @StateObject var viewModel: ViewModel
 
   var body: some View {
@@ -29,53 +30,92 @@ struct CardsView: View {
         CardCardView(card: card)
       },
       overlay: {
-        buttonsStack
+        overlayBottomView
       }
     )
     .sheet(isPresented: $viewModel.isSaveViewPresented) {
-        SaveBottomsheetView()
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.visible)
+      SaveBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel())
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
   }
-    
-    private var buttonsStack: some View {
-        HStack {
-            NavigationLink(value: QuizDestination()) {
-                Image(systemName: "questionmark.app.fill")
-                    .foregroundColor(.gray.opacity(0.6))
-                    .frame(width: 24, height: 24)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(.white)
-                            .frame(width: 56, height: 56)
-                            .shadow(color: .black.opacity(0.2), radius: 7)
-                    )
-            }
-            Spacer()
+}
 
-            Text("\(viewModel.currentCardIndex + 1) / \(viewModel.items.count)")
-            
-            Spacer()
-            
-            Button {
-                viewModel.isSaveViewPresented.toggle()
-            } label: {
-                Image("bookmark")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14)
-                            .fill(Color(hex: "9B60E9"))
-                            .frame(width: 56, height: 56)
-                            .shadow(color: .black.opacity(0.2), radius: 7)
-                    )
-            }
+extension CardsView {
+  @ViewBuilder
+  private var savedToSectionMessage: some View {
+    if viewModel.isSavedMessageVisible {
+      HStack {
+        Text("CardsView.SavedToANewSection")
+          .foregroundStyle(.black.opacity(0.8))
+          .font(.system(size: 13))
+          .fontWeight(.regular)
+        // TODO: add a link to a section
+        Spacer()
+        Button {
+          viewModel.isSavedMessageVisible = false
+        } label: {
+          Image(systemName: "xmark")
+            .foregroundStyle(.gray.opacity(0.6))
         }
-        .padding(.horizontal, 60)
-        .padding(.bottom, 60)
+      }
+      .padding()
+      .frame(maxWidth: .infinity)
+      .background(
+        RoundedRectangle(cornerRadius: 12)
+          .fill(Color(hex: "F5F9FF"))
+          .stroke(Color(hex: "9DC0EE"))
+      )
+      .padding(.horizontal, 43)
+      .padding(.bottom, 30)
+      .transition(.move(edge: .top).combined(with: .opacity))
     }
+  }
+
+  private var buttonsStack: some View {
+    HStack {
+      NavigationLink(value: QuizDestination()) {
+        Image(systemName: "questionmark.app.fill")
+          .foregroundColor(.gray.opacity(0.6))
+          .frame(width: 24, height: 24)
+          .background(
+            RoundedRectangle(cornerRadius: 14)
+              .fill(.white)
+              .frame(width: 56, height: 56)
+              .shadow(color: .black.opacity(0.2), radius: 7)
+          )
+      }
+      Spacer()
+
+      Text("\(viewModel.currentCardIndex + 1) / \(viewModel.items.count)")
+
+      Spacer()
+
+      Button {
+        viewModel.isSaveViewPresented.toggle()
+      } label: {
+        Image("bookmark")
+          .resizable()
+          .scaledToFit()
+          .frame(width: 24, height: 24)
+          .background(
+            RoundedRectangle(cornerRadius: 14)
+              .fill(Color(hex: "9B60E9"))
+              .frame(width: 56, height: 56)
+              .shadow(color: .black.opacity(0.2), radius: 7)
+          )
+      }
+    }
+    .padding(.horizontal, 60)
+  }
+
+  private var overlayBottomView: some View {
+    VStack {
+      savedToSectionMessage
+      buttonsStack
+    }
+    .padding(.bottom, 60)
+  }
 }
 
 #Preview("Interactive") {
