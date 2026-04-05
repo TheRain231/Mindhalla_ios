@@ -1,42 +1,55 @@
 import Foundation
+import SwiftData
 import SwiftUI
 
 @MainActor @Observable
 final class SaveBottomsheetViewModel {
-    var isNewSelectionViewPresented: Bool = false
-    var searchText: String = ""
+  let modelContext: ModelContext
+  var isNewCollectionViewPresented: Bool = false
+  var searchText: String = ""
 
-    var collections: [QuoteCollection] = QuoteCollection.mocks
+  var collections: [QuoteCollection] = QuoteCollection.mocks
 
-    /// Идентификаторы выбранных подборок.
-    var selectedIds: Set<String> = []
+  /// Идентификаторы выбранных подборок.
+  var selectedIds: Set<String> = []
 
-    var filteredCollections: [QuoteCollection] {
-        if searchText.isEmpty {
-            return collections
-        } else {
-            return collections.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
-        }
+  var filteredCollections: [QuoteCollection] {
+    if searchText.isEmpty {
+      collections
+    } else {
+      collections.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
     }
+  }
 
-    func isSelected(_ collection: QuoteCollection) -> Bool {
-        selectedIds.contains(collection.id)
-    }
+  init(modelContext: ModelContext) {
+    self.modelContext = modelContext
+  }
 
-    func toggleSelection(_ collection: QuoteCollection) {
-        if selectedIds.contains(collection.id) {
-            selectedIds.remove(collection.id)
-        } else {
-            selectedIds.insert(collection.id)
-        }
-    }
-    
-    func addCollection(collection: QuoteCollection) {
-        collections.append(collection)
-        // TODO: запрос на бек с сохранением подборки / UserDefaults
-    }
+  func isSelected(_ collection: QuoteCollection) -> Bool {
+    selectedIds.contains(collection.id)
+  }
 
-    func save() {
-        // TODO: сохранить карточку в выбранные подборки (selectedIds)
+  func toggleCollection(_ collection: QuoteCollection) {
+    if selectedIds.contains(collection.id) {
+      selectedIds.remove(collection.id)
+    } else {
+      selectedIds.insert(collection.id)
     }
+  }
+
+  func saveCollection(collection: QuoteCollection) {
+    let collectionId = collection.id
+    let predicate = #Predicate<QuoteCollection> { $0.id == collectionId }
+    var descriptor: FetchDescriptor<QuoteCollection> = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
+      modelContext.insert(collection)
+      try? modelContext.save()
+    }
+  }
+
+  func save() {
+    // TODO: сохранить карточку в выбранные подборки (selectedIds)
+  }
 }

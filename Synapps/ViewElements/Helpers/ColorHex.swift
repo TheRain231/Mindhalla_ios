@@ -5,9 +5,9 @@ extension Color {
   init(hex: UInt, alpha: Double = 1) {
     self.init(
       .sRGB,
-      red: Double((hex >> 16) & 0xff) / 255,
-      green: Double((hex >> 08) & 0xff) / 255,
-      blue: Double((hex >> 00) & 0xff) / 255,
+      red: Double((hex >> 16) & 0xFF) / 255,
+      green: Double((hex >> 08) & 0xFF) / 255,
+      blue: Double((hex >> 00) & 0xFF) / 255,
       opacity: alpha
     )
   }
@@ -29,12 +29,11 @@ extension Color {
     case 6:
       self.init(hex: UInt(value), alpha: alpha)
     case 8:
-      let rgb = UInt((value >> 8) & 0xffffff)
-      let embeddedAlpha = Double(value & 0xff) / 255
+      let rgb = UInt((value >> 8) & 0xFF_FF_FF)
+      let embeddedAlpha = Double(value & 0xFF) / 255
       self.init(hex: rgb, alpha: embeddedAlpha * alpha)
     default:
       self = .clear
     }
   }
 }
-

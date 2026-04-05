@@ -65,6 +65,23 @@
         }
       }
     },
+    "CardsView.SavedToANewSection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved to a new section"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранено в новый раздел"
+          }
+        }
+      }
+    },
     "Loading.DefaultMessage" : {
       "comment" : "The subtitle of the loading view",
       "extractionState" : "manual",
@@ -533,25 +550,25 @@
         }
       }
     },
-    "NewSelectionBottomsheet.SelectionTitle" : {
+    "NewCollectionBottomsheet.CollectionTitle" : {
       "comment" : "Название подборки",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selection title"
+            "value" : "Collection title"
           }
         }
       }
     },
-    "NewSelectionBottomsheetScreen.SaveSelection" : {
+    "NewCollectionBottomsheetScreen.SaveCollection" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Create and save selection"
+            "value" : "Create and save collection"
           }
         },
         "ru" : {
@@ -579,13 +596,13 @@
         }
       }
     },
-    "SaveBottomsheetScreen.NewSelection" : {
+    "SaveBottomsheetScreen.NewCollection" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "New selection"
+            "value" : "New collection"
           }
         },
         "ru" : {
@@ -648,13 +665,47 @@
         }
       }
     },
-    "search_selection" : {
+    "SavedScreen.Cards" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search for a selection"
+            "value" : "Cards"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Карточки"
+          }
+        }
+      }
+    },
+    "SavedScreen.Collections" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collections"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Подборки"
+          }
+        }
+      }
+    },
+    "search_collection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search for a collection"
           }
         },
         "ru" : {
