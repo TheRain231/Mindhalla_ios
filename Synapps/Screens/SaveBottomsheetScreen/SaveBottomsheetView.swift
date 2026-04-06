@@ -1,9 +1,11 @@
 import Foundation
+import SwiftData
 import SwiftUI
 
 struct SaveBottomsheetView: View {
   @Environment(\.dismiss) private var dismiss
   @Bindable var viewModel: SaveBottomsheetViewModel
+  @Query(sort: \QuoteCollection.title) var collections: [QuoteCollection]
 
   var body: some View {
     NavigationStack {
@@ -15,7 +17,7 @@ struct SaveBottomsheetView: View {
           .padding(.bottom, 10)
         searchField
         newCollectionLink
-        List(viewModel.filteredCollections) { collection in
+        List(collections) { collection in
           HStack {
             checkmarkButton(collection: collection)
             Text(collection.title)
@@ -24,7 +26,6 @@ struct SaveBottomsheetView: View {
 
             HStack(spacing: 30) {
               Text(collection.quoteCount.description)
-              Image(systemName: "text.justify")
             }
             .foregroundStyle(.secondary)
             .padding(.horizontal)
@@ -61,7 +62,7 @@ extension SaveBottomsheetView {
     .background(Color(.systemGray6))
     .clipShape(RoundedRectangle(cornerRadius: 10))
     .padding(.horizontal)
-    .padding(.top, 8)
+    .padding(.top, 4)
   }
 
   private var newCollectionLink: some View {

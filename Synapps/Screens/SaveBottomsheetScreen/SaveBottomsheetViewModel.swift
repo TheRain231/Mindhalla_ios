@@ -8,18 +8,8 @@ final class SaveBottomsheetViewModel {
   var isNewCollectionViewPresented: Bool = false
   var searchText: String = ""
 
-  var collections: [QuoteCollection] = QuoteCollection.mocks
-
   /// Идентификаторы выбранных подборок.
   var selectedIds: Set<String> = []
-
-  var filteredCollections: [QuoteCollection] {
-    if searchText.isEmpty {
-      collections
-    } else {
-      collections.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
-    }
-  }
 
   init(modelContext: ModelContext) {
     self.modelContext = modelContext

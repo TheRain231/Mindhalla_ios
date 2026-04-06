@@ -35,7 +35,7 @@ extension FlashCard {
     Card(
       id: id + "-q",
       type: .question,
-      context: question,
+      content: question,
       references: References(pages: [], originalTexts: []),
       tags: []
     )
@@ -45,7 +45,7 @@ extension FlashCard {
     Card(
       id: id + "-a",
       type: .answer,
-      context: answer,
+      content: answer,
       references: References(pages: [], originalTexts: []),
       tags: []
     )

@@ -34,5 +34,5 @@ struct QuoteCollectionCardsView: View {
 #Preview {
   let factory = MockViewModelFactory()
 
-  QuoteCollectionCardsView(viewModel: factory.createQuoteCollectionCardsViewModel(), quoteCollection: QuoteCollection.mock)
+  QuoteCollectionCardsView(viewModel: factory.createQuoteCollectionCardsViewModel(), quoteCollection: QuoteCollection.mock())
 }
