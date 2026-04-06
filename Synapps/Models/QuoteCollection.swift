@@ -22,28 +22,36 @@ final class QuoteCollection: Identifiable, Hashable {
 }
 
 extension QuoteCollection {
-  static let mocks: [QuoteCollection] = [
+  static func mocks() -> [QuoteCollection] {
+    [
+      QuoteCollection(
+        id: "qc-morning",
+        title: "Утреннее чтение",
+        cardIds: ["c-1", "c-2", "c-3", "c-4"]
+      ),
+      QuoteCollection(
+        id: "qc-work",
+        title: "Идеи для работы",
+        cardIds: ["c-10", "c-11", "c-12", "c-13", "c-14", "c-15"]
+      ),
+      QuoteCollection(
+        id: "qc-empty",
+        title: "Без названия",
+        cardIds: []
+      ),
+      QuoteCollection(
+        id: "qc-favorites",
+        title: "Избранное из «Гарри Поттера»",
+        cardIds: ["c-101", "c-102", "c-103"]
+      ),
+    ]
+  }
+
+  static func mock() -> QuoteCollection {
     QuoteCollection(
       id: "qc-morning",
       title: "Утреннее чтение",
       cardIds: ["c-1", "c-2", "c-3", "c-4"]
-    ),
-    QuoteCollection(
-      id: "qc-work",
-      title: "Идеи для работы",
-      cardIds: ["c-10", "c-11", "c-12", "c-13", "c-14", "c-15"]
-    ),
-    QuoteCollection(
-      id: "qc-empty",
-      title: "Без названия",
-      cardIds: []
-    ),
-    QuoteCollection(
-      id: "qc-favorites",
-      title: "Избранное из «Гарри Поттера»",
-      cardIds: ["c-101", "c-102", "c-103"]
-    ),
-  ]
-
-  static let mock: QuoteCollection = .mocks.first!
+    )
+  }
 }

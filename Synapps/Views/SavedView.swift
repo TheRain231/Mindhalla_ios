@@ -42,6 +42,7 @@ struct SavedView: View {
           addButton
         }
       }
+      .ignoresSafeArea(edges: .bottom)
     }
   }
 }
@@ -71,6 +72,7 @@ extension SavedView {
           CardCardView(card: book)
         }
       }
+      .padding(.top)
       .padding(.horizontal)
     }
   }
@@ -84,7 +86,6 @@ extension SavedView {
 
         HStack(spacing: 30) {
           Text(collection.quoteCount.description)
-          Image(systemName: "text.justify")
         }
         .foregroundStyle(.secondary)
         .padding(.horizontal)

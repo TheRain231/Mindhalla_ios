@@ -24,7 +24,7 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
     for card in Card.mocks() {
       container.mainContext.insert(card)
     }
-    for collection in QuoteCollection.mocks {
+    for collection in QuoteCollection.mocks() {
       container.mainContext.insert(collection)
     }
 

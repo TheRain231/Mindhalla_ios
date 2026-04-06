@@ -144,7 +144,7 @@ extension Card {
       Card(
         id: "q-mock-1",
         type: .question,
-        context: "Что показывает наш истинный характер?",
+        content: "Что показывает наш истинный характер?",
         references: .init(pages: [], originalTexts: []),
         tags: []
       )
@@ -152,7 +152,7 @@ extension Card {
       Card(
         id: "a-mock-1",
         type: .answer,
-        context: "Не наши способности определяют, кто мы, а наш выбор.",
+        content: "Не наши способности определяют, кто мы, а наш выбор.",
         references: .init(pages: [], originalTexts: []),
         tags: []
       )
