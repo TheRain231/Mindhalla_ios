@@ -13,8 +13,8 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   let networkManager: NetworkManagerProtocol = MockNetworkManager()
   @MainActor // для mainContext
   let modelContainer: ModelContainer = {
-    let schema = Schema([BookByIdResponse.self, BookMetaResponse.self])
-    let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self, isStoredInMemoryOnly: true)
+    let schema = Schema([BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self])
+    let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self, isStoredInMemoryOnly: true)
 
     let container = try! ModelContainer(for: schema, configurations: [cfg])
 
@@ -23,6 +23,9 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
     }
     for card in Card.mocks() {
       container.mainContext.insert(card)
+    }
+    for collection in QuoteCollection.mocks() {
+      container.mainContext.insert(collection)
     }
 
     return container
@@ -46,5 +49,20 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   @MainActor
   func createSavedViewModel() -> SavedView.ViewModel {
     SavedView.ViewModel(modelContext: modelContainer.mainContext)
+  }
+
+  @MainActor
+  func createQuizViewModel() -> QuizView.ViewModel {
+    QuizView.ViewModel()
+  }
+
+  @MainActor
+  func createQuoteCollectionCardsViewModel() -> QuoteCollectionCardsViewModel {
+    QuoteCollectionCardsViewModel(modelContext: modelContainer.mainContext)
+  }
+
+  @MainActor
+  func createSaveBottomsheetViewModel() -> SaveBottomsheetViewModel {
+    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext)
   }
 }
