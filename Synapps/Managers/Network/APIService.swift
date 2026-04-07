@@ -50,14 +50,14 @@ class APIService: Service {
       }
 
       do {
-//        if let errorResponse = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
-//          completion(nil, .serverError(errorResponse.message))
-//          return
-//        }
-//        if let errorResponse = try? JSONDecoder().decode(smallServerErrorResponse.self, from: data) {
-//          completion(nil, .serverError(errorResponse.Message))
-//          return
-//        }
+        if let errorResponse = try? JSONDecoder().decode(ValidationErrorDTO.self, from: data) {
+          completion(nil, .serverError(errorResponse.msg))
+          return
+        }
+        if let errorResponse = try? JSONDecoder().decode(HTTPValidationErrorDTO.self, from: data) {
+          completion(nil, .serverError(errorResponse.detail?.map(\.msg).joined(separator: "\n") ?? ""))
+          return
+        }
 
         if T.self == Data.self {
           completion(data as? T, nil)
