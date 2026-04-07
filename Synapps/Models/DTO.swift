@@ -10,11 +10,6 @@ import Foundation
 
 // MARK: - Upload
 
-struct UploadRequestDTO: Codable {
-  /// Max 5 files
-  let files: [Data]
-}
-
 struct UploadResponseDTO: Codable {
   let files: [UploadFileInfoResponseDTO]
 }
@@ -55,9 +50,11 @@ struct BookMetaResponseDTO: Codable {
   let title: String
   let editionNumber: Int?
   let year: Int?
-  let publisher: String
+  let publisher: String?
   let language: String?
   let pages: Int?
+  let coverUrl: String?
+  let cardsCount: Int?
   let authors: [BookAuthorResponseDTO]
   let genres: [BookGenreResponseDTO]
 
@@ -69,6 +66,8 @@ struct BookMetaResponseDTO: Codable {
     case publisher
     case language
     case pages
+    case coverUrl = "cover_url"
+    case cardsCount = "cards_count"
     case authors
     case genres
   }
@@ -82,12 +81,15 @@ struct BookByIdResponseDTO: Codable {
   let id: String
   let filename: String
   let processingStatus: String
+  let totalChapters: Int?
+  let processedChapters: Int?
   let title: String?
   let editionNumber: Int?
   let year: Int?
   let publisher: String?
   let language: String?
   let pages: Int?
+  let coverUrl: String?
   let cards: [BookCardResponseDTO]?
   let authorsBooks: [BookAuthorResponseDTO]?
   let genresBooks: [BookGenreResponseDTO]?
@@ -96,12 +98,15 @@ struct BookByIdResponseDTO: Codable {
     case id
     case filename
     case processingStatus = "processing_status"
+    case totalChapters = "total_chapters"
+    case processedChapters = "processed_chapters"
     case title
     case editionNumber = "edition_number"
     case year
     case publisher
     case language
     case pages
+    case coverUrl = "cover_url"
     case cards
     case authorsBooks = "authors_books"
     case genresBooks = "genres_books"
@@ -154,4 +159,52 @@ struct ValidationErrorDTO: Codable {
   let loc: [AnyCodable]
   let msg: String
   let type: String
+}
+
+// MARK: - Other
+
+struct AuthTokenResponseDTO: Codable {
+  let accessToken: String
+  let refreshToken: String
+  let tokenType: String?
+  let subscriptionTier: String?
+
+  enum CodingKeys: String, CodingKey {
+    case accessToken = "access_token"
+    case refreshToken = "refresh_token"
+    case tokenType = "token_type"
+    case subscriptionTier = "subscription_tier"
+  }
+}
+
+struct Body_upload_api_v1_uploads_postDTO: Codable {
+  let files: [Data]
+}
+
+struct LoginRequestDTO: Codable {
+  let deviceId: String
+  let brand: String?
+  let model: String?
+  let language: String?
+  let softwareVersion: String?
+
+  enum CodingKeys: String, CodingKey {
+    case deviceId = "device_id"
+    case brand
+    case model
+    case language
+    case softwareVersion = "software_version"
+  }
+}
+
+struct RefreshRequestDTO: Codable {
+  let refreshToken: String
+
+  enum CodingKeys: String, CodingKey {
+    case refreshToken = "refresh_token"
+  }
+}
+
+struct SubscriptionPurchaseRequestDTO: Codable {
+  let tier: String
 }
