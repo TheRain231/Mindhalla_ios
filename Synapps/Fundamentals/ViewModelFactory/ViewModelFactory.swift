@@ -15,7 +15,10 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
   init() {
     let urlSession = URLSession.shared
     let apiService = APIService(urlSession: urlSession)
-    let client = Client(service: apiService)
+    let tokenStore = AuthTokenStore()
+    let authSession = AuthSession(store: tokenStore, rawService: apiService)
+    let authenticatedService = AuthenticatedAPIService(inner: apiService, authSession: authSession)
+    let client = Client(service: authenticatedService)
     networkManager = NetworkManager(client: client)
     modelContainer = {
       let schema = Schema([BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self])

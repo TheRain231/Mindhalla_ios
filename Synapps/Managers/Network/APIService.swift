@@ -29,17 +29,7 @@ class APIService: Service {
         return
       }
 
-      if let resp = resp as? HTTPURLResponse, 500..<600 ~= resp.statusCode {
-        guard let data else { // warning потому что мы ошибки с сервера не обрабатываем
-          completion(nil, .serverError())
-          return
-        }
-
-//        if let errorResponse = try? JSONDecoder().decode(ServerErrorResponse.self, from: data) {
-//          completion(nil, .serverError(errorResponse.message))
-//          return
-//        }
-
+      guard let httpResponse = resp as? HTTPURLResponse else {
         completion(nil, .invalidResponse())
         return
       }
@@ -50,22 +40,58 @@ class APIService: Service {
       }
 
       do {
-        if let errorResponse = try? JSONDecoder().decode(ValidationErrorDTO.self, from: data) {
-          completion(nil, .serverError(errorResponse.msg))
-          return
-        }
-        if let errorResponse = try? JSONDecoder().decode(HTTPValidationErrorDTO.self, from: data) {
-          completion(nil, .serverError(errorResponse.detail?.map(\.msg).joined(separator: "\n") ?? ""))
-          return
-        }
+        switch httpResponse.statusCode {
+        case 200..<300:
+          if T.self == Data.self {
+            completion(data as? T, nil)
+            return
+          }
 
-        if T.self == Data.self {
-          completion(data as? T, nil)
+          let result = try JSONDecoder.iso8601withTimeZone.decode(T.self, from: data)
+          completion(result, nil)
+          return
+
+        case 401:
+          completion(nil, .serverError())
+          return
+
+        case 422:
+          if let errorResponse = try? JSONDecoder().decode(HTTPValidationErrorDTO.self, from: data) {
+            let message = errorResponse.detail?.map(\.msg).joined(separator: "\n") ?? ""
+            completion(nil, .serverError(message))
+            return
+          }
+
+          if let errorResponse = try? JSONDecoder().decode(ValidationErrorDTO.self, from: data) {
+            completion(nil, .serverError(errorResponse.msg))
+            return
+          }
+
+          completion(nil, .serverError())
+          return
+
+        case 400..<500:
+          if let errorResponse = try? JSONDecoder().decode(ValidationErrorDTO.self, from: data) {
+            completion(nil, .serverError(errorResponse.msg))
+            return
+          }
+          if let errorResponse = try? JSONDecoder().decode(HTTPValidationErrorDTO.self, from: data) {
+            let message = errorResponse.detail?.map(\.msg).joined(separator: "\n") ?? ""
+            completion(nil, .serverError(message))
+            return
+          }
+
+          completion(nil, .serverError())
+          return
+
+        case 500..<600:
+          completion(nil, .serverError())
+          return
+
+        default:
+          completion(nil, .invalidResponse())
           return
         }
-
-        let result = try JSONDecoder.iso8601withTimeZone.decode(T.self, from: data)
-        completion(result, nil)
       } catch {
         print(error)
         completion(nil, .decodingError())
