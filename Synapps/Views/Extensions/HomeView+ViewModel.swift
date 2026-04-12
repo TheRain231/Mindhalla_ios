@@ -148,6 +148,8 @@ extension HomeView.ViewModel {
       return .processingError
     case .serverError:
       return .uploadError
+    default:
+      return .uploadError
     }
   }
 }
