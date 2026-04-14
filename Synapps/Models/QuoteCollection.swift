@@ -22,16 +22,6 @@ final class QuoteCollection: Identifiable, Hashable {
 }
 
 extension QuoteCollection {
-  static func == (lhs: QuoteCollection, rhs: QuoteCollection) -> Bool {
-    lhs.id == rhs.id
-  }
-
-  func hash(into hasher: inout Hasher) {
-    hasher.combine(id)
-  }
-}
-
-extension QuoteCollection {
   static func mocks() -> [QuoteCollection] {
     [
       QuoteCollection(
