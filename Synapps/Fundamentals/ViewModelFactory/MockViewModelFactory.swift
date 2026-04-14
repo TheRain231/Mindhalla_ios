@@ -62,7 +62,7 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   }
 
   @MainActor
-  func createSaveBottomsheetViewModel() -> SaveBottomsheetViewModel {
-    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext)
+  func createSaveBottomsheetViewModel(card: Card) -> SaveBottomsheetViewModel {
+    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext, card: card)
   }
 }

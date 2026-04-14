@@ -5,21 +5,34 @@ import SwiftUI
 @MainActor @Observable
 final class SaveBottomsheetViewModel {
   let modelContext: ModelContext
-  var isNewCollectionViewPresented: Bool = false
+  let card: Card
   var searchText: String = ""
 
   /// Идентификаторы выбранных подборок.
   var selectedIds: Set<String> = []
 
-  init(modelContext: ModelContext) {
+  init(
+    modelContext: ModelContext,
+    card: Card
+  ) {
     self.modelContext = modelContext
+    self.card = card
+  }
+
+  /// Подборки, у которых в названии есть введённая подстрока (без учёта регистра).
+  func filteredCollections(from collections: [QuoteCollection]) -> [QuoteCollection] {
+    let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !query.isEmpty else { return collections }
+
+    let needle = query.lowercased()
+    return collections.filter { $0.title.lowercased().contains(needle) }
   }
 
   func isSelected(_ collection: QuoteCollection) -> Bool {
     selectedIds.contains(collection.id)
   }
 
-  func toggleCollection(_ collection: QuoteCollection) {
+  func toggleSelection(_ collection: QuoteCollection) {
     if selectedIds.contains(collection.id) {
       selectedIds.remove(collection.id)
     } else {
@@ -40,6 +53,25 @@ final class SaveBottomsheetViewModel {
   }
 
   func save() {
-    // TODO: сохранить карточку в выбранные подборки (selectedIds)
+    let cardId = card.id
+    let predicate = #Predicate<Card> { $0.id == cardId }
+    var descriptor: FetchDescriptor<Card> = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
+      modelContext.insert(card)
+    }
+
+    for collectionId in selectedIds {
+      let colPredicate = #Predicate<QuoteCollection> { $0.id == collectionId }
+      var colDescriptor = FetchDescriptor<QuoteCollection>(predicate: colPredicate)
+      colDescriptor.fetchLimit = 1
+      if let collections = try? modelContext.fetch(colDescriptor),
+         let collection = collections.first,
+         !collection.cardIds.contains(card.id) {
+        collection.cardIds.append(card.id)
+      }
+    }
+    try? modelContext.save()
   }
 }

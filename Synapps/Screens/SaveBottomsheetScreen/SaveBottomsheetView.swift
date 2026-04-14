@@ -17,7 +17,7 @@ struct SaveBottomsheetView: View {
           .padding(.bottom, 10)
         searchField
         newCollectionLink
-        List(collections) { collection in
+        List(viewModel.filteredCollections(from: collections)) { collection in
           HStack {
             checkmarkButton(collection: collection)
             Text(collection.title)
@@ -102,7 +102,7 @@ extension SaveBottomsheetView {
   private func checkmarkButton(collection: QuoteCollection) -> some View {
     let isChecked = viewModel.isSelected(collection)
     return Button {
-      viewModel.toggleCollection(collection)
+      viewModel.toggleSelection(collection)
     } label: {
       Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
         .foregroundColor(isChecked ? .blue : Color(.systemGray4))
@@ -115,5 +115,5 @@ extension SaveBottomsheetView {
 #Preview {
   let factory = MockViewModelFactory()
 
-  SaveBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel())
+  SaveBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel(card: .mock()))
 }
