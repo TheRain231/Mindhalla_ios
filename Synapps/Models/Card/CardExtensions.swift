@@ -178,8 +178,129 @@ extension Card {
   static func mockConcept() -> Card { mock(type: .concept) }
   static func mockQuote() -> Card { mock(type: .idea) }
 
+  /// Карточки для подборки «Утреннее чтение» (`c-1` … `c-10`).
+  static func mockMorningCards() -> [Card] {
+    [
+      Card(
+        id: "c-1",
+        type: .thesis,
+        content: "День.",
+        references: .init(pages: [1], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-2",
+        type: .idea,
+        content: "Первые минуты после пробуждения задают настрой: не телефон, а одна строка в дневнике.",
+        references: .init(pages: [2], originalTexts: []),
+        tags: [.init(id: "tag-c-2", type: "custom", name: "утро", description: "")]
+      ),
+      Card(
+        id: "c-3",
+        type: .concept,
+        content: "Свет, вода, тишина — три опоры утреннего внимания без лишних стимулов.",
+        references: .init(pages: [3], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-4",
+        type: .idea,
+        content: "Что сегодня действительно важно — не срочное, а значимое?",
+        references: .init(pages: [4], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-5",
+        type: .idea,
+        content: "Короткая прогулка или растяжка перед чтением снижают «шум» в голове и помогают лучше запоминать смысл, а не отдельные фразы.",
+        references: .init(pages: [5], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-6",
+        type: .thesis,
+        content: "Чтение утром — это не про количество страниц, а про ясность: одна идея, которую можно применить до обеда, ценнее десяти забытых абзацев.",
+        references: .init(pages: [6, 7], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-7",
+        type: .idea,
+        content: "Заметка.",
+        references: .init(pages: [8], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-8",
+        type: .concept,
+        content: "Если вчерашний день закончился на раздражении, утреннее чтение можно начать с короткого списка благодарностей — не как ритуал «для галочки», а как способ сместить фокус с оценки себя на наблюдение за тем, что уже есть и что можно бережно развить.",
+        references: .init(pages: [9, 10], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-9",
+        type: .concept,
+        content: "Какую одну мысль из прочитанного я хочу проверить в действии сегодня — и как пойму, что эксперимент удался?",
+        references: .init(pages: [11], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-10",
+        type: .thesis,
+        content: "Утреннее чтение связывает «кто я хочу быть» с «что я делаю в первый час»: не геройством, а маленькой последовательностью — открыть книгу, прочитать абзац, записать вывод. Так день начинается не из тревоги списка дел, а из выбранного смысла, который потом проще переносить в работу, отношения и отдых без чувства, что жизнь распалась на несовместимые куски.",
+        references: .init(pages: [12, 13, 14], originalTexts: []),
+        tags: [.init(id: "tag-c-10", type: "system", name: "ритуал", description: "")]
+      ),
+    ]
+  }
+
+  /// Пять разных карточек для подборки «Идеи для работы» (`c-11` … `c-15`).
+  static func mockWorkCards() -> [Card] {
+    [
+      Card(
+        id: "c-11",
+        type: .thesis,
+        content: "Сначала результат, потом процесс: формулируй исход, который можно проверить к пятнице.",
+        references: .init(pages: [20], originalTexts: []),
+        tags: [.init(id: "tag-w-11", type: "custom", name: "фокус", description: "")]
+      ),
+      Card(
+        id: "c-12",
+        type: .idea,
+        content: "Нет.",
+        references: .init(pages: [21], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-13",
+        type: .concept,
+        content: "Разбей большую задачу на шаги по 25 минут: после каждого блока — одна строка в логе, что изменилось в понимании проблемы, а не только в объёме сделанного.",
+        references: .init(pages: [22, 23], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-14",
+        type: .thesis,
+        content: "Кому нужен этот отчёт через месяц — тебе, команде или формальности? От ответа зависит глубина анализа и границы «достаточно хорошо».",
+        references: .init(pages: [24], originalTexts: []),
+        tags: []
+      ),
+      Card(
+        id: "c-15",
+        type: .idea,
+        content: "Когда встречи съедают день, оставь два окна без календаря: одно — для глубокой работы с одним документом, другое — для разбора входящих без немедленных ответов. Так ты возвращаешь инициативу: не поток уведомлений решает, что важно, а заранее выбранный приоритет, к которому можно вернуться после шума, не теряя нить рассуждений и не превращая вечер в догоняние задач, которые утром казались мелочами.",
+        references: .init(pages: [25, 26, 27], originalTexts: []),
+        tags: [.init(id: "tag-w-15", type: "system", name: "время", description: "")]
+      ),
+    ]
+  }
+
   static func mocks() -> [Card] {
-    [mockThesis(), mockConcept(), mockQuote()]
+    [
+      mockThesis(),
+      mockConcept(),
+      mockQuote(),
+    ] + mockMorningCards() + mockWorkCards()
   }
 }
 #endif

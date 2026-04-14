@@ -41,22 +41,7 @@ struct CardCardView: View {
   }
 
   private var cardBadge: some View {
-    let title = switch card.type {
-    case .thesis:
-      "Тезис"
-    case .concept:
-      "Концепция"
-    case .idea:
-      "Цитата"
-    case .question:
-      "Вопрос"
-    case .answer:
-      "Ответ"
-    case .unknown:
-      "Неизвестный"
-    }
-
-    return Text(title)
+    Text(card.type.localizedName)
       .foregroundStyle(Color(.systemBackground))
       .padding(4)
       .padding(.horizontal, 10)
