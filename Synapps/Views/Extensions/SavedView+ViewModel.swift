@@ -56,7 +56,6 @@ extension SavedView {
       }
     }
 
-
     func deleteCard(_ card: Card, allCards: [Card]) {
       let cardId = card.id
       let collections = (try? modelContext.fetch(FetchDescriptor<QuoteCollection>())) ?? []

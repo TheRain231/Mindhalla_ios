@@ -26,10 +26,10 @@ struct QuoteCollectionCardsView: View {
   var body: some View {
     VStack {
       searchField
-        CardTypePaginationView(
-            cardTypes: viewModel.presentTypes,
-            onTap: viewModel.toggleTypeFilter
-        )
+      CardTypePaginationView(
+        cardTypes: viewModel.presentTypes,
+        onTap: viewModel.toggleTypeFilter
+      )
       ScrollView {
         LazyVStack(spacing: 16) {
           ForEach(viewModel.filteredCards) { card in
@@ -40,35 +40,35 @@ struct QuoteCollectionCardsView: View {
         .padding()
       }
       .task {
-          if viewModel.cards.isEmpty {
-              viewModel.fetchCards(for: quoteCollection.cardIds)
-          }
+        if viewModel.cards.isEmpty {
+          viewModel.fetchCards(for: quoteCollection.cardIds)
+        }
       }
       .navigationTitle(quoteCollection.title)
       .scrollDismissesKeyboard(.immediately)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
-            Menu {
+          Menu {
 //              ShareLink(item: sharePayload(for: quoteCollection)) {
 //                Label("Поделиться", systemImage: "square.and.arrow.up")
 //              }
-              Button(role: .destructive) {
-                  viewModel.showDeleteCollectionConfirmation = true
-              } label: {
-                Label("Menu.RemoveCollection", systemImage: "trash")
-              }
+            Button(role: .destructive) {
+              viewModel.showDeleteCollectionConfirmation = true
             } label: {
-              Image(systemName: "ellipsis")
+              Label("Menu.RemoveCollection", systemImage: "trash")
             }
+          } label: {
+            Image(systemName: "ellipsis")
+          }
         }
       }
       .alert("RemoveCollectionAlert.Title", isPresented: $viewModel.showDeleteCollectionConfirmation) {
-          Button("Remove", role: .destructive) {
-              viewModel.delete(quoteCollection)
-              dismiss()
-          }
+        Button("Remove", role: .destructive) {
+          viewModel.delete(quoteCollection)
+          dismiss()
+        }
 
-          Button("Cancel", role: .cancel) {}
+        Button("Cancel", role: .cancel) {}
       }
     }
     .alert(
@@ -113,26 +113,26 @@ extension QuoteCollectionCardsView {
 
   private func cardRow(card: Card) -> some View {
     CardCardView(card: card)
-          .contextMenu {
-            Button {
-              // TODO: airdrop?
-            } label: {
-              Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
-            }
+      .contextMenu {
+        Button {
+          // TODO: airdrop?
+        } label: {
+          Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
+        }
 
-            Button {
-              // TODO: навигация к экрану изучения по card.id
-            } label: {
-              Label("QuoteCollectionCardsView.Menu.Study", systemImage: "book.pages")
-            }
+        Button {
+          // TODO: навигация к экрану изучения по card.id
+        } label: {
+          Label("QuoteCollectionCardsView.Menu.Study", systemImage: "book.pages")
+        }
 
-            Button(role: .destructive) {
-              viewModel.cardIdPendingRemoval = card.id
-              viewModel.showRemovalConfirmation = true
-            } label: {
-              Label("QuoteCollectionCardsView.Menu.RemoveFromCollection", systemImage: "trash")
-            }
-          }
+        Button(role: .destructive) {
+          viewModel.cardIdPendingRemoval = card.id
+          viewModel.showRemovalConfirmation = true
+        } label: {
+          Label("QuoteCollectionCardsView.Menu.RemoveFromCollection", systemImage: "trash")
+        }
+      }
   }
 }
 
@@ -143,5 +143,5 @@ extension QuoteCollectionCardsView {
     quoteCollection: QuoteCollection.mock(),
     factory: factory
   )
-    .modelContainer(factory.modelContainer)
+  .modelContainer(factory.modelContainer)
 }
