@@ -50,7 +50,7 @@ public struct CardSwiperView<Item, Content: View>: View {
   }
 
   public var body: some View {
-    ZStack {
+    ZStack(alignment: .top) {
       ForEach(cards.indices, id: \.self) { index in
         let relative = currentIndexBinding - index
 

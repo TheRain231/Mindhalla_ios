@@ -30,10 +30,11 @@ extension CardsView {
     }
 
     var topCard: Card? {
+      print("topCardIndex: \(topCardIndex)")
       if topCardIndex < cards.count, topCardIndex >= 0 {
-        cards[topCardIndex]
+        return cards[topCardIndex]
       } else {
-        nil
+        return nil
       }
     }
 

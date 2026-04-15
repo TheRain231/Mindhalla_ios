@@ -13,6 +13,7 @@ struct SavedView: View {
   @Environment(\.viewModelFactory) var factory
   @Query var cards: [Card]
   @Query(sort: \QuoteCollection.title) var collections: [QuoteCollection]
+  @State private var cardPendingDeletion: Card?
 
   var body: some View {
     NavigationStack {
@@ -31,9 +32,9 @@ struct SavedView: View {
       .tabViewStyle(.page(indexDisplayMode: .never))
       .navigationTitle("saved_books")
       .navigationDestination(for: QuoteCollection.self) { collection in
-        QuoteCollectionCardsView(
-          viewModel: factory.createQuoteCollectionCardsViewModel(),
-          quoteCollection: collection
+        QuoteCollectionCardsScreen(
+          quoteCollection: collection,
+          factory: factory
         )
       }
       .navigationLinkIndicatorVisibility(.hidden)
@@ -44,36 +45,57 @@ struct SavedView: View {
       }
       .ignoresSafeArea(edges: .bottom)
     }
+    .alert("Alert.RemoveCardTitle", isPresented: cardDeletionIsPresented) {
+      Button("Remove", role: .destructive) {
+        if let cardPendingDeletion {
+          withAnimation(.linear(duration: 0.5)) {
+            viewModel.deleteCard(cardPendingDeletion, allCards: cards)
+          }
+        }
+        cardPendingDeletion = nil
+      }
+
+      Button("Cancel", role: .cancel) {
+        cardPendingDeletion = nil
+      }
+    } message: {
+      Text("Alert.RemoveCardSubtitle")
+    }
   }
 }
 
 extension SavedView {
   private var collectionsContent: some View {
     VStack {
-      searchField
+      collectionSearchField
       List {
-        ForEach(collections) { collection in
+        ForEach(viewModel.filteredCollections(from: collections)) { collection in
           collectionRow(collection)
         }
-        .onDelete(perform: { indexSet in
-          for index in indexSet {
-            viewModel.delete(collections[index])
-          }
-        })
       }
+      .scrollDismissesKeyboard(.immediately)
       .listStyle(.plain)
     }
   }
 
   private var cardsContent: some View {
-    ScrollView {
-      LazyVStack(spacing: 20) {
-        ForEach(cards) { book in
-          CardCardView(card: book)
+    VStack {
+      cardSearchField
+      CardTypePaginationView(
+        cardTypes: viewModel.presentTypes(from: cards),
+        onTap: viewModel.toggleTypeFilter
+      )
+      ScrollView {
+        LazyVStack(spacing: 20) {
+          ForEach(viewModel.filteredCards(from: cards)) { card in
+            cardRow(card)
+          }
         }
+        .animation(.easeInOut(duration: 0.55), value: cards.map(\.id))
+        .padding(.top)
+        .padding(.horizontal)
       }
-      .padding(.top)
-      .padding(.horizontal)
+      .scrollDismissesKeyboard(.immediately)
     }
   }
 
@@ -93,6 +115,21 @@ extension SavedView {
     }
   }
 
+  private func cardRow(_ card: Card) -> some View {
+    CardCardView(card: card)
+      .contextMenu {
+        ShareLink(item: viewModel.shareText(for: card)) {
+          Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
+        }
+
+        Button(role: .destructive) {
+          cardPendingDeletion = card
+        } label: {
+          Label("QuoteCollectionCardsView.Menu.RemoveFromCollection", systemImage: "trash")
+        }
+      }
+  }
+
   private var addButton: some View {
     Button {
       // TODO: add collection or card?
@@ -101,11 +138,11 @@ extension SavedView {
     }
   }
 
-  private var searchField: some View {
+  private var collectionSearchField: some View {
     HStack {
       Image(systemName: "magnifyingglass")
         .foregroundStyle(.secondary)
-      TextField("search_collection", text: $viewModel.searchText)
+      TextField("search_collection", text: $viewModel.collectionSearchText)
         .textFieldStyle(.plain)
     }
     .padding(8)
@@ -113,6 +150,31 @@ extension SavedView {
     .clipShape(RoundedRectangle(cornerRadius: 10))
     .padding(.horizontal)
     .padding(.top, 8)
+  }
+
+  private var cardSearchField: some View {
+    HStack {
+      Image(systemName: "magnifyingglass")
+        .foregroundStyle(.secondary)
+      TextField("QuoteCollectionCardsView.SearchCard", text: $viewModel.cardSearchText)
+        .textFieldStyle(.plain)
+    }
+    .padding(8)
+    .background(Color(.systemGray6))
+    .clipShape(RoundedRectangle(cornerRadius: 10))
+    .padding(.horizontal)
+    .padding(.top, 8)
+  }
+
+  private var cardDeletionIsPresented: Binding<Bool> {
+    Binding(
+      get: { cardPendingDeletion != nil },
+      set: { isPresented in
+        if !isPresented {
+          cardPendingDeletion = nil
+        }
+      }
+    )
   }
 }
 

@@ -27,12 +27,12 @@ extension QuoteCollection {
       QuoteCollection(
         id: "qc-morning",
         title: "Утреннее чтение",
-        cardIds: ["c-1", "c-2", "c-3", "c-4"]
+        cardIds: ["c-1", "c-2", "c-3", "c-4", "c-5", "c-6", "c-7", "c-8", "c-9", "c-10"]
       ),
       QuoteCollection(
         id: "qc-work",
         title: "Идеи для работы",
-        cardIds: ["c-10", "c-11", "c-12", "c-13", "c-14", "c-15"]
+        cardIds: ["c-11", "c-12", "c-13", "c-14", "c-15"]
       ),
       QuoteCollection(
         id: "qc-empty",
@@ -42,16 +42,12 @@ extension QuoteCollection {
       QuoteCollection(
         id: "qc-favorites",
         title: "Избранное из «Гарри Поттера»",
-        cardIds: ["c-101", "c-102", "c-103"]
+        cardIds: ["c26b27dc-ef2e-46f9-823f-77afa820c202", "b17b18cc-ef3d-46f9-823f-99afa830c101", "f8f4b3cc-ef8d-46f9-823f-89afae30c91a"]
       ),
     ]
   }
 
   static func mock() -> QuoteCollection {
-    QuoteCollection(
-      id: "qc-morning",
-      title: "Утреннее чтение",
-      cardIds: ["c-1", "c-2", "c-3", "c-4"]
-    )
+    mocks().first { $0.id == "qc-morning" }!
   }
 }
