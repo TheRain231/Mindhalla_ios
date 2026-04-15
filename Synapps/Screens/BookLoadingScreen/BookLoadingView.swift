@@ -8,27 +8,13 @@ struct BookLoadingView: View {
     VStack(alignment: .center, spacing: 50) {
       Text(presentable.title)
         .bookLoadingTitleStyle()
-      LoadingAnimationView()
+      LottieView(animation: .named("BookLoadingAnimation"))
+        .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
       Text(presentable.message)
         .bookLoadingSubtitleStyle()
         .padding()
     }
     .padding()
-  }
-}
-
-extension BookLoadingView {
-  private struct LoadingAnimationView: View {
-    var body: some View {
-      Image("bookLoadingProgress")
-        .resizable()
-        .scaledToFit()
-        .frame(width: 261, height: 261)
-        .overlay {
-          LottieView(animation: .named("BookLoadingAnimation"))
-            .playbackMode(.playing(.toProgress(1, loopMode: .loop)))
-        }
-    }
   }
 }
 
