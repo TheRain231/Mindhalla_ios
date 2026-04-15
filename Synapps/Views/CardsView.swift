@@ -90,7 +90,7 @@ extension CardsView {
       Spacer()
 
       Text("\(viewModel.currentCardIndex + 1) / \(viewModel.items.count)")
-            .opacity(viewModel.topCardIndex >= 0 ? 1 : 0)
+        .opacity(viewModel.topCardIndex >= 0 ? 1 : 0)
 
       Spacer()
 
