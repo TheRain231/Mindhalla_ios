@@ -34,9 +34,11 @@ struct CardsView: View {
       }
     )
     .sheet(isPresented: $viewModel.isSaveViewPresented) {
-      SaveBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel())
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+      if let card = viewModel.topCard {
+        SaveBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel(card: card))
+          .presentationDetents([.medium, .large])
+          .presentationDragIndicator(.visible)
+      }
     }
   }
 }
@@ -88,6 +90,7 @@ extension CardsView {
       Spacer()
 
       Text("\(viewModel.currentCardIndex + 1) / \(viewModel.items.count)")
+        .opacity(viewModel.topCardIndex >= 0 ? 1 : 0)
 
       Spacer()
 

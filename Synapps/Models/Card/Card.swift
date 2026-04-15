@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-enum CardType: String, Codable {
+enum CardType: String, Codable, CaseIterable {
   case thesis
   case concept
   case idea
@@ -67,6 +67,27 @@ extension CardType {
 }
 
 extension CardType {
+  var localized: String {
+    switch self {
+    case .thesis:
+      "CardType.Thesis"
+    case .concept:
+      "CardType.Concept"
+    case .idea:
+      "CardType.Idea"
+    case .question:
+      "CardType.Question"
+    case .answer:
+      "CardType.Answer"
+    case .unknown:
+      "CardType.Unknown"
+    }
+  }
+
+  var localizedName: LocalizedStringKey {
+    LocalizedStringKey(self.localized)
+  }
+
   static func typeColor(for type: CardType?) -> Color {
     switch type {
     case .thesis:
