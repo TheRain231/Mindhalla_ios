@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 extension CardsView {
   final class ViewModel: ObservableObject {
@@ -62,6 +63,7 @@ extension CardsView {
       if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
         modelContext.insert(card)
         try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
         showSavedMessage()
       }
     }

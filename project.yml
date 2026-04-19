@@ -12,18 +12,64 @@ packages:
     url: https://github.com/airbnb/lottie-ios
     from: 4.6.0
 settings:
-  GENERATE_INFOPLIST_FILE: NO
+  base:
+    GENERATE_INFOPLIST_FILE: NO
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: 38PC9VM7ZB
 targets:
-    Synapps:
-        platform: iOS
-        type: application
-        deploymentTarget: "17"
-        sources: ["Synapps"]
-        settings:
-          base:
-            INFOPLIST_FILE: "Synapps/Info.plist"
-        dependencies:
-          - package: AnyCodable
-          - package: Lottie
-        
+  Synapps:
+    platform: iOS
+    type: application
+    deploymentTarget: "17"
+    sources:
+      - path: Synapps
+        excludes:
+          - "**/*.entitlements"
+    entitlements:
+      path: Synapps/Synapps.entitlements
+    settings:
+      base:
+        INFOPLIST_FILE: Synapps/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.mindhalla.Synapps.Synapps
+        INFOPLIST_KEY_CFBundleDisplayName: Synapps
+        INFOPLIST_KEY_CFBundleName: "$(PRODUCT_NAME)"
+    dependencies:
+      - package: AnyCodable
+      - package: Lottie
+      - target: QuotesWidgetExtension
+        embed: true
 
+  QuotesWidgetExtension:
+    platform: iOS
+    type: app-extension
+    subtype: widgetkit-extension
+    deploymentTarget: "17"
+    sources:
+      - path: QuotesWidget
+        excludes:
+          - Info.plist
+          - QuotesWidget.entitlements
+      - path: Synapps/Fundamentals
+        includes:
+          - AppGroupIdentifier.swift
+          - SharedModelStore.swift
+      - path: Synapps/Models
+        includes:
+          - DTO.swift
+          - QuoteCollection.swift
+      - path: Synapps/Models/Book
+      - path: Synapps/Models/Card
+      - path: Synapps/Localizable.xcstrings
+      - path: Synapps/ViewElements/Helpers
+        includes:
+          - ColorHex.swift
+    entitlements:
+      path: QuotesWidget/QuotesWidget.entitlements
+    settings:
+      base:
+        INFOPLIST_FILE: QuotesWidget/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.mindhalla.Synapps.Synapps.QuotesWidget
+        PRODUCT_NAME: QuotesWidgetExtension
+    dependencies:
+      - package: AnyCodable
