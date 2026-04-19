@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 @MainActor @Observable
 final class QuoteCollectionCardsViewModel {
@@ -85,6 +86,7 @@ extension QuoteCollectionCardsViewModel {
     guard let collection = try? modelContext.fetch(descriptor).first else { return }
     collection.cardIds.removeAll { $0 == cardId }
     try? modelContext.save()
+    WidgetCenter.shared.reloadAllTimelines()
 
     withAnimation(.linear(duration: 0.5)) {
       cards.removeAll { $0.id == cardId }
@@ -99,5 +101,6 @@ extension QuoteCollectionCardsViewModel {
   func delete(_ collection: QuoteCollection) {
     modelContext.delete(collection)
     try? modelContext.save()
+    WidgetCenter.shared.reloadAllTimelines()
   }
 }

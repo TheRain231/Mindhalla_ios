@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 @MainActor @Observable
 final class SaveBottomsheetViewModel {
@@ -49,6 +50,7 @@ final class SaveBottomsheetViewModel {
     if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
       modelContext.insert(collection)
       try? modelContext.save()
+      WidgetCenter.shared.reloadAllTimelines()
     }
   }
 
@@ -73,5 +75,6 @@ final class SaveBottomsheetViewModel {
       }
     }
     try? modelContext.save()
+    WidgetCenter.shared.reloadAllTimelines()
   }
 }
