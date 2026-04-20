@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 extension SavedView {
   final class ViewModel: ObservableObject {
@@ -65,6 +66,7 @@ extension SavedView {
 
       modelContext.delete(card)
       try? modelContext.save()
+      WidgetCenter.shared.reloadAllTimelines()
 
       if let selectedTypeFilter,
          !presentTypes(from: allCards.filter { $0.id != cardId }).contains(selectedTypeFilter) {

@@ -14,9 +14,11 @@ struct SavedView: View {
   @Query var cards: [Card]
   @Query(sort: \QuoteCollection.title) var collections: [QuoteCollection]
   @State private var cardPendingDeletion: Card?
+  @State private var navigationPath = NavigationPath()
+  @Binding var deepLink: DeepLink?
 
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $navigationPath) {
       Picker("Picker State", selection: $viewModel.pickerState) {
         ForEach(PickerState.allCases) { state in
           Text(state.rawValue.capitalized)
@@ -44,6 +46,19 @@ struct SavedView: View {
         }
       }
       .ignoresSafeArea(edges: .bottom)
+      .onChange(of: deepLink) { _, link in
+        guard let link else { return }
+        switch link {
+        case let .collection(id):
+          if let collection = collections.first(where: { $0.id == id }) {
+            viewModel.pickerState = .collections
+            navigationPath.append(collection)
+          }
+        case .saved:
+          navigationPath = NavigationPath()
+        }
+        deepLink = nil
+      }
     }
     .alert("Alert.RemoveCardTitle", isPresented: cardDeletionIsPresented) {
       Button("Remove", role: .destructive) {
@@ -189,6 +204,6 @@ extension SavedView {
 #Preview {
   let factory = MockViewModelFactory()
 
-  SavedView(viewModel: factory.createSavedViewModel())
+  SavedView(viewModel: factory.createSavedViewModel(), deepLink: .constant(nil))
     .modelContainer(factory.modelContainer)
 }

@@ -21,15 +21,12 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
     let client = Client(service: authenticatedService)
     networkManager = NetworkManager(client: client)
     modelContainer = {
-      let schema = Schema([BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self])
-      let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self)
-
-      #if DEBUG
-      print("Located at \(cfg.url.path(percentEncoded: false))")
-      #endif
-
       do {
-        return try ModelContainer(for: schema, configurations: [cfg])
+        let container = try SharedModelStore.makeContainer()
+        #if DEBUG
+        print("SwiftData store: \(SharedModelStore.makeConfiguration().url.path(percentEncoded: false))")
+        #endif
+        return container
       } catch {
         fatalError("Could not create ModelContainer for SwiftData: \(error)")
       }
