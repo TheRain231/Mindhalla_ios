@@ -10,6 +10,13 @@ import SwiftUI
 extension ContentView {
   final class ViewModel: ObservableObject {
     @Published var selectedTab: TabItem = .home
+    @Published var deepLink: DeepLink?
+
+    func handle(url: URL) {
+      guard let link = DeepLink(url: url) else { return }
+      deepLink = link
+      selectedTab = .saved
+    }
   }
 }
 

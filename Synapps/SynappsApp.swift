@@ -11,16 +11,21 @@ import SwiftUI
 @main
 struct SynappsApp: App {
   let viewModelFactory: ViewModelFactoryProtocol
+  let contentViewModel: ContentView.ViewModel
 
   init() {
     viewModelFactory = ViewModelFactory()
+    contentViewModel = viewModelFactory.createContentViewModel()
   }
 
   var body: some Scene {
     WindowGroup {
-      ContentView(viewModel: viewModelFactory.createContentViewModel())
+      ContentView(viewModel: contentViewModel)
         .modelContainer(viewModelFactory.modelContainer)
         .environment(\.viewModelFactory, viewModelFactory)
+        .onOpenURL { url in
+          contentViewModel.handle(url: url)
+        }
     }
   }
 }

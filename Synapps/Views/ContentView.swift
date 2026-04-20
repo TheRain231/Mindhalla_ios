@@ -25,7 +25,7 @@ struct ContentView: View {
           Text("my_books")
         }
         .tag(TabItem.home)
-      SavedView(viewModel: factory.createSavedViewModel())
+      SavedView(viewModel: factory.createSavedViewModel(), deepLink: $viewModel.deepLink)
         .tabItem {
           Image(systemName: "bookmark")
           Text("saved_books")
