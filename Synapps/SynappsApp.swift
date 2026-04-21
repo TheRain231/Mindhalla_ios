@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import UserNotifications
 
 @main
 struct SynappsApp: App {
@@ -25,6 +26,11 @@ struct SynappsApp: App {
         .environment(\.viewModelFactory, viewModelFactory)
         .onOpenURL { url in
           contentViewModel.handle(url: url)
+        }
+        .onReceive(
+          NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+        ) { _ in
+          SpacedRepetitionScheduler.rescheduleIfNeeded()
         }
     }
   }
