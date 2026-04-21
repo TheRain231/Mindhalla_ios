@@ -6,5 +6,5 @@
 //
 
 enum Constants {
-  static let serverURL: String = "http://45.90.33.93:8123"
+  static let serverURL: String = "http://194.226.49.127:8123"
 }
