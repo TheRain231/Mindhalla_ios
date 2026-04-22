@@ -81,7 +81,10 @@ extension CardsView {
 extension CardsView.ViewModel: CardStackViewModel {
   var items: [Card] {
     get { cards }
-    set { cards = newValue }
+    set {
+      cards = newValue
+      SpacedRepetitionScheduler.recordStudySession()
+    }
   }
 
   func cardType(for item: Card) -> CardType? {
