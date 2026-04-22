@@ -31,7 +31,7 @@ struct ContentView: View {
           Text("saved_books")
         }
         .tag(TabItem.saved)
-      Text(verbatim: "Profile")
+      ProfileView()
         .tabItem {
           Image(systemName: "person")
           Text(verbatim: "Profile")
