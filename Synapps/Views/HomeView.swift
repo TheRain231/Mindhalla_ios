@@ -89,7 +89,7 @@ struct HomeView: View {
         }
       }
       .task(id: viewModel.loadTrigger) {
-        await viewModel.fetch()
+        await viewModel.startPeriodicBooksSync()
       }
       .refreshable {
         viewModel.reload()

@@ -14,6 +14,7 @@ extension HomeView {
     let modelContext: ModelContext
 
     private var lastUploadURL: URL?
+    private var uploadedBookPollTask: Task<Void, Never>?
 
     @Published var isLoading: Bool = false
     @Published var showAddBookModal: Bool = false
@@ -26,15 +27,22 @@ extension HomeView {
       self.modelContext = modelContext
     }
 
+    deinit {
+      uploadedBookPollTask?.cancel()
+    }
+
     func onAddBookCompletion(result: Result<URL, Error>) {
       switch result {
       case let .success(url):
         lastUploadURL = url
         Task { @MainActor in
           uploadState = .loading
+          uploadedBookPollTask?.cancel()
           do {
-            _ = try await networkManager.uploadBook(url)
+            let uploadInfo = try await networkManager.uploadBook(url)
+            await fetch(silent: true)
             uploadState = .success
+            startPeriodicUploadedBookDetailSync(bookId: uploadInfo.id)
           } catch {
             uploadState = uploadState(from: error)
           }
@@ -45,19 +53,75 @@ extension HomeView {
     }
 
     func reload() {
+      uploadedBookPollTask?.cancel()
+      uploadedBookPollTask = nil
       loadTrigger = UUID()
     }
 
+    /// Первый запрос + опрос каждые 30 с (`getAllBooks`), пока экран открыт. Отменяется при уходе с `HomeView` или смене `loadTrigger`.
     @MainActor
-    func fetch() async {
-      isLoading = true
-      defer { isLoading = false }
+    func startPeriodicBooksSync() async {
+      await fetch(silent: false)
+      let intervalNs: UInt64 = 30 * 1_000_000_000
+      while !Task.isCancelled {
+        do {
+          try await Task.sleep(nanoseconds: intervalNs)
+        } catch {
+          break
+        }
+        guard !Task.isCancelled else { break }
+        await fetch(silent: true)
+      }
+    }
+
+    /// После успешной загрузки файла — `GET /books/{id}` сразу и далее каждые 30 с, пока задача не отменена (новая загрузка, `reload()`, `deinit`).
+    @MainActor
+    private func startPeriodicUploadedBookDetailSync(bookId: String) {
+      uploadedBookPollTask?.cancel()
+      uploadedBookPollTask = Task { @MainActor in
+        let intervalNs: UInt64 = 30 * 1_000_000_000
+        await refreshUploadedBookDetail(bookId: bookId)
+        while !Task.isCancelled {
+          do {
+            try await Task.sleep(nanoseconds: intervalNs)
+          } catch {
+            break
+          }
+          guard !Task.isCancelled else { break }
+          await refreshUploadedBookDetail(bookId: bookId)
+        }
+      }
+    }
+
+    @MainActor
+    private func refreshUploadedBookDetail(bookId: String) async {
+      do {
+        print("[Synapps][BookByIdSync] GET /books/\(bookId)")
+        _ = try await networkManager.getBook(by: bookId)
+        print("[Synapps][BookByIdSync] ok")
+      } catch {
+        print("[Synapps][BookByIdSync] error: \(error)")
+      }
+    }
+
+    @MainActor
+    func fetch(silent: Bool = false) async {
+      if !silent {
+        isLoading = true
+      }
+      defer {
+        if !silent {
+          isLoading = false
+        }
+      }
 
       do {
+        print("[Synapps][BooksSync] GET /api/v1/books silent=\(silent)")
         let fetchedBooks = try await networkManager.getAllBooks()
         syncBooks(fetchedBooks: fetchedBooks)
+        print("[Synapps][BooksSync] ok, count=\(fetchedBooks.count)")
       } catch {
-        print(error)
+        print("[Synapps][BooksSync] error: \(error)")
       }
     }
 
