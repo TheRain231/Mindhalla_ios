@@ -39,7 +39,6 @@ targets:
       - package: Lottie
       - target: QuotesWidgetExtension
         embed: true
-
   QuotesWidgetExtension:
     platform: iOS
     type: app-extension
