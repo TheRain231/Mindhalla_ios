@@ -16,18 +16,33 @@ struct HomeView: View {
 
   var body: some View {
     NavigationStack {
-      ScrollView {
-        LazyVStack(spacing: 20) {
-          ForEach(books) { book in
-            NavigationLink(value: book) {
-              BookOverview(book: book)
+      Group {
+        if books.isEmpty, !viewModel.isLoading {
+          EmptyStateView(
+            icon: "books.vertical",
+            title: "HomeView.Empty.Title",
+            message: "HomeView.Empty.Message"
+          )
+        } else {
+          ScrollView {
+            LazyVStack(spacing: 20) {
+              ForEach(books) { book in
+                NavigationLink(value: book) {
+                  BookOverview(book: book, onRetry: { viewModel.retryProcessing(bookId: book.id) })
+                }
+                .buttonStyle(.plain)
+              }
             }
-            .buttonStyle(.plain)
+            .padding(.horizontal)
           }
         }
-        .padding(.horizontal)
       }
       .fileImporter(isPresented: $viewModel.showAddBookModal, allowedContentTypes: [.pdf], onCompletion: viewModel.onAddBookCompletion)
+      .alert("HomeView.DuplicateBook.Title", isPresented: $viewModel.showDuplicateBookAlert) {
+        Button("OK", role: .cancel) {}
+      } message: {
+        Text("HomeView.DuplicateBook.Message")
+      }
       .alert("Доступ к файлам", isPresented: $viewModel.showFileAccessAlert) {
         Button("Разрешить") {
           viewModel.confirmFileAccessAndOpenPicker()
@@ -44,7 +59,8 @@ struct HomeView: View {
           BookLoadingContainer(viewModel: bookLoadingViewModel)
         case .success:
           BookDownloadStatusView(
-            presentable: .success(onReadCards: { // go to cards
+            presentable: .success(onReadCards: {
+              viewModel.uploadState = nil
             }),
             configuration: .fullWidthLeftAlignment
           )
