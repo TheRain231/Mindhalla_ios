@@ -16,9 +16,20 @@ extension HomeView {
     private var lastUploadURL: URL?
     private var uploadedBookPollTask: Task<Void, Never>?
 
+    private var pendingBookId: String? {
+      get { UserDefaults.standard.string(forKey: UserDefaultsKeys.pendingBookIdKey) }
+      set { UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.pendingBookIdKey) }
+    }
+
+    private var pendingBookFilename: String? {
+      get { UserDefaults.standard.string(forKey: UserDefaultsKeys.pendingBookFilenameKey) }
+      set { UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.pendingBookFilenameKey) }
+    }
+
     @Published var isLoading: Bool = false
     @Published var showAddBookModal: Bool = false
     @Published var showFileAccessAlert: Bool = false
+    @Published var showDuplicateBookAlert: Bool = false
     @Published var uploadState: BookUploadState?
     @Published var loadTrigger = UUID()
 
@@ -34,13 +45,20 @@ extension HomeView {
     func onAddBookCompletion(result: Result<URL, Error>) {
       switch result {
       case let .success(url):
+        let selectedFilename = url.lastPathComponent
+        guard !isDuplicate(filename: selectedFilename) else {
+          showDuplicateBookAlert = true
+          return
+        }
         lastUploadURL = url
         Task { @MainActor in
           uploadState = .loading
           uploadedBookPollTask?.cancel()
           do {
             let uploadInfo = try await networkManager.uploadBook(url)
-            await fetch(silent: true)
+            pendingBookId = uploadInfo.id
+            pendingBookFilename = uploadInfo.filename
+            insertPlaceholder(id: uploadInfo.id, filename: uploadInfo.filename)
             uploadState = .success
             startPeriodicUploadedBookDetailSync(bookId: uploadInfo.id)
           } catch {
@@ -50,6 +68,12 @@ extension HomeView {
       default:
         break
       }
+    }
+
+    private func isDuplicate(filename: String) -> Bool {
+      let descriptor = FetchDescriptor<BookMetaResponse>()
+      let books = (try? modelContext.fetch(descriptor)) ?? []
+      return books.contains { $0.filename == filename }
     }
 
     func reload() {
@@ -62,6 +86,7 @@ extension HomeView {
     @MainActor
     func startPeriodicBooksSync() async {
       await fetch(silent: false)
+      resumePendingBookPollingIfNeeded()
       let intervalNs: UInt64 = 30 * 1_000_000_000
       while !Task.isCancelled {
         do {
@@ -97,11 +122,72 @@ extension HomeView {
     private func refreshUploadedBookDetail(bookId: String) async {
       do {
         print("[Synapps][BookByIdSync] GET /books/\(bookId)")
-        _ = try await networkManager.getBook(by: bookId)
-        print("[Synapps][BookByIdSync] ok")
+        let detail = try await networkManager.getBook(by: bookId)
+        print("[Synapps][BookByIdSync] ok, processingStatus=\(detail.processingStatus)")
+        updatePlaceholder(id: bookId, with: detail)
+        if detail.processingStatus == "done" || detail.processingStatus == "failed" {
+          uploadedBookPollTask?.cancel()
+          pendingBookId = nil
+          pendingBookFilename = nil
+        }
       } catch {
         print("[Synapps][BookByIdSync] error: \(error)")
       }
+    }
+
+    @MainActor
+    private func resumePendingBookPollingIfNeeded() {
+      guard let bookId = pendingBookId else { return }
+      let descriptor = FetchDescriptor<BookMetaResponse>(predicate: #Predicate { $0.id == bookId })
+      let existing = try? modelContext.fetch(descriptor).first
+      if existing == nil {
+        let filename = pendingBookFilename ?? bookId
+        insertPlaceholder(id: bookId, filename: filename)
+      } else if existing?.processingStatus == "done" {
+        pendingBookId = nil
+        pendingBookFilename = nil
+        return
+      }
+      startPeriodicUploadedBookDetailSync(bookId: bookId)
+    }
+
+    @MainActor
+    private func insertPlaceholder(id: String, filename: String) {
+      let descriptor = FetchDescriptor<BookMetaResponse>(predicate: #Predicate { $0.id == id })
+      if (try? modelContext.fetch(descriptor))?.isEmpty == false { return }
+      let placeholder = BookMetaResponse(
+        id: id,
+        title: filename,
+        editionNumber: 0,
+        year: 0,
+        publisher: nil,
+        authors: [],
+        genres: [],
+        processingStatus: "in_progress",
+        filename: filename
+      )
+      modelContext.insert(placeholder)
+      try? modelContext.save()
+    }
+
+    @MainActor
+    private func updatePlaceholder(id: String, with detail: BookByIdResponse) {
+      let descriptor = FetchDescriptor<BookMetaResponse>(predicate: #Predicate { $0.id == id })
+      guard let book = try? modelContext.fetch(descriptor).first else { return }
+      book.processingStatus = detail.processingStatus
+      book.filename = detail.filename
+      book.totalChapters = detail.totalChapters
+      book.processedChapters = detail.processedChapters
+      if detail.processingStatus == "done" {
+        book.title = detail.title
+        book.editionNumber = detail.editionNumber
+        book.year = detail.year
+        book.publisher = detail.publisher.isEmpty ? nil : detail.publisher
+        book.authors = detail.authorsBooks
+        book.genres = detail.genresBooks
+        book.coverImageUrl = detail.coverImageUrl
+      }
+      try? modelContext.save()
     }
 
     @MainActor
@@ -151,6 +237,14 @@ extension HomeView {
           existingBook.authors = fetchedBook.authors
           existingBook.genres = fetchedBook.genres
           existingBook.coverImageUrl = fetchedBook.coverImageUrl
+          if existingBook.processingStatus == "in_progress" {
+            existingBook.processingStatus = "done"
+            if existingBook.id == pendingBookId {
+              pendingBookId = nil
+              pendingBookFilename = nil
+              uploadedBookPollTask?.cancel()
+            }
+          }
           existingBooksDict.removeValue(forKey: fetchedBook.id)
         } else {
           modelContext.insert(fetchedBook)
@@ -158,10 +252,22 @@ extension HomeView {
       }
 
       for (_, bookToDelete) in existingBooksDict {
+        guard bookToDelete.processingStatus != "in_progress" else { continue }
         modelContext.delete(bookToDelete)
       }
 
       try? modelContext.save()
+    }
+
+    func retryProcessing(bookId: String) {
+      let descriptor = FetchDescriptor<BookMetaResponse>(predicate: #Predicate { $0.id == bookId })
+      guard let book = try? modelContext.fetch(descriptor).first else { return }
+      book.processingStatus = "in_progress"
+      try? modelContext.save()
+      pendingBookId = bookId
+      Task { @MainActor in
+        startPeriodicUploadedBookDetailSync(bookId: bookId)
+      }
     }
 
     func addBookAction() {

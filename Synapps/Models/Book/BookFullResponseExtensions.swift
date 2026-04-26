@@ -25,7 +25,12 @@ extension BookByIdResponse {
       authorsBooks: dto.authorsBooks?.map {
         "\($0.firstName) \($0.lastName)"
       } ?? [],
-      genresBooks: dto.genresBooks?.map(\.name) ?? []
+      genresBooks: dto.genresBooks?.map(\.name) ?? [],
+      processingStatus: dto.processingStatus,
+      coverImageUrl: dto.coverUrl.flatMap { URL(string: Constants.serverURL + $0) },
+      filename: dto.filename,
+      totalChapters: dto.totalChapters,
+      processedChapters: dto.processedChapters
     )
   }
 }

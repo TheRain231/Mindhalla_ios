@@ -113,7 +113,8 @@ extension BookDownloadStatusView {
 
     static let `default` = Configuration(
       maxImageWidth: 128,
-      maxImageHeight: 128
+      maxImageHeight: 128,
+      hasDismissButton: true
     )
 
     static let fullWidthLeftAlignment = Configuration(

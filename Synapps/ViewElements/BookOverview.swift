@@ -9,13 +9,14 @@ import SwiftUI
 
 struct BookOverview: View {
   let book: BookMetaResponse
+  var onRetry: (() -> Void)? = nil
 
   var body: some View {
     VStack(alignment: .leading) {
       header
       titleView
       authorView
-//      savedIdeasView
+      savedIdeasView
     }
     .padding()
     .background(cardBackground)
@@ -29,7 +30,7 @@ struct BookOverview: View {
       coverImage
         .frame(width: 100, height: 160)
       Spacer()
-//      progressText
+      progressText
     }
   }
 
@@ -39,31 +40,80 @@ struct BookOverview: View {
   }
 
   private var authorView: some View {
-    Text(book.authors.joined(separator: ", "))
-      .font(.system(size: 20))
-      .foregroundStyle(.secondary)
+    Group {
+      if book.isProcessing {
+        Text("BookProcessing.Status.InProgress")
+      } else if book.hasFailed {
+        Text("BookProcessing.Status.Failed")
+      } else {
+        Text(book.authors.joined(separator: ", "))
+      }
+    }
+    .font(.system(size: 20))
+    .foregroundStyle(.secondary)
   }
-
-//  private var savedIdeasView: some View {
-//    Label("\(book.savedIdeasCount) сохраненных", systemImage: "bookmark")
-//      .labelStyle(TextBadgeLabelStyle())
-//  }
-
-//  private var progressText: some View {
-//    Text("\(Int(ceil(book.percentageRead)))% • Еще \(timeToReadText)")
-//      .padding()
-//  }
 
   private var cardBackground: some View {
     RoundedRectangle(cornerRadius: 24)
       .fill(Color(.systemBackground))
   }
 
-  // MARK: - Subviews
+  @ViewBuilder
+  private var savedIdeasView: some View {
+    if book.savedIdeasCount > 0 {
+      Label("\(book.savedIdeasCount) сохраненных", systemImage: "bookmark")
+        .labelStyle(TextBadgeLabelStyle())
+    }
+  }
+
+  @ViewBuilder
+  private var progressText: some View {
+    if book.isProcessing {
+      let pct = book.processingPercentage
+      VStack(alignment: .trailing, spacing: 2) {
+        if pct > 0 {
+          Text("\(pct)%")
+            .font(.system(size: 16, weight: .semibold).monospacedDigit())
+            .foregroundStyle(Color(hex: "9B60E9"))
+        } else {
+          ProgressView()
+            .scaleEffect(0.8)
+        }
+      }
+      .padding(8)
+    } else if book.hasFailed {
+      Button { onRetry?() } label: {
+        Image(systemName: "arrow.clockwise")
+          .font(.system(size: 14, weight: .semibold))
+          .foregroundStyle(.white)
+          .padding(10)
+          .background(Color(hex: "9B60E9"), in: Circle())
+      }
+      .buttonStyle(.plain)
+    } else if book.percentageRead > 0 {
+      Text("\(Int(ceil(book.percentageRead)))% • Еще \(timeToReadText)")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .padding(8)
+    }
+  }
+
+  // MARK: - Cover
 
   @ViewBuilder
   private var coverImage: some View {
-    if let cover = book.coverImageUrl {
+    if book.isProcessing {
+      ShimmerView()
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    } else if book.hasFailed {
+      ZStack {
+        Color(.systemGray5)
+        Image(systemName: "exclamationmark.triangle")
+          .font(.system(size: 36))
+          .foregroundStyle(.secondary)
+      }
+      .clipShape(RoundedRectangle(cornerRadius: 8))
+    } else if let cover = book.coverImageUrl {
       AsyncImage(url: cover) { phase in
         if let image = phase.image {
           image
@@ -91,17 +141,45 @@ struct BookOverview: View {
 
   // MARK: - Helpers
 
-//  private var timeToReadText: String {
-//    let minutes = book.timeToRead / 60.0
-//    if minutes > 60 {
-//      let hours = Int(ceil(minutes / 60.0))
-//      return "\(hours) ч"
-//    } else {
-//      let mins = Int(ceil(minutes))
-//      return "\(mins) мин"
-//    }
-//  }
+  private var timeToReadText: String {
+    let minutes = book.timeToRead / 60.0
+    if minutes > 60 {
+      let hours = Int(ceil(minutes / 60.0))
+      return "\(hours) ч"
+    } else {
+      let mins = Int(ceil(minutes))
+      return "\(mins) мин"
+    }
+  }
 }
+
+// MARK: - Shimmer
+
+private struct ShimmerView: View {
+  @State private var phase: CGFloat = -1
+
+  var body: some View {
+    GeometryReader { geo in
+      LinearGradient(
+        stops: [
+          .init(color: Color(.systemGray5), location: 0),
+          .init(color: Color(.systemGray4), location: 0.4),
+          .init(color: Color(.systemGray5), location: 0.8),
+        ],
+        startPoint: .init(x: phase, y: 0),
+        endPoint: .init(x: phase + 1, y: 0)
+      )
+      .frame(width: geo.size.width, height: geo.size.height)
+    }
+    .onAppear {
+      withAnimation(.linear(duration: 1.4).repeatForever(autoreverses: false)) {
+        phase = 1
+      }
+    }
+  }
+}
+
+// MARK: - TextBadgeLabelStyle
 
 private struct TextBadgeLabelStyle: LabelStyle {
   var backgroundColor: Color = .secondary.opacity(0.2)
@@ -138,4 +216,16 @@ private struct TextBadgeLabelStyle: LabelStyle {
 
 #Preview("URL Error") {
   BookOverview(book: BookMetaResponse.mockWithURLError())
+}
+
+#Preview("Processing") {
+  let book = BookMetaResponse(id: "1", title: "d-20-21.pdf", editionNumber: 0, year: 0, publisher: nil, authors: [], genres: [], processingStatus: "in_progress")
+  BookOverview(book: book)
+    .padding()
+}
+
+#Preview("Failed") {
+  let book = BookMetaResponse(id: "2", title: "d-20-21.pdf", editionNumber: 0, year: 0, publisher: nil, authors: [], genres: [], processingStatus: "failed")
+  BookOverview(book: book, onRetry: {})
+    .padding()
 }

@@ -21,7 +21,6 @@ extension ContentView {
 }
 
 enum TabItem {
-  case share
   case home
   case saved
   case profile

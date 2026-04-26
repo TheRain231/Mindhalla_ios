@@ -81,36 +81,64 @@ struct SavedView: View {
 
 extension SavedView {
   private var collectionsContent: some View {
-    VStack {
+    let filtered = viewModel.filteredCollections(from: collections)
+    return VStack {
       collectionSearchField
-      List {
-        ForEach(viewModel.filteredCollections(from: collections)) { collection in
-          collectionRow(collection)
+      if collections.isEmpty {
+        EmptyStateView(
+          icon: "folder",
+          title: "SavedView.Collections.Empty.Title",
+          message: "SavedView.Collections.Empty.Message"
+        )
+      } else if filtered.isEmpty {
+        EmptyStateView(
+          icon: "magnifyingglass",
+          title: "SavedView.Search.Empty.Title"
+        )
+      } else {
+        List {
+          ForEach(filtered) { collection in
+            collectionRow(collection)
+          }
         }
+        .scrollDismissesKeyboard(.immediately)
+        .listStyle(.plain)
       }
-      .scrollDismissesKeyboard(.immediately)
-      .listStyle(.plain)
     }
   }
 
   private var cardsContent: some View {
-    VStack {
+    let filtered = viewModel.filteredCards(from: cards)
+    return VStack {
       cardSearchField
-      CardTypePaginationView(
-        cardTypes: viewModel.presentTypes(from: cards),
-        onTap: viewModel.toggleTypeFilter
-      )
-      ScrollView {
-        LazyVStack(spacing: 20) {
-          ForEach(viewModel.filteredCards(from: cards)) { card in
-            cardRow(card)
+      if cards.isEmpty {
+        EmptyStateView(
+          icon: "rectangle.on.rectangle",
+          title: "SavedView.Cards.Empty.Title",
+          message: "SavedView.Cards.Empty.Message"
+        )
+      } else if filtered.isEmpty {
+        EmptyStateView(
+          icon: "magnifyingglass",
+          title: "SavedView.Search.Empty.Title"
+        )
+      } else {
+        CardTypePaginationView(
+          cardTypes: viewModel.presentTypes(from: cards),
+          onTap: viewModel.toggleTypeFilter
+        )
+        ScrollView {
+          LazyVStack(spacing: 20) {
+            ForEach(filtered) { card in
+              cardRow(card)
+            }
           }
+          .animation(.easeInOut(duration: 0.55), value: cards.map(\.id))
+          .padding(.top)
+          .padding(.horizontal)
         }
-        .animation(.easeInOut(duration: 0.55), value: cards.map(\.id))
-        .padding(.top)
-        .padding(.horizontal)
+        .scrollDismissesKeyboard(.immediately)
       }
-      .scrollDismissesKeyboard(.immediately)
     }
   }
 

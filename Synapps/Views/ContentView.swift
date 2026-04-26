@@ -13,12 +13,6 @@ struct ContentView: View {
 
   var body: some View {
     TabView(selection: $viewModel.selectedTab) {
-      Text(verbatim: "Share")
-        .tabItem {
-          Image(systemName: "circlebadge.2")
-          Text(verbatim: "Share")
-        }
-        .tag(TabItem.share)
       HomeView(viewModel: factory.createHomeViewModel())
         .tabItem {
           Image(systemName: "book.closed")
