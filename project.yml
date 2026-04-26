@@ -53,6 +53,7 @@ targets:
         includes:
           - AppGroupIdentifier.swift
           - SharedModelStore.swift
+          - Constants.swift
       - path: Synapps/Models
         includes:
           - DTO.swift
