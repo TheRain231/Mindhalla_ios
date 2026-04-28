@@ -10,6 +10,7 @@ import Foundation
 enum Endpoint {
   case getAllBooks
   case getBookById(id: String)
+  case getBookTasks(bookId: String)
   case uploadBook(fileURL: URL)
 
   var path: String {
@@ -18,6 +19,8 @@ enum Endpoint {
       "/api/v1/books"
     case let .getBookById(id):
       "/api/v1/books/\(id)"
+    case let .getBookTasks(bookId):
+      "/api/v1/books/\(bookId)/tasks"
     case .uploadBook:
       "/api/v1/uploads"
     }
@@ -25,7 +28,7 @@ enum Endpoint {
 
   var method: HTTP.Method {
     switch self {
-    case .getAllBooks, .getBookById:
+    case .getAllBooks, .getBookById, .getBookTasks:
       .get
     case .uploadBook:
       .post

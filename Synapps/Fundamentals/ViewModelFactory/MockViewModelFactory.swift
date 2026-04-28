@@ -37,8 +37,8 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   }
 
   @MainActor
-  func createCardsViewModel(cardID: String) -> CardsView.ViewModel {
-    CardsView.ViewModel(cardID: cardID, networkManager: networkManager, modelContext: modelContainer.mainContext)
+  func createCardsViewModel(cardID: String, prefetchedBook: BookByIdResponse? = nil) -> CardsView.ViewModel {
+    CardsView.ViewModel(cardID: cardID, networkManager: networkManager, modelContext: modelContainer.mainContext, prefetchedBook: prefetchedBook)
   }
 
   @MainActor
@@ -54,6 +54,11 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   @MainActor
   func createQuizViewModel() -> QuizView.ViewModel {
     QuizView.ViewModel()
+  }
+
+  @MainActor
+  func createBookTasksViewModel(bookId: String, prefetchedTasks: BookTasksResponse? = nil) -> BookTasksView.ViewModel {
+    BookTasksView.ViewModel(bookId: bookId, networkManager: networkManager, prefetchedTasks: prefetchedTasks)
   }
 
   @MainActor
