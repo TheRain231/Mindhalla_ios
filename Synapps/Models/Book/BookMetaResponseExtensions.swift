@@ -18,7 +18,8 @@ extension BookMetaResponse {
       authors: dto.authors.map {
         "\($0.firstName) \($0.lastName)"
       },
-      genres: dto.genres.map(\.name)
+      genres: dto.genres.map(\.name),
+      coverImageUrl: dto.coverUrl.flatMap { URL(string: Constants.serverURL + $0) }
     )
   }
 }

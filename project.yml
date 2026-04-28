@@ -39,7 +39,6 @@ targets:
       - package: Lottie
       - target: QuotesWidgetExtension
         embed: true
-
   QuotesWidgetExtension:
     platform: iOS
     type: app-extension
@@ -54,6 +53,7 @@ targets:
         includes:
           - AppGroupIdentifier.swift
           - SharedModelStore.swift
+          - Constants.swift
       - path: Synapps/Models
         includes:
           - DTO.swift
