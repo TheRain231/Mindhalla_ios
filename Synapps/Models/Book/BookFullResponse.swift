@@ -20,8 +20,13 @@ final class BookByIdResponse {
   var cards: [Card]
   var authorsBooks: [String]
   var genresBooks: [String]
+  var processingStatus: String
+  var coverImageUrl: URL?
+  var filename: String
+  var totalChapters: Int?
+  var processedChapters: Int?
 
-  init(id: String, title: String, editionNumber: Int, year: Int, publisher: String, language: String, pages: Int, cards: [Card], authorsBooks: [String], genresBooks: [String]) {
+  init(id: String, title: String, editionNumber: Int, year: Int, publisher: String, language: String, pages: Int, cards: [Card], authorsBooks: [String], genresBooks: [String], processingStatus: String = "done", coverImageUrl: URL? = nil, filename: String = "", totalChapters: Int? = nil, processedChapters: Int? = nil) {
     self.id = id
     self.title = title
     self.editionNumber = editionNumber
@@ -32,6 +37,11 @@ final class BookByIdResponse {
     self.cards = cards
     self.authorsBooks = authorsBooks
     self.genresBooks = genresBooks
+    self.processingStatus = processingStatus
+    self.coverImageUrl = coverImageUrl
+    self.filename = filename
+    self.totalChapters = totalChapters
+    self.processedChapters = processedChapters
   }
 
   enum CodingKeys: String, CodingKey {
