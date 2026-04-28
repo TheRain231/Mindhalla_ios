@@ -32,6 +32,12 @@ extension HomeView {
     @Published var showDuplicateBookAlert: Bool = false
     @Published var uploadState: BookUploadState?
     @Published var loadTrigger = UUID()
+    @Published var selectedBookForModePicker: BookMetaResponse?
+    @Published var navigationRoute: HomeNavigationRoute?
+
+    private var prefetchedBooksById: [String: BookByIdResponse] = [:]
+    private var prefetchedTasksById: [String: BookTasksResponse] = [:]
+    private var prefetchTaskByBookId: [String: Task<Void, Never>] = [:]
 
     init(networkManager: NetworkManagerProtocol, modelContext: ModelContext) {
       self.networkManager = networkManager
@@ -40,6 +46,50 @@ extension HomeView {
 
     deinit {
       uploadedBookPollTask?.cancel()
+      prefetchTaskByBookId.values.forEach { $0.cancel() }
+    }
+
+    func didTapBook(_ book: BookMetaResponse) {
+      selectedBookForModePicker = book
+      prefetchBookData(bookId: book.id)
+    }
+
+    func openCardsMode() {
+      guard let selectedBookForModePicker else { return }
+      navigationRoute = .cards(
+        bookId: selectedBookForModePicker.id,
+        prefetchedBook: prefetchedBooksById[selectedBookForModePicker.id]
+      )
+      self.selectedBookForModePicker = nil
+    }
+
+    func openTasksMode() {
+      guard let selectedBookForModePicker else { return }
+      navigationRoute = .tasks(
+        bookId: selectedBookForModePicker.id,
+        prefetchedTasks: prefetchedTasksById[selectedBookForModePicker.id]
+      )
+      self.selectedBookForModePicker = nil
+    }
+
+    private func prefetchBookData(bookId: String) {
+      if prefetchTaskByBookId[bookId] != nil { return }
+      prefetchTaskByBookId[bookId] = Task { [weak self] in
+        guard let self else { return }
+        async let bookRequest: BookByIdResponse? = try? await self.networkManager.getBook(by: bookId)
+        async let tasksRequest: BookTasksResponse? = try? await self.networkManager.getBookTasks(bookId: bookId)
+
+        let (book, tasks) = await (bookRequest, tasksRequest)
+        await MainActor.run {
+          if let book {
+            self.prefetchedBooksById[bookId] = book
+          }
+          if let tasks {
+            self.prefetchedTasksById[bookId] = tasks
+          }
+          self.prefetchTaskByBookId.removeValue(forKey: bookId)
+        }
+      }
     }
 
     func onAddBookCompletion(result: Result<URL, Error>) {
@@ -290,6 +340,20 @@ extension HomeView {
     /// Вызывается при отказе в алерте — окно выбора не открываем, при следующем нажатии «+» алерт покажется снова.
     func declineFileAccess() {
       showFileAccessAlert = false
+    }
+  }
+}
+
+enum HomeNavigationRoute: Identifiable, Hashable {
+  case cards(bookId: String, prefetchedBook: BookByIdResponse?)
+  case tasks(bookId: String, prefetchedTasks: BookTasksResponse?)
+
+  var id: String {
+    switch self {
+    case let .cards(bookId, _):
+      return "cards-\(bookId)"
+    case let .tasks(bookId, _):
+      return "tasks-\(bookId)"
     }
   }
 }

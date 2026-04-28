@@ -27,7 +27,9 @@ struct HomeView: View {
           ScrollView {
             LazyVStack(spacing: 20) {
               ForEach(books) { book in
-                NavigationLink(value: book) {
+                Button {
+                  viewModel.didTapBook(book)
+                } label: {
                   BookOverview(book: book, onRetry: { viewModel.retryProcessing(bookId: book.id) })
                 }
                 .buttonStyle(.plain)
@@ -43,15 +45,15 @@ struct HomeView: View {
       } message: {
         Text("HomeView.DuplicateBook.Message")
       }
-      .alert("Доступ к файлам", isPresented: $viewModel.showFileAccessAlert) {
-        Button("Разрешить") {
+      .alert("HomeView.FileAccess.Title", isPresented: $viewModel.showFileAccessAlert) {
+        Button("HomeView.FileAccess.Allow") {
           viewModel.confirmFileAccessAndOpenPicker()
         }
-        Button("Не сейчас", role: .cancel) {
+        Button("HomeView.FileAccess.NotNow", role: .cancel) {
           viewModel.declineFileAccess()
         }
       } message: {
-        Text("Чтобы добавить книгу, нужно выбрать PDF-файл с устройства. Разрешить доступ к файлам?")
+        Text("HomeView.FileAccess.Message")
       }
       .fullScreenCover(item: $viewModel.uploadState) { state in
         switch state {
@@ -82,9 +84,28 @@ struct HomeView: View {
         }
       }
       .navigationTitle("my_books")
-      .navigationDestination(for: BookMetaResponse.self) { book in
-        CardsView(viewModel: factory.createCardsViewModel(cardID: book.id))
-          .ignoresSafeArea()
+      .fullScreenCover(item: $viewModel.selectedBookForModePicker) { book in
+        BookModeSelectionView(
+          bookTitle: book.title,
+          onCardsTap: {
+            viewModel.openCardsMode()
+          },
+          onStudyTap: {
+            viewModel.openTasksMode()
+          },
+          onClose: {
+            viewModel.selectedBookForModePicker = nil
+          }
+        )
+      }
+      .navigationDestination(item: $viewModel.navigationRoute) { route in
+        switch route {
+        case let .cards(bookId, prefetchedBook):
+          CardsView(viewModel: factory.createCardsViewModel(cardID: bookId, prefetchedBook: prefetchedBook))
+            .ignoresSafeArea()
+        case let .tasks(bookId, prefetchedTasks):
+          BookTasksView(viewModel: factory.createBookTasksViewModel(bookId: bookId, prefetchedTasks: prefetchedTasks))
+        }
       }
       .navigationDestination(for: QuizDestination.self) { _ in
         QuizView(viewModel: factory.createQuizViewModel())

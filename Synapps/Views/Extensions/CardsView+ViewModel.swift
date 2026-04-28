@@ -14,6 +14,7 @@ extension CardsView {
     let cardID: String
     let networkManager: NetworkManagerProtocol
     let modelContext: ModelContext
+    private let prefetchedBook: BookByIdResponse?
 
     @Published var cards: [Card]
     @Published var topCardIndex: Int
@@ -21,10 +22,11 @@ extension CardsView {
     @Published var isSaveViewPresented: Bool = false
     @Published var isSavedMessageVisible: Bool = false
 
-    init(cardID: String, networkManager: NetworkManagerProtocol, modelContext: ModelContext) {
+    init(cardID: String, networkManager: NetworkManagerProtocol, modelContext: ModelContext, prefetchedBook: BookByIdResponse? = nil) {
       self.cardID = cardID
       self.networkManager = networkManager
       self.modelContext = modelContext
+      self.prefetchedBook = prefetchedBook
 
       self.cards = [] // Обязательно вызвать fetch() на onAppear
       self.topCardIndex = 0
@@ -42,7 +44,7 @@ extension CardsView {
     func fetch() {
       Task {
         do {
-          let fetchedCards = try await networkManager.getBook(by: cardID).cards
+          let fetchedCards = try await fetchBook().cards
           await MainActor.run {
             cards = fetchedCards // TODO: Надо разобраться и исправить warning
             topCardIndex = cards.count - 1
@@ -52,6 +54,13 @@ extension CardsView {
           // TODO: добавить обработку ошибок
         }
       }
+    }
+
+    private func fetchBook() async throws -> BookByIdResponse {
+      if let prefetchedBook {
+        return prefetchedBook
+      }
+      return try await networkManager.getBook(by: cardID)
     }
 
     func saveCard(_ card: Card) {

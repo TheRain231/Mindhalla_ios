@@ -75,4 +75,22 @@ final class NetworkManager: NetworkManagerProtocol {
       }
     }
   }
+
+  func getBookTasks(bookId: String) async throws -> BookTasksResponse {
+    try await withCheckedThrowingContinuation { continuation in
+      client.getBookTasks(bookId: bookId) { response, error in
+        if let error {
+          continuation.resume(throwing: error)
+          return
+        }
+
+        guard let response else {
+          continuation.resume(throwing: NetworkError.invalidResponse("No data received for getBookTasks"))
+          return
+        }
+
+        continuation.resume(returning: BookTasksResponse(dto: response))
+      }
+    }
+  }
 }
