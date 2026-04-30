@@ -248,6 +248,105 @@
         }
       }
     },
+    "BookTasks.Check" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Check" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Проверить" }
+        }
+      }
+    },
+    "BookTasks.Shuffle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Shuffle" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Перемешать" }
+        }
+      }
+    },
+    "BookTasks.MultipleChoice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Choose all that apply" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Выберите все подходящие" }
+        }
+      }
+    },
+    "BookTasks.Completed.Retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Try again" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Пройти заново" }
+        }
+      }
+    },
+    "BookTasks.Completed.Score" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "%lld of %lld correct" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "%lld из %lld правильно" }
+        }
+      }
+    },
+    "BookTasks.Completed.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Done!" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Готово!" }
+        }
+      }
+    },
+    "BookTasks.Finish" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Finish" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Завершить" }
+        }
+      }
+    },
+    "BookTasks.Hint.Show" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Hint" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Подсказка" }
+        }
+      }
+    },
+    "BookTasks.Next" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Next" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Далее" }
+        }
+      }
+    },
     "BookTasks.Empty.Description" : {
       "extractionState" : "manual",
       "localizations" : {
