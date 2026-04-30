@@ -1,5 +1,6 @@
 import SwiftUI
 
+// Сейчас нигде не используется, так как бек сделал другую ручку для заданий
 struct QuizDestination: Hashable {}
 
 struct QuizView: View {

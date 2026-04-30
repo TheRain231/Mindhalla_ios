@@ -107,9 +107,8 @@ struct HomeView: View {
           BookTasksView(viewModel: factory.createBookTasksViewModel(bookId: bookId, prefetchedTasks: prefetchedTasks))
         }
       }
-      .navigationDestination(for: QuizDestination.self) { _ in
-        QuizView(viewModel: factory.createQuizViewModel())
-          .ignoresSafeArea()
+      .navigationDestination(for: BookTasksDestination.self) { destination in
+        BookTasksView(viewModel: factory.createBookTasksViewModel(bookId: destination.bookId, prefetchedTasks: nil))
       }
       .toolbar {
         ToolbarItem(placement: .topBarTrailing) {

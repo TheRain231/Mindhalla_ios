@@ -15,11 +15,14 @@ struct BookModeSelectionView: View {
 
   var body: some View {
     ZStack {
+      Color(.systemGroupedBackground)
+        .ignoresSafeArea()
+
       LinearGradient(
         colors: [
-          Color(hex: "9B60E9"),
-          Color(hex: "6D8DFF"),
-          Color(hex: "A9B8FF"),
+          Color(hex: "9B60E9").opacity(0.22),
+          Color(hex: "9B60E9").opacity(0.08),
+          .clear,
         ],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
@@ -32,15 +35,19 @@ struct BookModeSelectionView: View {
 
         Text("BookModeSelection.Title")
           .font(.system(size: 34, weight: .bold))
-          .foregroundStyle(.white)
-          .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 6)
+          .foregroundStyle(.primary)
+
+        Text(bookTitle)
+          .font(.system(size: 16, weight: .medium))
+          .foregroundStyle(.secondary)
+          .lineLimit(2)
 
         VStack(spacing: 14) {
           modeButton(
             title: "BookModeSelection.Cards.Title",
             subtitle: "BookModeSelection.Cards.Subtitle",
             icon: "rectangle.stack.fill",
-            tint: Color.white
+            tint: Color(hex: "9B60E9").opacity(0.14)
           ) {
             onCardsTap()
           }
@@ -49,7 +56,7 @@ struct BookModeSelectionView: View {
             title: "BookModeSelection.Tasks.Title",
             subtitle: "BookModeSelection.Tasks.Subtitle",
             icon: "checkmark.seal.fill",
-            tint: Color(hex: "EDE3FF")
+            tint: Color(hex: "9B60E9").opacity(0.2)
           ) {
             onStudyTap()
           }
@@ -72,9 +79,9 @@ struct BookModeSelectionView: View {
       } label: {
         Image(systemName: "xmark")
           .font(.system(size: 14, weight: .bold))
-          .foregroundStyle(.white.opacity(0.9))
+          .foregroundStyle(.secondary)
           .frame(width: 34, height: 34)
-          .background(.white.opacity(0.15), in: Circle())
+          .background(Color(.secondarySystemGroupedBackground), in: Circle())
       }
       .buttonStyle(.plain)
     }
@@ -91,17 +98,17 @@ struct BookModeSelectionView: View {
       HStack(alignment: .top, spacing: 14) {
         Image(systemName: icon)
           .font(.system(size: 18, weight: .semibold))
-          .foregroundStyle(Color(hex: "5E31AB"))
+          .foregroundStyle(Color(hex: "9B60E9"))
           .frame(width: 42, height: 42)
           .background(tint, in: RoundedRectangle(cornerRadius: 12))
 
         VStack(alignment: .leading, spacing: 4) {
           Text(title)
             .font(.system(size: 20, weight: .semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(.primary)
           Text(subtitle)
             .font(.system(size: 14))
-            .foregroundStyle(.white.opacity(0.85))
+            .foregroundStyle(.secondary)
             .multilineTextAlignment(.leading)
         }
 
@@ -109,14 +116,14 @@ struct BookModeSelectionView: View {
 
         Image(systemName: "chevron.right")
           .font(.system(size: 14, weight: .semibold))
-          .foregroundStyle(.white.opacity(0.8))
+          .foregroundStyle(Color(hex: "9B60E9"))
       }
       .padding(16)
       .frame(maxWidth: .infinity, alignment: .leading)
-      .background(.white.opacity(0.17), in: RoundedRectangle(cornerRadius: 18))
+      .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18))
       .overlay(
         RoundedRectangle(cornerRadius: 18)
-          .stroke(.white.opacity(0.2), lineWidth: 1)
+          .stroke(Color(hex: "9B60E9").opacity(0.12), lineWidth: 1)
       )
     }
     .buttonStyle(.plain)

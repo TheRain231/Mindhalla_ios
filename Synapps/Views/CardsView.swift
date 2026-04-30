@@ -76,7 +76,7 @@ extension CardsView {
 
   private var buttonsStack: some View {
     HStack {
-      NavigationLink(value: QuizDestination()) {
+      NavigationLink(value: BookTasksDestination(bookId: viewModel.cardID)) {
         Image(systemName: "questionmark.app.fill")
           .foregroundColor(.gray.opacity(0.6))
           .frame(width: 24, height: 24)
