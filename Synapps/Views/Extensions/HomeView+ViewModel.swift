@@ -14,16 +14,12 @@ extension HomeView {
     let modelContext: ModelContext
 
     private var lastUploadURL: URL?
-    private var uploadedBookPollTask: Task<Void, Never>?
+    private var uploadedBookPollTasks: [String: Task<Void, Never>] = [:]
 
-    private var pendingBookId: String? {
-      get { UserDefaults.standard.string(forKey: UserDefaultsKeys.pendingBookIdKey) }
-      set { UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.pendingBookIdKey) }
-    }
-
-    private var pendingBookFilename: String? {
-      get { UserDefaults.standard.string(forKey: UserDefaultsKeys.pendingBookFilenameKey) }
-      set { UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.pendingBookFilenameKey) }
+    // bookId → filename, persisted across app launches to resume polling after restart
+    private var pendingBooks: [String: String] {
+      get { UserDefaults.standard.dictionary(forKey: UserDefaultsKeys.pendingBooksKey) as? [String: String] ?? [:] }
+      set { UserDefaults.standard.set(newValue, forKey: UserDefaultsKeys.pendingBooksKey) }
     }
 
     @Published var isLoading: Bool = false
@@ -45,7 +41,7 @@ extension HomeView {
     }
 
     deinit {
-      uploadedBookPollTask?.cancel()
+      uploadedBookPollTasks.values.forEach { $0.cancel() }
       prefetchTaskByBookId.values.forEach { $0.cancel() }
     }
 
@@ -103,11 +99,11 @@ extension HomeView {
         lastUploadURL = url
         Task { @MainActor in
           uploadState = .loading
-          uploadedBookPollTask?.cancel()
           do {
             let uploadInfo = try await networkManager.uploadBook(url)
-            pendingBookId = uploadInfo.id
-            pendingBookFilename = uploadInfo.filename
+            var pending = pendingBooks
+            pending[uploadInfo.id] = uploadInfo.filename
+            pendingBooks = pending
             insertPlaceholder(id: uploadInfo.id, filename: uploadInfo.filename)
             uploadState = .success
             startPeriodicUploadedBookDetailSync(bookId: uploadInfo.id)
@@ -127,8 +123,8 @@ extension HomeView {
     }
 
     func reload() {
-      uploadedBookPollTask?.cancel()
-      uploadedBookPollTask = nil
+      uploadedBookPollTasks.values.forEach { $0.cancel() }
+      uploadedBookPollTasks.removeAll()
       loadTrigger = UUID()
     }
 
@@ -149,11 +145,11 @@ extension HomeView {
       }
     }
 
-    /// После успешной загрузки файла — `GET /books/{id}` сразу и далее каждые 30 с, пока задача не отменена (новая загрузка, `reload()`, `deinit`).
+    /// После успешной загрузки файла — `GET /books/{id}` сразу и далее каждые 30 с. Каждая книга имеет свою независимую задачу.
     @MainActor
     private func startPeriodicUploadedBookDetailSync(bookId: String) {
-      uploadedBookPollTask?.cancel()
-      uploadedBookPollTask = Task { @MainActor in
+      guard uploadedBookPollTasks[bookId] == nil else { return }
+      uploadedBookPollTasks[bookId] = Task { @MainActor in
         let intervalNs: UInt64 = 30 * 1_000_000_000
         await refreshUploadedBookDetail(bookId: bookId)
         while !Task.isCancelled {
@@ -176,29 +172,38 @@ extension HomeView {
         print("[Synapps][BookByIdSync] ok, processingStatus=\(detail.processingStatus)")
         updatePlaceholder(id: bookId, with: detail)
         if detail.processingStatus == "done" || detail.processingStatus == "failed" {
-          uploadedBookPollTask?.cancel()
-          pendingBookId = nil
-          pendingBookFilename = nil
+          finishTracking(bookId: bookId)
         }
       } catch {
         print("[Synapps][BookByIdSync] error: \(error)")
       }
     }
 
+    private func finishTracking(bookId: String) {
+      uploadedBookPollTasks[bookId]?.cancel()
+      uploadedBookPollTasks.removeValue(forKey: bookId)
+      var pending = pendingBooks
+      pending.removeValue(forKey: bookId)
+      pendingBooks = pending
+    }
+
     @MainActor
     private func resumePendingBookPollingIfNeeded() {
-      guard let bookId = pendingBookId else { return }
-      let descriptor = FetchDescriptor<BookMetaResponse>(predicate: #Predicate { $0.id == bookId })
-      let existing = try? modelContext.fetch(descriptor).first
-      if existing == nil {
-        let filename = pendingBookFilename ?? bookId
-        insertPlaceholder(id: bookId, filename: filename)
-      } else if existing?.processingStatus == "done" {
-        pendingBookId = nil
-        pendingBookFilename = nil
-        return
+      var pending = pendingBooks
+      var changed = false
+      for (bookId, filename) in pending {
+        let descriptor = FetchDescriptor<BookMetaResponse>(predicate: #Predicate { $0.id == bookId })
+        let existing = try? modelContext.fetch(descriptor).first
+        if existing == nil {
+          insertPlaceholder(id: bookId, filename: filename)
+        } else if existing?.processingStatus == "done" {
+          pending.removeValue(forKey: bookId)
+          changed = true
+          continue
+        }
+        startPeriodicUploadedBookDetailSync(bookId: bookId)
       }
-      startPeriodicUploadedBookDetailSync(bookId: bookId)
+      if changed { pendingBooks = pending }
     }
 
     @MainActor
@@ -289,11 +294,7 @@ extension HomeView {
           existingBook.coverImageUrl = fetchedBook.coverImageUrl
           if existingBook.processingStatus == "in_progress" {
             existingBook.processingStatus = "done"
-            if existingBook.id == pendingBookId {
-              pendingBookId = nil
-              pendingBookFilename = nil
-              uploadedBookPollTask?.cancel()
-            }
+            finishTracking(bookId: existingBook.id)
           }
           existingBooksDict.removeValue(forKey: fetchedBook.id)
         } else {
@@ -301,8 +302,10 @@ extension HomeView {
         }
       }
 
-      for (_, bookToDelete) in existingBooksDict {
+      for (bookId, bookToDelete) in existingBooksDict {
         guard bookToDelete.processingStatus != "in_progress" else { continue }
+        // Don't delete a book that individual polling just marked as done but getAllBooks hasn't caught up yet
+        guard uploadedBookPollTasks[bookId] == nil else { continue }
         modelContext.delete(bookToDelete)
       }
 
@@ -314,7 +317,9 @@ extension HomeView {
       guard let book = try? modelContext.fetch(descriptor).first else { return }
       book.processingStatus = "in_progress"
       try? modelContext.save()
-      pendingBookId = bookId
+      var pending = pendingBooks
+      pending[bookId] = book.filename ?? bookId
+      pendingBooks = pending
       Task { @MainActor in
         startPeriodicUploadedBookDetailSync(bookId: bookId)
       }

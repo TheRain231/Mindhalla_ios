@@ -16,6 +16,8 @@ extension SavedView {
     @Published var collectionSearchText: String = ""
     @Published var cardSearchText: String = ""
     @Published var selectedTypeFilter: CardType?
+    @Published var sortFilter: SortFilter = .byDate
+    @Published var bookIdFilter: String? = nil
 
     init(modelContext: ModelContext) {
       self.modelContext = modelContext
@@ -33,19 +35,36 @@ extension SavedView {
 
     func filteredCards(from cards: [Card]) -> [Card] {
       var result = cards
+
+      if let bookId = bookIdFilter {
+        result = result.filter { $0.bookId == bookId }
+      }
+
       if let type = selectedTypeFilter {
         result = result.filter { $0.type == type }
       }
 
       let query = cardSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
-      guard !query.isEmpty else { return result }
+      if !query.isEmpty {
+        let needle = query.lowercased()
+        result = result.filter { Self.matchesSearch($0, needle: needle) }
+      }
 
-      let needle = query.lowercased()
-      return result.filter { Self.matchesSearch($0, needle: needle) }
+      switch sortFilter {
+      case .byDate:
+        result = result.sorted { ($0.savedAt ?? .distantPast) > ($1.savedAt ?? .distantPast) }
+      case .alphabetically:
+        result = result.sorted { $0.content.localizedCompare($1.content) == .orderedAscending }
+      case .byBook:
+        result = result.sorted { ($0.bookId ?? "") < ($1.bookId ?? "") }
+      }
+
+      return result
     }
 
     func presentTypes(from cards: [Card]) -> [CardType] {
-      let present = Set(cards.map(\.type))
+      let source = bookIdFilter == nil ? cards : cards.filter { $0.bookId == bookIdFilter }
+      let present = Set(source.map(\.type))
       return CardType.allCases.filter { present.contains($0) }
     }
 
@@ -55,6 +74,15 @@ extension SavedView {
       } else {
         selectedTypeFilter = type
       }
+    }
+
+    func toggleSortFilter(_ filter: SortFilter) {
+      sortFilter = filter
+    }
+
+    func clearBookFilter() {
+      bookIdFilter = nil
+      selectedTypeFilter = nil
     }
 
     func deleteCard(_ card: Card, allCards: [Card]) {

@@ -15,6 +15,9 @@ enum CardType: String, Codable, CaseIterable {
   case idea
   case question
   case answer
+  case insight
+  case principle
+  case model
   case unknown
 }
 
@@ -25,13 +28,17 @@ final class Card {
   var content: String
   var references: References
   var tags: [Tag]
+  var bookId: String?
+  var savedAt: Date?
 
-  init(id: String, type: CardType, content: String, references: References, tags: [Tag]) {
+  init(id: String, type: CardType, content: String, references: References, tags: [Tag], bookId: String? = nil, savedAt: Date? = .now) {
     self.id = id
     self.type = type
     self.content = content
     self.references = references
     self.tags = tags
+    self.bookId = bookId
+    self.savedAt = savedAt
   }
 }
 
@@ -60,6 +67,12 @@ extension CardType {
       [Color(UIColor(red: 220 / 255, green: 225 / 255, blue: 240 / 255, alpha: 1.0)), Color(UIColor(red: 240 / 255, green: 240 / 255, blue: 243 / 255, alpha: 1.0))]
     case .answer:
       [Color(UIColor(red: 220 / 255, green: 234 / 255, blue: 221 / 255, alpha: 1.0)), Color(UIColor(red: 240 / 255, green: 243 / 255, blue: 240 / 255, alpha: 1.0))]
+    case .insight:
+      [Color(UIColor(red: 250 / 255, green: 240 / 255, blue: 215 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 241 / 255, blue: 235 / 255, alpha: 1.0))]
+    case .principle:
+      [Color(UIColor(red: 232 / 255, green: 222 / 255, blue: 244 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 240 / 255, blue: 246 / 255, alpha: 1.0))]
+    case .model:
+      [Color(UIColor(red: 216 / 255, green: 233 / 255, blue: 233 / 255, alpha: 1.0)), Color(UIColor(red: 240 / 255, green: 245 / 255, blue: 244 / 255, alpha: 1.0))]
     case .unknown, .none:
       [Color(.systemBackground)]
     }
@@ -79,6 +92,12 @@ extension CardType {
       "CardType.Question"
     case .answer:
       "CardType.Answer"
+    case .insight:
+      "CardType.Insight"
+    case .principle:
+      "CardType.Principle"
+    case .model:
+      "CardType.Model"
     case .unknown:
       "CardType.Unknown"
     }
@@ -100,6 +119,12 @@ extension CardType {
       Color(hex: "DCE1F0")
     case .answer:
       Color(hex: "DCEADD")
+    case .insight:
+      Color(hex: "E6C25A")
+    case .principle:
+      Color(hex: "9B6FCC")
+    case .model:
+      Color(hex: "6FB8B0")
     case .unknown, .none:
       Color(.systemBackground)
     }

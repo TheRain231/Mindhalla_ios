@@ -214,6 +214,17 @@
         }
       }
     },
+    "BookProcessing.Status.Analyzing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Analyzing the book…" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Анализируем книгу…" }
+        }
+      }
+    },
     "BookProcessing.Status.Failed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -650,6 +661,39 @@
             "state" : "needs_review",
             "value" : "Идея"
           }
+        }
+      }
+    },
+    "CardType.Insight" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Insight" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Инсайт" }
+        }
+      }
+    },
+    "CardType.Model" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Model" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Модель" }
+        }
+      }
+    },
+    "CardType.Principle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : { "state" : "translated", "value" : "Principle" }
+        },
+        "ru" : {
+          "stringUnit" : { "state" : "translated", "value" : "Принцип" }
         }
       }
     },
@@ -2201,6 +2245,74 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Подборки"
+          }
+        }
+      }
+    },
+    "BookOverview.SavedFormat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d saved"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d сохранённых"
+          }
+        }
+      }
+    },
+    "SavedView.Sort.Alphabetically" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A–Z"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По алфавиту"
+          }
+        }
+      }
+    },
+    "SavedView.Sort.ByBook" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By book"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По книге"
+          }
+        }
+      }
+    },
+    "SavedView.Sort.ByDate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By date"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По дате"
           }
         }
       }

@@ -13,6 +13,7 @@ struct SavedView: View {
   @Environment(\.viewModelFactory) var factory
   @Query var cards: [Card]
   @Query(sort: \QuoteCollection.title) var collections: [QuoteCollection]
+  @Query var allBooks: [BookMetaResponse]
   @State private var cardPendingDeletion: Card?
   @State private var navigationPath = NavigationPath()
   @Binding var deepLink: DeepLink?
@@ -55,6 +56,11 @@ struct SavedView: View {
             navigationPath.append(collection)
           }
         case .saved:
+          navigationPath = NavigationPath()
+          viewModel.clearBookFilter()
+        case let .savedByBook(bookId):
+          viewModel.pickerState = .cards
+          viewModel.bookIdFilter = bookId
           navigationPath = NavigationPath()
         }
         deepLink = nil
@@ -111,6 +117,7 @@ extension SavedView {
     let filtered = viewModel.filteredCards(from: cards)
     return VStack {
       cardSearchField
+      filterChips
       if cards.isEmpty {
         EmptyStateView(
           icon: "rectangle.on.rectangle",
@@ -139,6 +146,49 @@ extension SavedView {
         }
         .scrollDismissesKeyboard(.immediately)
       }
+    }
+  }
+
+  private var filterChips: some View {
+    ScrollView(.horizontal, showsIndicators: false) {
+      HStack(spacing: 8) {
+        if let bookId = viewModel.bookIdFilter,
+           let book = allBooks.first(where: { $0.id == bookId }) {
+          Button { viewModel.clearBookFilter() } label: {
+            HStack(spacing: 4) {
+              Image(systemName: "bookmark.fill")
+              Text(book.title)
+                .lineLimit(1)
+              Image(systemName: "xmark")
+                .font(.system(size: 10, weight: .semibold))
+            }
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(Capsule().fill(Color(hex: "9B60E9")))
+          }
+          .buttonStyle(.plain)
+        }
+
+        ForEach(SortFilter.allCases) { filter in
+          let isSelected = viewModel.sortFilter == filter
+          Button { viewModel.toggleSortFilter(filter) } label: {
+            Text(filter.localizedTitle)
+              .font(.system(size: 13, weight: .medium))
+              .foregroundStyle(isSelected ? .white : .primary)
+              .padding(.horizontal, 12)
+              .padding(.vertical, 7)
+              .background(
+                Capsule()
+                  .fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5))
+              )
+          }
+          .buttonStyle(.plain)
+        }
+      }
+      .padding(.horizontal)
+      .padding(.vertical, 6)
     }
   }
 
@@ -226,6 +276,22 @@ extension SavedView {
     case collections
     case cards
     var id: Self { self }
+  }
+
+  enum SortFilter: CaseIterable, Identifiable {
+    case byDate
+    case alphabetically
+    case byBook
+
+    var id: Self { self }
+
+    var localizedTitle: LocalizedStringKey {
+      switch self {
+      case .byDate: "SavedView.Sort.ByDate"
+      case .alphabetically: "SavedView.Sort.Alphabetically"
+      case .byBook: "SavedView.Sort.ByBook"
+      }
+    }
   }
 }
 

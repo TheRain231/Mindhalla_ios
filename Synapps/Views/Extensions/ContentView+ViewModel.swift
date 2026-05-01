@@ -17,6 +17,11 @@ extension ContentView {
       deepLink = link
       selectedTab = .saved
     }
+
+    func openSavedByBook(bookId: String) {
+      deepLink = .savedByBook(bookId: bookId)
+      selectedTab = .saved
+    }
   }
 }
 
