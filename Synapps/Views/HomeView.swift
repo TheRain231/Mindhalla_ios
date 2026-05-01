@@ -11,6 +11,7 @@ import SwiftUI
 struct HomeView: View {
   @StateObject var viewModel: ViewModel
   @Environment(\.viewModelFactory) var factory
+  var onOpenSavedByBook: ((String) -> Void)? = nil
   @Query private var books: [BookMetaResponse]
   @State private var bookLoadingViewModel = BookLoadingViewModel()
 
@@ -30,7 +31,11 @@ struct HomeView: View {
                 Button {
                   viewModel.didTapBook(book)
                 } label: {
-                  BookOverview(book: book, onRetry: { viewModel.retryProcessing(bookId: book.id) })
+                  BookOverview(
+                    book: book,
+                    onRetry: { viewModel.retryProcessing(bookId: book.id) },
+                    onSavedTap: { onOpenSavedByBook?(book.id) }
+                  )
                 }
                 .buttonStyle(.plain)
               }
@@ -101,8 +106,11 @@ struct HomeView: View {
       .navigationDestination(item: $viewModel.navigationRoute) { route in
         switch route {
         case let .cards(bookId, prefetchedBook):
-          CardsView(viewModel: factory.createCardsViewModel(cardID: bookId, prefetchedBook: prefetchedBook))
-            .ignoresSafeArea()
+          CardsView(
+            viewModel: factory.createCardsViewModel(cardID: bookId, prefetchedBook: prefetchedBook),
+            onTasksTap: { viewModel.navigationRoute = .tasks(bookId: bookId, prefetchedTasks: nil) }
+          )
+          .ignoresSafeArea()
         case let .tasks(bookId, prefetchedTasks):
           BookTasksView(viewModel: factory.createBookTasksViewModel(bookId: bookId, prefetchedTasks: prefetchedTasks))
         }

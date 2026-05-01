@@ -70,6 +70,7 @@ extension CardsView {
       descriptor.fetchLimit = 1
 
       if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
+        card.bookId = cardID
         modelContext.insert(card)
         try? modelContext.save()
         WidgetCenter.shared.reloadAllTimelines()
