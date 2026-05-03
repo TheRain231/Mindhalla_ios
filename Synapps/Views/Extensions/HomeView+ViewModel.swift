@@ -356,9 +356,9 @@ enum HomeNavigationRoute: Identifiable, Hashable {
   var id: String {
     switch self {
     case let .cards(bookId, _):
-      return "cards-\(bookId)"
+      "cards-\(bookId)"
     case let .tasks(bookId, _):
-      return "tasks-\(bookId)"
+      "tasks-\(bookId)"
     }
   }
 }
