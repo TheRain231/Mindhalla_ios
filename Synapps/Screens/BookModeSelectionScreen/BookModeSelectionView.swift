@@ -62,7 +62,6 @@ struct BookModeSelectionView: View {
           }
         }
         Spacer()
-
       }
       .padding(.horizontal, 20)
       .padding(.vertical, 24)

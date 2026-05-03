@@ -14,7 +14,7 @@ struct BookOverview: View {
   var onSavedTap: (() -> Void)? = nil
 
   var body: some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 8) {
       header
       titleView
       authorView
@@ -78,7 +78,7 @@ struct BookOverview: View {
                 LinearGradient(
                   colors: [
                     Color(hex: "9B60E9").opacity(0.75),
-                    Color(hex: "B785C6").opacity(0.5)
+                    Color(hex: "B785C6").opacity(0.5),
                   ],
                   startPoint: .topLeading,
                   endPoint: .bottomTrailing
@@ -212,6 +212,7 @@ private struct SavedCountBadge: View {
         .labelStyle(TextBadgeLabelStyle())
       }
       .buttonStyle(.borderless)
+      .foregroundStyle(.primary)
     }
   }
 }
