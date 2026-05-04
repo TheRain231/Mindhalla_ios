@@ -27,6 +27,12 @@ extension Card {
       .indigo
     case .answer:
       .green
+    case .insight:
+      .yellow
+    case .principle:
+      .purple
+    case .model:
+      .teal
     case .unknown:
       .gray
     }
@@ -42,12 +48,8 @@ extension Card {
 
 extension Card {
   convenience init(dto: BookCardResponseDTO) {
-    let type: CardType = .idea
-//    if let parsedType = CardType(rawValue: dto.type) {
-//      parsedType
-//    } else {
-//      .idea
-//    }
+    let type: CardType = dto.tags.first
+      .flatMap { CardType(rawValue: $0.type) } ?? .unknown
 
     let dict = dto.references as [String: Any]
     let references = if let pages = dict["pages"] as? [Int],
@@ -155,6 +157,30 @@ extension Card {
         content: "Не наши способности определяют, кто мы, а наш выбор.",
         references: .init(pages: [], originalTexts: []),
         tags: []
+      )
+    case .insight:
+      Card(
+        id: "i-mock-1",
+        type: .insight,
+        content: "Повторение с интервалами работает лучше, чем один длинный сеанс.",
+        references: .init(pages: [54], originalTexts: ["Лучше 15 минут в день, чем 2 часа раз в неделю."]),
+        tags: [.init(id: "i-tag-1", type: "system", name: "learning", description: "Practical learning insight")]
+      )
+    case .principle:
+      Card(
+        id: "p-mock-1",
+        type: .principle,
+        content: "Сначала понимание смысла, затем запоминание деталей.",
+        references: .init(pages: [73], originalTexts: ["Принцип: от общего к частному."]),
+        tags: [.init(id: "p-tag-1", type: "system", name: "principle", description: "General study principle")]
+      )
+    case .model:
+      Card(
+        id: "m-mock-1",
+        type: .model,
+        content: "Цикл обучения: прочитал -> сформулировал -> применил -> проверил.",
+        references: .init(pages: [101], originalTexts: ["Рабочая модель закрепления знаний."]),
+        tags: [.init(id: "m-tag-1", type: "system", name: "framework", description: "Learning model")]
       )
     case .unknown:
       Card(

@@ -113,6 +113,47 @@ struct BookByIdResponseDTO: Codable {
   }
 }
 
+// MARK: - Book Tasks
+
+struct BookTasksResponseDTO: Codable {
+  let id: String
+  let processingStatus: String
+  let totalChapters: Int
+  let processedChapters: Int
+  let tasks: [BookTaskItemDTO]
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case processingStatus = "processing_status"
+    case totalChapters = "total_chapters"
+    case processedChapters = "processed_chapters"
+    case tasks
+  }
+}
+
+struct BookTaskItemDTO: Codable {
+  let id: String
+  let title: String
+  let options: [BookTaskOptionDTO]
+  let correctOptionIds: [String]
+  let hint: String
+  let explanation: String
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case title
+    case options
+    case correctOptionIds = "correct_option_ids"
+    case hint
+    case explanation
+  }
+}
+
+struct BookTaskOptionDTO: Codable {
+  let id: String
+  let text: String
+}
+
 // MARK: - Book Card
 
 struct BookCardResponseDTO: Codable {

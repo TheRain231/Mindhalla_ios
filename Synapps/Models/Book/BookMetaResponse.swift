@@ -42,6 +42,9 @@ final class BookMetaResponse {
   var isProcessing: Bool { processingStatus == "in_progress" || processingStatus == "pending" }
   var hasFailed: Bool { processingStatus == "failed" }
 
+  /// Первичная обработка: книга загружена, но главы ещё не извлечены (totalChapters не задан).
+  var isAnalyzing: Bool { isProcessing && (totalChapters ?? 0) == 0 }
+
   var processingPercentage: Int {
     guard let total = totalChapters, total > 0,
           let processed = processedChapters else { return 0 }

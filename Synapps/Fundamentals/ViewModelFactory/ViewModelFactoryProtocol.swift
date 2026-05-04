@@ -12,7 +12,8 @@ protocol ViewModelFactoryProtocol: AnyObject {
   var modelContainer: ModelContainer { get }
 
   func createContentViewModel() -> ContentView.ViewModel
-  func createCardsViewModel(cardID: String) -> CardsView.ViewModel
+  func createCardsViewModel(cardID: String, prefetchedBook: BookByIdResponse?) -> CardsView.ViewModel
+  func createBookTasksViewModel(bookId: String, prefetchedTasks: BookTasksResponse?) -> BookTasksView.ViewModel
   func createHomeViewModel() -> HomeView.ViewModel
   func createSavedViewModel() -> SavedView.ViewModel
   func createQuizViewModel() -> QuizView.ViewModel

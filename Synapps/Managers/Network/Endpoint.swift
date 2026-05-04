@@ -10,6 +10,7 @@ import Foundation
 enum Endpoint {
   case getAllBooks
   case getBookById(id: String)
+  case getBookTasks(bookId: String)
   case uploadBook(fileURL: URL)
 
   var path: String {
@@ -18,6 +19,8 @@ enum Endpoint {
       "/api/v1/books"
     case let .getBookById(id):
       "/api/v1/books/\(id)"
+    case let .getBookTasks(bookId):
+      "/api/v1/books/\(bookId)/tasks"
     case .uploadBook:
       "/api/v1/uploads"
     }
@@ -25,7 +28,7 @@ enum Endpoint {
 
   var method: HTTP.Method {
     switch self {
-    case .getAllBooks, .getBookById:
+    case .getAllBooks, .getBookById, .getBookTasks:
       .get
     case .uploadBook:
       .post
@@ -33,9 +36,22 @@ enum Endpoint {
   }
 
   var request: URLRequest? {
-    guard let url = URL(string: Constants.serverURL + path) else {
-      return nil
+    let urlString = Constants.serverURL + path
+    let url: URL?
+
+    switch self {
+    case .uploadBook:
+      var components = URLComponents(string: urlString)
+      components?.queryItems = [
+        URLQueryItem(name: "language", value: uploadLanguageQueryValue),
+        URLQueryItem(name: "studyMode", value: "true"),
+      ]
+      url = components?.url
+    default:
+      url = URL(string: urlString)
     }
+
+    guard let url else { return nil }
 
     var request = URLRequest(url: url)
     request.httpMethod = method.rawValue
@@ -83,5 +99,10 @@ enum Endpoint {
     body.append(boundaryEnd)
 
     return body
+  }
+
+  private var uploadLanguageQueryValue: String {
+    let preferredLanguage = Locale.preferredLanguages.first?.lowercased() ?? ""
+    return preferredLanguage.hasPrefix("ru") ? "ru" : "en"
   }
 }
