@@ -11,6 +11,7 @@ import SwiftUI
 struct CardsView: View {
   @Environment(\.viewModelFactory) var factory
   @StateObject var viewModel: ViewModel
+  var onTasksTap: (() -> Void)?
 
   var body: some View {
     CardStackView(
@@ -76,7 +77,9 @@ extension CardsView {
 
   private var buttonsStack: some View {
     HStack {
-      NavigationLink(value: QuizDestination()) {
+      Button {
+        onTasksTap?()
+      } label: {
         Image(systemName: "questionmark.app.fill")
           .foregroundColor(.gray.opacity(0.6))
           .frame(width: 24, height: 24)

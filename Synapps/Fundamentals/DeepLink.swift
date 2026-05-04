@@ -3,6 +3,7 @@ import Foundation
 enum DeepLink: Equatable {
   case collection(id: String)
   case saved
+  case savedByBook(bookId: String)
 
   init?(url: URL) {
     guard url.scheme == "synapps" else { return nil }

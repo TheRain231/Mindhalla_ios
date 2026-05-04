@@ -5,18 +5,20 @@
 //  Created by Andrey Stepanov on 29.09.2025.
 //
 
+import SwiftData
 import SwiftUI
 
 struct BookOverview: View {
   let book: BookMetaResponse
   var onRetry: (() -> Void)? = nil
+  var onSavedTap: (() -> Void)? = nil
 
   var body: some View {
-    VStack(alignment: .leading) {
+    VStack(alignment: .leading, spacing: 8) {
       header
       titleView
       authorView
-      savedIdeasView
+      SavedCountBadge(bookId: book.id, onTap: onSavedTap)
     }
     .padding()
     .background(cardBackground)
@@ -30,7 +32,12 @@ struct BookOverview: View {
       coverImage
         .frame(width: 100, height: 160)
       Spacer()
-      progressText
+      VStack(alignment: .trailing, spacing: 8) {
+        progressText
+        if !book.isProcessing, !book.hasFailed, !book.genres.isEmpty {
+          genreChips
+        }
+      }
     }
   }
 
@@ -40,30 +47,56 @@ struct BookOverview: View {
   }
 
   private var authorView: some View {
-    Group {
-      if book.isProcessing {
-        Text("BookProcessing.Status.InProgress")
-      } else if book.hasFailed {
-        Text("BookProcessing.Status.Failed")
-      } else {
-        Text(book.authors.joined(separator: ", "))
+    VStack(alignment: .leading, spacing: 6) {
+      Group {
+        if book.isAnalyzing {
+          Text("BookProcessing.Status.Analyzing")
+        } else if book.isProcessing {
+          Text("BookProcessing.Status.InProgress")
+        } else if book.hasFailed {
+          Text("BookProcessing.Status.Failed")
+        } else {
+          Text(book.authors.joined(separator: ", "))
+        }
+      }
+      .font(.system(size: 20))
+      .foregroundStyle(.secondary)
+    }
+  }
+
+  private var genreChips: some View {
+    VStack(alignment: .trailing, spacing: 4) {
+      ForEach(book.genres.prefix(3), id: \.self) { genre in
+        Text(genre)
+          .font(.system(size: 11, weight: .medium))
+          .foregroundStyle(.white)
+          .padding(.horizontal, 8)
+          .padding(.vertical, 4)
+          .background(
+            Capsule()
+              .fill(
+                LinearGradient(
+                  colors: [
+                    Color(hex: "9B60E9").opacity(0.75),
+                    Color(hex: "B785C6").opacity(0.5),
+                  ],
+                  startPoint: .topLeading,
+                  endPoint: .bottomTrailing
+                )
+              )
+              .overlay(
+                Capsule()
+                  .stroke(.white.opacity(0.35), lineWidth: 0.5)
+              )
+          )
       }
     }
-    .font(.system(size: 20))
-    .foregroundStyle(.secondary)
+    .padding()
   }
 
   private var cardBackground: some View {
     RoundedRectangle(cornerRadius: 24)
       .fill(Color(.systemBackground))
-  }
-
-  @ViewBuilder
-  private var savedIdeasView: some View {
-    if book.savedIdeasCount > 0 {
-      Label("\(book.savedIdeasCount) сохраненных", systemImage: "bookmark")
-        .labelStyle(TextBadgeLabelStyle())
-    }
   }
 
   @ViewBuilder
@@ -78,6 +111,7 @@ struct BookOverview: View {
         } else {
           ProgressView()
             .scaleEffect(0.8)
+            .tint(Color(hex: "9B60E9"))
         }
       }
       .padding(8)
@@ -149,6 +183,36 @@ struct BookOverview: View {
     } else {
       let mins = Int(ceil(minutes))
       return "\(mins) мин"
+    }
+  }
+}
+
+// MARK: - SavedCountBadge
+
+private struct SavedCountBadge: View {
+  let bookId: String
+  let onTap: (() -> Void)?
+  @Query private var savedCards: [Card]
+
+  init(bookId: String, onTap: (() -> Void)?) {
+    self.bookId = bookId
+    self.onTap = onTap
+    _savedCards = Query(filter: #Predicate<Card> { $0.bookId == bookId })
+  }
+
+  var body: some View {
+    if !savedCards.isEmpty {
+      Button {
+        onTap?()
+      } label: {
+        Label(
+          String(format: String(localized: "BookOverview.SavedFormat"), savedCards.count),
+          systemImage: "bookmark"
+        )
+        .labelStyle(TextBadgeLabelStyle())
+      }
+      .buttonStyle(.borderless)
+      .foregroundStyle(.primary)
     }
   }
 }

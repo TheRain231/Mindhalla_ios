@@ -13,7 +13,7 @@ struct ContentView: View {
 
   var body: some View {
     TabView(selection: $viewModel.selectedTab) {
-      HomeView(viewModel: factory.createHomeViewModel())
+      HomeView(viewModel: factory.createHomeViewModel(), onOpenSavedByBook: viewModel.openSavedByBook)
         .tabItem {
           Image(systemName: "book.closed")
           Text("my_books")
