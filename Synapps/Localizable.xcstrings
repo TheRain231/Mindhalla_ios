@@ -673,18 +673,18 @@
         }
       }
     },
-    "CardsView.SavedToANewSection" : {
+    "CardsView.SavedToANewCollection" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saved to a new section"
+            "value" : "Saved to a new collection"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Сохранено в новый раздел"
           }
         }

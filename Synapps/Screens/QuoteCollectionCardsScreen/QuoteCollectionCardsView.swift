@@ -79,8 +79,10 @@ struct QuoteCollectionCardsView: View {
       }
       .alert("RemoveCollectionAlert.Title", isPresented: $viewModel.showDeleteCollectionConfirmation) {
         Button("Remove", role: .destructive) {
-          viewModel.delete(quoteCollection)
           dismiss()
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            viewModel.delete(quoteCollection)
+          }
         }
 
         Button("Cancel", role: .cancel) {}

@@ -244,7 +244,7 @@ struct BookTasksView: View {
 
   private func bottomBar(task: BookTask, taskCount: Int, isLast: Bool) -> some View {
     let answered = viewModel.isAnswered(taskId: task.id)
-    let canShowHint = !task.hint.isEmpty && !viewModel.isHintVisible(for: task.id)
+    let canShowHint = !task.hint.isEmpty && !viewModel.isHintVisible(for: task.id) && !answered
     let isMulti = viewModel.isMultipleChoice(task: task)
     let hasSelection = !viewModel.selectedOptionIds(for: task.id).isEmpty
     let needsCheck = isMulti && !answered
