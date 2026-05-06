@@ -78,6 +78,7 @@ extension SavedView {
 
     func toggleSortFilter(_ filter: SortFilter) {
       sortFilter = filter
+      selectedTypeFilter = nil
     }
 
     func clearBookFilter() {
