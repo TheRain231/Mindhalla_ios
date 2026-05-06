@@ -1305,13 +1305,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "And broken into..."
+            "value" : "Tasks and cards are being generated"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "И разбита на..."
+            "state" : "translated",
+            "value" : "Задания и карточки уже в процессе генерации"
           }
         }
       }

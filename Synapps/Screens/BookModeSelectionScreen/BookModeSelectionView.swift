@@ -1,10 +1,3 @@
-//
-//  BookModeSelectionView.swift
-//  Synapps
-//
-//  Created by Codex on 28.04.2026.
-//
-
 import SwiftUI
 
 struct BookModeSelectionView: View {
