@@ -102,6 +102,15 @@ extension SavedView {
       }
     }
 
+    func createCollection(title: String) {
+      let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !trimmed.isEmpty else { return }
+      let collection = QuoteCollection(title: trimmed)
+      modelContext.insert(collection)
+      try? modelContext.save()
+      WidgetCenter.shared.reloadAllTimelines()
+    }
+
     func shareText(for card: Card) -> String {
       let referenceText = card.references.originalTexts.joined(separator: "\n")
       if referenceText.isEmpty {
