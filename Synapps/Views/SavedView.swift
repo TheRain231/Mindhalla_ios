@@ -16,6 +16,7 @@ struct SavedView: View {
   @Query var allBooks: [BookMetaResponse]
   @State private var cardPendingDeletion: Card?
   @State private var navigationPath = NavigationPath()
+  @State private var showNewCollectionSheet = false
   @Binding var deepLink: DeepLink?
 
   var body: some View {
@@ -225,9 +226,18 @@ extension SavedView {
 
   private var addButton: some View {
     Button {
-      // TODO: add collection or card?
+      if viewModel.pickerState == .collections {
+        showNewCollectionSheet = true
+      }
     } label: {
       Image(systemName: "plus")
+    }
+    .sheet(isPresented: $showNewCollectionSheet) {
+      NewCollectionSheet(onCreate: { title in
+        viewModel.createCollection(title: title)
+      })
+      .presentationDetents([.medium])
+      .presentationDragIndicator(.visible)
     }
   }
 
@@ -292,6 +302,51 @@ extension SavedView {
       case .byBook: "SavedView.Sort.ByBook"
       }
     }
+  }
+}
+
+private struct NewCollectionSheet: View {
+  let onCreate: (String) -> Void
+  @Environment(\.dismiss) private var dismiss
+  @State private var title = ""
+  @FocusState private var focused: Bool
+
+  var body: some View {
+    NavigationStack {
+      VStack(spacing: 12) {
+        Spacer(minLength: 0)
+        TextField("NewCollectionBottomsheet.CollectionTitle", text: $title, axis: .vertical)
+          .focused($focused)
+          .onSubmit { submit() }
+          .padding()
+          .background(.thinMaterial)
+          .cornerRadius(16)
+          .padding(.horizontal)
+        Button { submit() } label: {
+          Text("NewCollectionBottomsheetScreen.SaveCollection")
+            .blueButtonStyle()
+        }
+        .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+      }
+      .navigationTitle("SaveBottomsheetScreen.NewCollection")
+      .navigationBarTitleDisplayMode(.inline)
+      .padding(.bottom, 8)
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button { dismiss() } label: {
+            Image(systemName: "xmark").foregroundStyle(.black.opacity(0.8))
+          }
+        }
+      }
+      .onAppear { focused = true }
+    }
+  }
+
+  private func submit() {
+    let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+    onCreate(trimmed)
+    dismiss()
   }
 }
 
