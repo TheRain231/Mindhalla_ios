@@ -37,11 +37,11 @@ struct CardsView: View {
     .sheet(isPresented: $viewModel.isSaveViewPresented) {
       if let card = viewModel.topCard {
         SaveBottomsheetView(
-            viewModel: factory.createSaveBottomsheetViewModel(card: card),
-            onSaved: { viewModel.showSavedMessage() }
-          )
-          .presentationDetents([.medium, .large])
-          .presentationDragIndicator(.visible)
+          viewModel: factory.createSaveBottomsheetViewModel(card: card),
+          onSaved: { viewModel.showSavedMessage() }
+        )
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
       }
     }
   }
