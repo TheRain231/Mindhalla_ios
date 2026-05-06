@@ -44,7 +44,9 @@ struct SavedView: View {
       .navigationLinkIndicatorVisibility(.hidden)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
-          addButton
+          if viewModel.pickerState == .collections {
+            addButton
+          }
         }
       }
       .ignoresSafeArea(edges: .bottom)
@@ -118,7 +120,7 @@ extension SavedView {
     let filtered = viewModel.filteredCards(from: cards)
     return VStack {
       cardSearchField
-      filterChips
+      chipsRow(cardTypes: viewModel.presentTypes(from: cards))
       if cards.isEmpty {
         EmptyStateView(
           icon: "rectangle.on.rectangle",
@@ -131,10 +133,6 @@ extension SavedView {
           title: "SavedView.Search.Empty.Title"
         )
       } else {
-        CardTypePaginationView(
-          cardTypes: viewModel.presentTypes(from: cards),
-          onTap: viewModel.toggleTypeFilter
-        )
         ScrollView {
           LazyVStack(spacing: 20) {
             ForEach(filtered) { card in
@@ -150,7 +148,7 @@ extension SavedView {
     }
   }
 
-  private var filterChips: some View {
+  private func chipsRow(cardTypes: [CardType]) -> some View {
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 8) {
         if let bookId = viewModel.bookIdFilter,
@@ -158,8 +156,7 @@ extension SavedView {
           Button { viewModel.clearBookFilter() } label: {
             HStack(spacing: 4) {
               Image(systemName: "bookmark.fill")
-              Text(book.title)
-                .lineLimit(1)
+              Text(book.title).lineLimit(1)
               Image(systemName: "xmark")
                 .font(.system(size: 10, weight: .semibold))
             }
@@ -180,10 +177,19 @@ extension SavedView {
               .foregroundStyle(isSelected ? .white : .primary)
               .padding(.horizontal, 12)
               .padding(.vertical, 7)
-              .background(
-                Capsule()
-                  .fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5))
-              )
+              .background(Capsule().fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5)))
+          }
+          .buttonStyle(.plain)
+        }
+
+        ForEach(cardTypes, id: \.self) { type in
+          Button { viewModel.toggleTypeFilter(type) } label: {
+            Text(type.localizedName)
+              .font(.system(size: 13, weight: .medium))
+              .foregroundStyle(.white)
+              .padding(.horizontal, 12)
+              .padding(.vertical, 7)
+              .background(Capsule().fill(CardType.typeColor(for: type)))
           }
           .buttonStyle(.plain)
         }
