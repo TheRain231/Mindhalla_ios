@@ -45,6 +45,7 @@ final class Card {
 struct References: Codable {
   let pages: [Int]
   let originalTexts: [String]
+  let chapterTitle: String?
 }
 
 struct Tag: Identifiable, Codable {

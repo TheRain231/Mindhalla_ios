@@ -1,8 +1,3 @@
-//
-//  NotificationSettingsView.swift
-//  Synapps
-//
-
 import SwiftUI
 
 struct NotificationSettingsView: View {
