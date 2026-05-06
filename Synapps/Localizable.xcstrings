@@ -2351,6 +2351,40 @@
         }
       }
     },
+    "QuoteCollection.Empty.Message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save cards to this collection while reading"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавляйте карточки в эту коллекцию во время чтения"
+          }
+        }
+      }
+    },
+    "QuoteCollection.Empty.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No cards yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Карточек пока нет"
+          }
+        }
+      }
+    },
     "SavedView.Collections.Empty.Message" : {
       "extractionState" : "manual",
       "localizations" : {

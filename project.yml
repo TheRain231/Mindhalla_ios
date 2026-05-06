@@ -28,6 +28,9 @@ targets:
           - "**/*.entitlements"
     entitlements:
       path: Synapps/Synapps.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.mindhalla.Synapps
     settings:
       base:
         INFOPLIST_FILE: Synapps/Info.plist
@@ -66,6 +69,9 @@ targets:
           - ColorHex.swift
     entitlements:
       path: QuotesWidget/QuotesWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.mindhalla.Synapps
     settings:
       base:
         INFOPLIST_FILE: QuotesWidget/Info.plist
