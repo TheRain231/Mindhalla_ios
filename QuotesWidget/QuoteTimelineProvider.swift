@@ -60,9 +60,6 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
   }
 
   private func loadQuoteItems(collectionId: String? = nil) -> [QuoteItem] {
-    #if DEBUG
-    return mockItems(collectionId: collectionId)
-    #else
     do {
       let container = try SharedModelStore.makeContainer()
       let context = ModelContext(container)
@@ -91,7 +88,6 @@ struct QuoteTimelineProvider: AppIntentTimelineProvider {
     } catch {
       return []
     }
-    #endif
   }
 
   #if DEBUG
