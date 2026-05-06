@@ -197,6 +197,23 @@
         }
       }
     },
+    "BookOverview.SavedFormat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d saved"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d сохранённых"
+          }
+        }
+      }
+    },
     "BookProcessing.Retry" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -218,10 +235,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Analyzing the book…" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzing the book…"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Анализируем книгу…" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Анализируем книгу…"
+          }
         }
       }
     },
@@ -263,32 +286,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Check" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Проверить" }
-        }
-      }
-    },
-    "BookTasks.Shuffle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Shuffle" }
-        },
-        "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Перемешать" }
-        }
-      }
-    },
-    "BookTasks.MultipleChoice" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Choose all that apply" }
-        },
-        "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Выберите все подходящие" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверить"
+          }
         }
       }
     },
@@ -296,10 +303,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Try again" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Пройти заново" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пройти заново"
+          }
         }
       }
     },
@@ -307,10 +320,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "%lld of %lld correct" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld correct"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "%lld из %lld правильно" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld из %lld правильно"
+          }
         }
       }
     },
@@ -318,43 +337,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Done!" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done!"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Готово!" }
-        }
-      }
-    },
-    "BookTasks.Finish" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Finish" }
-        },
-        "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Завершить" }
-        }
-      }
-    },
-    "BookTasks.Hint.Show" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Hint" }
-        },
-        "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Подсказка" }
-        }
-      }
-    },
-    "BookTasks.Next" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Next" }
-        },
-        "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Далее" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готово!"
+          }
         }
       }
     },
@@ -426,6 +418,23 @@
         }
       }
     },
+    "BookTasks.Finish" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finish"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завершить"
+          }
+        }
+      }
+    },
     "BookTasks.Hint.Format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -439,6 +448,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подсказка: %@"
+          }
+        }
+      }
+    },
+    "BookTasks.Hint.Show" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hint"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подсказка"
           }
         }
       }
@@ -460,6 +486,23 @@
         }
       }
     },
+    "BookTasks.MultipleChoice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose all that apply"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите все подходящие"
+          }
+        }
+      }
+    },
     "BookTasks.Navigation.Title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -473,6 +516,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Практика по книге"
+          }
+        }
+      }
+    },
+    "BookTasks.Next" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Далее"
           }
         }
       }
@@ -541,6 +601,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Неверно"
+          }
+        }
+      }
+    },
+    "BookTasks.Shuffle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shuffle"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемешать"
           }
         }
       }
@@ -668,10 +745,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Insight" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insight"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Инсайт" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Инсайт"
+          }
         }
       }
     },
@@ -679,10 +762,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Model" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Модель" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Модель"
+          }
         }
       }
     },
@@ -690,10 +779,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : { "state" : "translated", "value" : "Principle" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Principle"
+          }
         },
         "ru" : {
-          "stringUnit" : { "state" : "translated", "value" : "Принцип" }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Принцип"
+          }
         }
       }
     },
@@ -883,6 +978,9 @@
           }
         }
       }
+    },
+    "Key" : {
+      "extractionState" : "manual"
     },
     "Loading.DefaultMessage" : {
       "comment" : "The subtitle of the loading view",
@@ -1959,6 +2057,40 @@
         }
       }
     },
+    "QuoteCollection.Empty.Message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save cards to this collection while reading"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавляйте карточки в эту коллекцию во время чтения"
+          }
+        }
+      }
+    },
+    "QuoteCollection.Empty.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No cards yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Карточек пока нет"
+          }
+        }
+      }
+    },
     "QuoteCollectionCardsView.Cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2249,74 +2381,6 @@
         }
       }
     },
-    "BookOverview.SavedFormat" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d saved"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%d сохранённых"
-          }
-        }
-      }
-    },
-    "SavedView.Sort.Alphabetically" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A–Z"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "По алфавиту"
-          }
-        }
-      }
-    },
-    "SavedView.Sort.ByBook" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "By book"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "По книге"
-          }
-        }
-      }
-    },
-    "SavedView.Sort.ByDate" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "By date"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "По дате"
-          }
-        }
-      }
-    },
     "SavedView.Cards.Empty.Message" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2347,40 +2411,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет сохранённых карточек"
-          }
-        }
-      }
-    },
-    "QuoteCollection.Empty.Message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save cards to this collection while reading"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавляйте карточки в эту коллекцию во время чтения"
-          }
-        }
-      }
-    },
-    "QuoteCollection.Empty.Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No cards yet"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Карточек пока нет"
           }
         }
       }
@@ -2432,6 +2462,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ничего не найдено"
+          }
+        }
+      }
+    },
+    "SavedView.Sort.Alphabetically" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A–Z"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По алфавиту"
+          }
+        }
+      }
+    },
+    "SavedView.Sort.ByBook" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By book"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По книге"
+          }
+        }
+      }
+    },
+    "SavedView.Sort.ByDate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By date"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По дате"
           }
         }
       }
