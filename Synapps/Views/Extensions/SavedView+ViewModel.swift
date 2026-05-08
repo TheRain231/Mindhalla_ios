@@ -16,6 +16,7 @@ extension SavedView {
     @Published var collectionSearchText: String = ""
     @Published var cardSearchText: String = ""
     @Published var selectedTypeFilter: CardType?
+    @Published var selectedAutoTag: String?
     @Published var sortFilter: SortFilter = .byDate
     @Published var bookIdFilter: String? = nil
 
@@ -44,6 +45,12 @@ extension SavedView {
         result = result.filter { $0.type == type }
       }
 
+      if let autoTag = selectedAutoTag {
+        result = result.filter { card in
+          card.tags.contains { $0.type == AutoTaggingService.autoTagType && $0.name == autoTag }
+        }
+      }
+
       let query = cardSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
       if !query.isEmpty {
         let needle = query.lowercased()
@@ -68,11 +75,32 @@ extension SavedView {
       return CardType.allCases.filter { present.contains($0) }
     }
 
+    func presentAutoTags(from cards: [Card]) -> [String] {
+      let source = bookIdFilter == nil ? cards : cards.filter { $0.bookId == bookIdFilter }
+      var counts: [String: Int] = [:]
+      for card in source {
+        for tag in card.tags where tag.type == AutoTaggingService.autoTagType {
+          counts[tag.name, default: 0] += 1
+        }
+      }
+      return counts.sorted { lhs, rhs in
+        lhs.value == rhs.value ? lhs.key < rhs.key : lhs.value > rhs.value
+      }.prefix(20).map(\.key)
+    }
+
     func toggleTypeFilter(_ type: CardType) {
       if selectedTypeFilter == type {
         selectedTypeFilter = nil
       } else {
         selectedTypeFilter = type
+      }
+    }
+
+    func toggleAutoTag(_ name: String) {
+      if selectedAutoTag == name {
+        selectedAutoTag = nil
+      } else {
+        selectedAutoTag = name
       }
     }
 
@@ -84,6 +112,7 @@ extension SavedView {
     func clearBookFilter() {
       bookIdFilter = nil
       selectedTypeFilter = nil
+      selectedAutoTag = nil
     }
 
     func deleteCard(_ card: Card, allCards: [Card]) {
@@ -100,6 +129,10 @@ extension SavedView {
       if let selectedTypeFilter,
          !presentTypes(from: allCards.filter { $0.id != cardId }).contains(selectedTypeFilter) {
         self.selectedTypeFilter = nil
+      }
+      if let selectedAutoTag,
+         !presentAutoTags(from: allCards.filter { $0.id != cardId }).contains(selectedAutoTag) {
+        self.selectedAutoTag = nil
       }
     }
 

@@ -7,6 +7,7 @@ import WidgetKit
 final class SaveBottomsheetViewModel {
   let modelContext: ModelContext
   let card: Card
+  let autoTagScheduler: AutoTagScheduler
   var searchText: String = ""
 
   /// Идентификаторы выбранных подборок.
@@ -14,10 +15,12 @@ final class SaveBottomsheetViewModel {
 
   init(
     modelContext: ModelContext,
-    card: Card
+    card: Card,
+    autoTagScheduler: AutoTagScheduler
   ) {
     self.modelContext = modelContext
     self.card = card
+    self.autoTagScheduler = autoTagScheduler
   }
 
   /// Подборки, у которых в названии есть введённая подстрока (без учёта регистра).
@@ -76,5 +79,6 @@ final class SaveBottomsheetViewModel {
     }
     try? modelContext.save()
     WidgetCenter.shared.reloadAllTimelines()
+    autoTagScheduler.scheduleRun()
   }
 }

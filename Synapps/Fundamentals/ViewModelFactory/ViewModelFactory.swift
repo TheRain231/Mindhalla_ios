@@ -11,6 +11,14 @@ import SwiftData
 final class ViewModelFactory: ViewModelFactoryProtocol {
   let networkManager: NetworkManagerProtocol
   let modelContainer: ModelContainer
+  lazy var embeddingService: EmbeddingService = ONNXEmbeddingService()
+
+  @MainActor
+  private(set) lazy var autoTagScheduler: AutoTagScheduler = {
+    let clustering = CardClusteringService(modelContext: modelContainer.mainContext, embeddingService: embeddingService)
+    let service = AutoTaggingService(modelContext: modelContainer.mainContext, clusteringService: clustering)
+    return AutoTagScheduler(service: service)
+  }()
 
   init() {
     let urlSession = URLSession.shared
@@ -40,7 +48,7 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createCardsViewModel(cardID: String, prefetchedBook: BookByIdResponse? = nil) -> CardsView.ViewModel {
-    CardsView.ViewModel(cardID: cardID, networkManager: networkManager, modelContext: modelContainer.mainContext, prefetchedBook: prefetchedBook)
+    CardsView.ViewModel(cardID: cardID, networkManager: networkManager, modelContext: modelContainer.mainContext, prefetchedBook: prefetchedBook, autoTagScheduler: autoTagScheduler)
   }
 
   @MainActor
@@ -75,6 +83,11 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createSaveBottomsheetViewModel(card: Card) -> SaveBottomsheetViewModel {
-    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext, card: card)
+    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext, card: card, autoTagScheduler: autoTagScheduler)
+  }
+
+  @MainActor
+  func createCardClusteringService() -> CardClusteringService {
+    CardClusteringService(modelContext: modelContainer.mainContext, embeddingService: embeddingService)
   }
 }

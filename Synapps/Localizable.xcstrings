@@ -741,6 +741,23 @@
         }
       }
     },
+    "CardType.Quote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quote"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цитата"
+          }
+        }
+      }
+    },
     "CardType.Insight" : {
       "extractionState" : "manual",
       "localizations" : {

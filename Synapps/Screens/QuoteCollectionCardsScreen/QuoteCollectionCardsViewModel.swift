@@ -2,6 +2,20 @@ import SwiftData
 import SwiftUI
 import WidgetKit
 
+enum CollectionSortFilter: CaseIterable, Identifiable {
+  case byDate
+  case alphabetically
+
+  var id: Self { self }
+
+  var localizedTitle: LocalizedStringKey {
+    switch self {
+    case .byDate: "SavedView.Sort.ByDate"
+    case .alphabetically: "SavedView.Sort.Alphabetically"
+    }
+  }
+}
+
 @MainActor @Observable
 final class QuoteCollectionCardsViewModel {
   let modelContext: ModelContext
@@ -9,6 +23,7 @@ final class QuoteCollectionCardsViewModel {
   var showRemovalConfirmation: Bool = false
   var showDeleteCollectionConfirmation: Bool = false
   var cardIdPendingRemoval: String?
+  var sortFilter: CollectionSortFilter = .byDate
 
   /// Все карточки подборки после загрузки (без фильтра поиска).
   var cards: [Card] = []
@@ -16,21 +31,40 @@ final class QuoteCollectionCardsViewModel {
   /// `nil` — показывать все типы; иначе только выбранный.
   var selectedTypeFilter: CardType?
 
+  /// Активный авто-тег (имя). Применяется поверх типа и поиска.
+  var selectedAutoTag: String?
+
   init(modelContext: ModelContext) {
     self.modelContext = modelContext
   }
 
-  /// Карточки с учётом фильтра по типу и строки поиска.
+  /// Карточки с учётом фильтра по типу, сортировки и строки поиска.
   var filteredCards: [Card] {
     var result = cards
     if let type = selectedTypeFilter {
       result = result.filter { $0.type == type }
     }
 
+    if let autoTag = selectedAutoTag {
+      result = result.filter { card in
+        card.tags.contains { $0.type == AutoTaggingService.autoTagType && $0.name == autoTag }
+      }
+    }
+
     let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !query.isEmpty else { return result }
-    let needle = query.lowercased()
-    return result.filter { Self.matchesSearch($0, needle: needle) }
+    if !query.isEmpty {
+      let needle = query.lowercased()
+      result = result.filter { Self.matchesSearch($0, needle: needle) }
+    }
+
+    switch sortFilter {
+    case .byDate:
+      result = result.sorted { ($0.savedAt ?? .distantPast) > ($1.savedAt ?? .distantPast) }
+    case .alphabetically:
+      result = result.sorted { $0.content.localizedCompare($1.content) == .orderedAscending }
+    }
+
+    return result
   }
 
   var presentTypes: [CardType] {
@@ -38,12 +72,38 @@ final class QuoteCollectionCardsViewModel {
     return CardType.allCases.filter { present.contains($0) }
   }
 
+  var presentAutoTags: [String] {
+    var counts: [String: Int] = [:]
+    for card in cards {
+      for tag in card.tags where tag.type == AutoTaggingService.autoTagType {
+        counts[tag.name, default: 0] += 1
+      }
+    }
+    return counts.sorted { lhs, rhs in
+      lhs.value == rhs.value ? lhs.key < rhs.key : lhs.value > rhs.value
+    }.prefix(20).map(\.key)
+  }
+
   func toggleTypeFilter(_ type: CardType) {
     if selectedTypeFilter == type {
       selectedTypeFilter = nil
     } else {
       selectedTypeFilter = type
+      sortFilter = .byDate
     }
+  }
+
+  func toggleAutoTag(_ name: String) {
+    if selectedAutoTag == name {
+      selectedAutoTag = nil
+    } else {
+      selectedAutoTag = name
+    }
+  }
+
+  func toggleSortFilter(_ filter: CollectionSortFilter) {
+    sortFilter = filter
+    selectedTypeFilter = nil
   }
 
   private static func matchesSearch(_ card: Card, needle: String) -> Bool {
