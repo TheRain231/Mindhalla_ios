@@ -14,6 +14,12 @@ packages:
   Kingfisher:
     url: https://github.com/onevcat/Kingfisher
     from: 8.9.0
+  onnxruntime:
+    url: https://github.com/microsoft/onnxruntime-swift-package-manager
+    from: 1.20.0
+  swift-transformers:
+    url: https://github.com/huggingface/swift-transformers
+    from: 0.1.17
 settings:
   base:
     GENERATE_INFOPLIST_FILE: NO
@@ -46,6 +52,10 @@ targets:
       - package: AnyCodable
       - package: Lottie
       - package: Kingfisher
+      - package: onnxruntime
+        product: onnxruntime
+      - package: swift-transformers
+        product: Transformers
       - target: QuotesWidgetExtension
         embed: true
   QuotesWidgetExtension:
