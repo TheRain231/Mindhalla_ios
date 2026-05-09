@@ -75,9 +75,9 @@ private struct MindMapPreviewCard: View {
           line.move(to: center)
           line.addLine(to: p)
           ctx.stroke(line, with: .color(.gray.opacity(0.4)), lineWidth: 1)
-          ctx.fill(Path(ellipseIn: CGRect(x: p.x - 6, y: p.y - 6, width: 12, height: 12)), with: .color(.accentColor.opacity(0.7)))
+          ctx.fill(Path(ellipseIn: CGRect(x: p.x - 6, y: p.y - 6, width: 12, height: 12)), with: .color(MindMapPalette.secondary))
         }
-        ctx.fill(Path(ellipseIn: CGRect(x: center.x - 12, y: center.y - 12, width: 24, height: 24)), with: .color(.accentColor))
+        ctx.fill(Path(ellipseIn: CGRect(x: center.x - 12, y: center.y - 12, width: 24, height: 24)), with: .color(MindMapPalette.primary))
       }
       .frame(width: 160, height: 130)
       .background(RoundedRectangle(cornerRadius: 14).fill(Color(.secondarySystemBackground)))
