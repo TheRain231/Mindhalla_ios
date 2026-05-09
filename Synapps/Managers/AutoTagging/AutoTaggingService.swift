@@ -15,7 +15,7 @@ final class AutoTaggingService {
   }
 
   func runFullPass() async throws {
-    print("[AutoTag v3] runFullPass start (stopwords expanded, no 3-grams, participle filter)")
+    print("[AutoTag v6] runFullPass start (mean-link clustering + KeyBERT-style topics)")
     let descriptor = FetchDescriptor<Card>()
     let cards = (try? modelContext.fetch(descriptor)) ?? []
     print("[AutoTag] fetched \(cards.count) cards")
@@ -24,20 +24,34 @@ final class AutoTaggingService {
       return
     }
 
-    let clusters: [[Card]]
+    let result: CardClusteringService.Result
     do {
-      clusters = try await clusteringService.cluster(cards: cards)
-      print("[AutoTag] clustered into \(clusters.count) groups: \(clusters.map(\.count))")
+      result = try await clusteringService.cluster(cards: cards)
+      print("[AutoTag] clustered into \(result.clusters.count) groups: \(result.clusters.map(\.count))")
     } catch {
       print("[AutoTag] clustering failed: \(error)")
       throw error
     }
+    let clusters = result.clusters
 
     for card in cards {
       card.tags.removeAll { $0.type == Self.autoTagType }
     }
 
-    let topics = TopicExtractor.extractTopics(for: clusters.map { $0.map(\.content) })
+    let clusterTexts = clusters.map { $0.map(\.content) }
+    let clusterVectors = clusters.map { $0.compactMap { result.vectorsById[$0.id] } }
+    let embedder = clusteringService.embeddingService
+    let topics: [String?]
+    do {
+      topics = try await TopicExtractor.extractTopicsSemantic(
+        clusters: clusterTexts,
+        clusterVectors: clusterVectors,
+        embed: { try await embedder.embed(batch: $0) }
+      )
+    } catch {
+      print("[AutoTag] semantic topics failed, falling back to c-TF-IDF: \(error)")
+      topics = TopicExtractor.extractTopics(for: clusterTexts)
+    }
 
     var assigned = 0
     for (cluster, topic) in zip(clusters, topics) where cluster.count >= 2 {

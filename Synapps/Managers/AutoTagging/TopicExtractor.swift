@@ -94,6 +94,99 @@ enum TopicExtractor {
     }
   }
 
+  /// KeyBERT-style topic selection: ranks NP candidates by cosine similarity to the
+  /// cluster centroid (mean of card embeddings), with a small bonus for multi-token
+  /// phrases. Falls back to `nil` when a cluster has no candidates.
+  /// `embed` is called with the deduplicated set of all candidate phrases across
+  /// every cluster so the caller can batch a single embedder pass.
+  static func extractTopicsSemantic(
+    clusters: [[String]],
+    clusterVectors: [[[Float]]],
+    embed: ([String]) async throws -> [[Float]]
+  ) async throws -> [String?] {
+    guard !clusters.isEmpty else { return [] }
+    precondition(clusters.count == clusterVectors.count, "clusters/vectors length mismatch")
+
+    let combined = clusters.joined().joined(separator: "\n\n")
+    let language = detectLanguage(combined)
+    let stopwords = stopwords(for: language)
+    let minLen = minLength(for: language)
+
+    // Per-cluster candidate sets (multiset → preserves df via Set per doc).
+    let perClusterDocCandidates: [[Set<String>]] = clusters.map { docs in
+      docs.map { Set(candidates(in: $0, language: language, stopwords: stopwords, minLen: minLen)) }
+    }
+
+    // Collect unique candidate phrases across all clusters for one batched embed.
+    var uniquePhrases: [String] = []
+    var seen = Set<String>()
+    for clusterDocs in perClusterDocCandidates {
+      for set in clusterDocs {
+        for term in set where !seen.contains(term) {
+          seen.insert(term)
+          uniquePhrases.append(term)
+        }
+      }
+    }
+    guard !uniquePhrases.isEmpty else { return Array(repeating: nil, count: clusters.count) }
+
+    // Batch embed phrases (stride keeps the ONNX session input small).
+    var phraseVecs: [String: [Float]] = [:]
+    let stride = 64
+    var idx = 0
+    while idx < uniquePhrases.count {
+      let end = min(idx + stride, uniquePhrases.count)
+      let chunk = Array(uniquePhrases[idx..<end])
+      let vecs = try await embed(chunk)
+      for (j, p) in chunk.enumerated() where j < vecs.count {
+        phraseVecs[p] = vecs[j]
+      }
+      idx = end
+    }
+
+    var results: [String?] = []
+    results.reserveCapacity(clusters.count)
+    for (cIdx, docs) in perClusterDocCandidates.enumerated() {
+      let vectors = clusterVectors[cIdx]
+      guard !docs.isEmpty, !vectors.isEmpty else { results.append(nil); continue }
+
+      // Centroid = normalized mean of card vectors.
+      let dim = vectors[0].count
+      var centroid = [Float](repeating: 0, count: dim)
+      for v in vectors where v.count == dim {
+        for h in 0..<dim { centroid[h] += v[h] }
+      }
+      let inv = 1 / Float(vectors.count)
+      for h in 0..<dim { centroid[h] *= inv }
+      CosineSimilarity.l2Normalize(&centroid)
+
+      // Aggregate candidate df within cluster.
+      var clusterDF: [String: Int] = [:]
+      for set in docs {
+        for term in set { clusterDF[term, default: 0] += 1 }
+      }
+      let clusterSize = max(docs.count, 1)
+      let minDF = clusterSize >= 5 ? 2 : 1
+
+      var bestKey: String?
+      var bestScore: Float = -.infinity
+      for (term, df) in clusterDF where df >= minDF {
+        guard let pv = phraseVecs[term] else { continue }
+        let cos = CosineSimilarity.cosine(centroid, pv)
+        let tokens = term.split(separator: " ").count
+        let phraseBonus: Float = 0.15 * Float(max(tokens - 1, 0))
+        let score = cos + phraseBonus
+        if score > bestScore || (score == bestScore && (bestKey.map { term.count > $0.count } ?? true)) {
+          bestScore = score
+          bestKey = term
+        }
+      }
+
+      results.append(bestKey.map { titleCase($0, language: language) })
+    }
+    return results
+  }
+
   // MARK: - Candidate extraction
 
   /// Single nouns plus 2–3 token noun-phrases (adj/noun runs) found in `text`.
