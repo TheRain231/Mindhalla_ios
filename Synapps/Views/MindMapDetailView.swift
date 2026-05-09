@@ -31,34 +31,43 @@ struct MindMapDetailView: View {
         width: offset.width + activeDrag.width,
         height: offset.height + activeDrag.height
       )
+      let layoutCenter = CGPoint(x: 2000, y: 2000)
+      let screenCenter = CGPoint(
+        x: geo.size.width / 2 + totalOffset.width,
+        y: geo.size.height / 2 + totalOffset.height
+      )
+      // Map a layout-space point to screen coordinates with current zoom & pan.
+      let project: (CGPoint) -> CGPoint = { p in
+        CGPoint(
+          x: screenCenter.x + (p.x - layoutCenter.x) * totalScale,
+          y: screenCenter.y + (p.y - layoutCenter.y) * totalScale
+        )
+      }
 
       ZStack {
         Color(.systemBackground).ignoresSafeArea()
 
-        ZStack {
-          // Edges
-          Canvas { ctx, _ in
-            for edge in map.edges {
-              guard let a = positions[edge.from], let b = positions[edge.to] else { continue }
-              var path = Path()
-              path.move(to: a)
-              path.addLine(to: b)
-              ctx.stroke(path, with: .color(.gray.opacity(0.45)), lineWidth: 1.5)
-            }
-          }
-          .frame(width: 4000, height: 4000)
-
-          // Nodes
-          ForEach(map.nodes) { node in
-            if let p = positions[node.id] {
-              nodeView(node)
-                .position(p)
-            }
+        // Edges drawn directly in screen coordinates — no scaleEffect on the canvas
+        // so vertices and edges stay aligned at any zoom level.
+        Canvas { ctx, _ in
+          for edge in map.edges {
+            guard let a = positions[edge.from], let b = positions[edge.to] else { continue }
+            var path = Path()
+            path.move(to: project(a))
+            path.addLine(to: project(b))
+            ctx.stroke(path, with: .color(.gray.opacity(0.45)), lineWidth: 1.5)
           }
         }
-        .frame(width: 4000, height: 4000)
-        .scaleEffect(totalScale)
-        .offset(totalOffset)
+        .allowsHitTesting(false)
+
+        // Nodes positioned in screen coordinates, individually scaled.
+        ForEach(map.nodes) { node in
+          if let p = positions[node.id] {
+            nodeView(node)
+              .scaleEffect(totalScale, anchor: .center)
+              .position(project(p))
+          }
+        }
       }
       .contentShape(Rectangle())
       .gesture(

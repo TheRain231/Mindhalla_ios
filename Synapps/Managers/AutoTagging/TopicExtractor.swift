@@ -102,6 +102,9 @@ enum TopicExtractor {
   static func extractTopicsSemantic(
     clusters: [[String]],
     clusterVectors: [[[Float]]],
+    excludedPhrases: Set<String> = [],
+    diversityAnchorVectors: [[Float]] = [],
+    diversityWeight: Float = 0.5,
     embed: ([String]) async throws -> [[Float]]
   ) async throws -> [String?] {
     guard !clusters.isEmpty else { return [] }
@@ -168,20 +171,38 @@ enum TopicExtractor {
       let clusterSize = max(docs.count, 1)
       let minDF = clusterSize >= 5 ? 2 : 1
 
-      var bestKey: String?
-      var bestScore: Float = -.infinity
-      for (term, df) in clusterDF where df >= minDF {
-        guard let pv = phraseVecs[term] else { continue }
+      let scoreTerm: (String, [Float]) -> Float = { term, pv in
         let cos = CosineSimilarity.cosine(centroid, pv)
         let tokens = term.split(separator: " ").count
         let phraseBonus: Float = 0.15 * Float(max(tokens - 1, 0))
-        let score = cos + phraseBonus
-        if score > bestScore || (score == bestScore && (bestKey.map { term.count > $0.count } ?? true)) {
-          bestScore = score
-          bestKey = term
+        var anchorPenalty: Float = 0
+        if !diversityAnchorVectors.isEmpty {
+          var maxAnchor: Float = 0
+          for av in diversityAnchorVectors where av.count == pv.count {
+            let s = CosineSimilarity.cosine(av, pv)
+            if s > maxAnchor { maxAnchor = s }
+          }
+          anchorPenalty = diversityWeight * maxAnchor
         }
+        return cos + phraseBonus - anchorPenalty
       }
 
+      func pickBest(filterExcluded: Bool) -> String? {
+        var bestKey: String?
+        var bestScore: Float = -.infinity
+        for (term, df) in clusterDF where df >= minDF {
+          guard let pv = phraseVecs[term] else { continue }
+          if filterExcluded, isExcluded(term, by: excludedPhrases) { continue }
+          let score = scoreTerm(term, pv)
+          if score > bestScore || (score == bestScore && (bestKey.map { term.count > $0.count } ?? true)) {
+            bestScore = score
+            bestKey = term
+          }
+        }
+        return bestKey
+      }
+
+      let bestKey = pickBest(filterExcluded: !excludedPhrases.isEmpty) ?? pickBest(filterExcluded: false)
       results.append(bestKey.map { titleCase($0, language: language) })
     }
     return results
@@ -339,6 +360,21 @@ enum TopicExtractor {
     case .english: STOPWORDS_EN
     default: STOPWORDS_EN.union(STOPWORDS_RU)
     }
+  }
+
+  /// `term` is excluded if its normalized form equals any excluded phrase
+  /// or if the tokens of any excluded phrase are a subset of `term`'s tokens.
+  static func isExcluded(_ term: String, by excluded: Set<String>) -> Bool {
+    guard !excluded.isEmpty else { return false }
+    let normTerm = term.lowercased()
+    let termTokens = Set(normTerm.split(separator: " ").map(String.init))
+    for phrase in excluded {
+      let normPhrase = phrase.lowercased()
+      if normTerm == normPhrase { return true }
+      let phraseTokens = Set(normPhrase.split(separator: " ").map(String.init))
+      if !phraseTokens.isEmpty, phraseTokens.isSubset(of: termTokens) { return true }
+    }
+    return false
   }
 }
 
