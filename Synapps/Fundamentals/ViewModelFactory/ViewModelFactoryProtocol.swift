@@ -22,4 +22,5 @@ protocol ViewModelFactoryProtocol: AnyObject {
   func createQuoteCollectionCardsViewModel() -> QuoteCollectionCardsViewModel
   func createSaveBottomsheetViewModel(card: Card) -> SaveBottomsheetViewModel
   @MainActor func createCardClusteringService() -> CardClusteringService
+  @MainActor func createMindMapsViewModel() -> MindMapsView.ViewModel
 }

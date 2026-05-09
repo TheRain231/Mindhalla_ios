@@ -90,4 +90,11 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
   func createCardClusteringService() -> CardClusteringService {
     CardClusteringService(modelContext: modelContainer.mainContext, embeddingService: embeddingService)
   }
+
+  @MainActor
+  func createMindMapsViewModel() -> MindMapsView.ViewModel {
+    let clustering = CardClusteringService(modelContext: modelContainer.mainContext, embeddingService: embeddingService)
+    let builder = MindMapBuilder(clusteringService: clustering)
+    return MindMapsView.ViewModel(builder: builder)
+  }
 }
