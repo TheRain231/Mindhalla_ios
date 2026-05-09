@@ -135,7 +135,7 @@ struct MindMapDetailView: View {
         .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
     case .card:
       if let card = node.card {
-        CardCardView(card: card)
+        CardCardView(card: card, showsAutoTags: false)
           .frame(width: cardWidth / cardScale)
           .fixedSize(horizontal: true, vertical: true)
           .scaleEffect(cardScale, anchor: .center)

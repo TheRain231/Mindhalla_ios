@@ -30,8 +30,12 @@ enum MindMapLayout {
     func r2For(parentId: String) -> CGFloat {
       let kids = childrenByParent[parentId] ?? []
       guard kids.count > 1 else { return minR2 }
-      let needed = cardArc * CGFloat(kids.count - 1) / CGFloat(spreadRad)
-      return max(minR2, needed)
+      // Exact chord formula: adjacent kids on a fan of total angle `spreadRad`
+      // sit `2*r2*sin(step/2)` apart; require that chord >= cardArc.
+      let step = spreadRad / Double(kids.count - 1)
+      let denom = max(2 * Foundation.sin(step / 2), 1e-3)
+      let needed = CGFloat(Double(cardArc) / denom)
+      return max(minR2, needed * 1.25)
     }
 
     func fanWidth(parentId: String) -> CGFloat {
@@ -48,7 +52,10 @@ enum MindMapLayout {
     let maxWidth = widths.max() ?? cardArc
 
     let n = firstRing.count
-    let neededR1 = maxWidth * CGFloat(n) / (2 * .pi)
+    // Exact chord on the root ring: adjacent first-ring nodes are
+    // `2*r1*sin(π/n)` apart; require that chord >= maxWidth (with a safety margin).
+    let denomR1 = max(2 * Foundation.sin(.pi / Double(n)), 1e-3)
+    let neededR1 = CGFloat(Double(maxWidth) / denomR1) * 1.25
     // If any first-ring child is a card (singleton attached directly to root),
     // push the ring out so the card body doesn't sit on top of the root capsule
     // and a visible edge segment remains between them.
