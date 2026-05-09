@@ -1,3 +1,3 @@
 enum AppGroup {
-  static let identifier = "group.com.mindhalla.Synapps"
+  static let identifier = "group.mindhalla.Synapps"
 }

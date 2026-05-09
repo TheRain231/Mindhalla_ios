@@ -9,6 +9,7 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+#if DEBUG
 final class MockViewModelFactory: ViewModelFactoryProtocol {
   let networkManager: NetworkManagerProtocol = MockNetworkManager()
   @MainActor // для mainContext
@@ -71,3 +72,4 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
     SaveBottomsheetViewModel(modelContext: modelContainer.mainContext, card: card)
   }
 }
+#endif

@@ -35,6 +35,8 @@ struct ContentView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   ContentView(viewModel: MockViewModelFactory().createContentViewModel())
 }
+#endif

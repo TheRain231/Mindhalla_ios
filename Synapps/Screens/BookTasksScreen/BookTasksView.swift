@@ -260,6 +260,7 @@ struct BookTasksView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(Capsule().stroke(accent, lineWidth: 1.5))
+            .background(Capsule().foregroundStyle(.white))
         }
         .buttonStyle(.plain)
       }
