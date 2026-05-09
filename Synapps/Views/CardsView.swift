@@ -127,6 +127,13 @@ extension CardsView {
   }
 }
 
+extension CardsView.ViewModel {
+  fileprivate func resetCards() {
+    viewId = UUID()
+  }
+}
+
+#if DEBUG
 #Preview("Interactive") {
   @Previewable var viewModel = MockViewModelFactory().createCardsViewModel(cardID: "insteractive_preview")
 
@@ -136,13 +143,8 @@ extension CardsView {
   }
 }
 
-extension CardsView.ViewModel {
-  fileprivate func resetCards() {
-    viewId = UUID()
-  }
-}
-
 #Preview() {
   CardsView(viewModel: MockViewModelFactory().createCardsViewModel(cardID: "preview"))
     .ignoresSafeArea()
 }
+#endif

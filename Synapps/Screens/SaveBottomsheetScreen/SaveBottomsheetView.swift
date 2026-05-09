@@ -6,7 +6,7 @@ struct SaveBottomsheetView: View {
   @Environment(\.dismiss) private var dismiss
   @Bindable var viewModel: SaveBottomsheetViewModel
   @Query(sort: \QuoteCollection.title) var collections: [QuoteCollection]
-  var onSaved: (() -> Void)? = nil
+  var onSaved: (() -> Void)?
 
   var body: some View {
     NavigationStack {
@@ -114,8 +114,10 @@ extension SaveBottomsheetView {
   }
 }
 
+#if DEBUG
 #Preview {
   let factory = MockViewModelFactory()
 
   SaveBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel(card: .mock()))
 }
+#endif

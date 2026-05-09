@@ -153,6 +153,7 @@ extension QuoteCollectionCardsView {
   }
 }
 
+#if DEBUG
 #Preview {
   let factory = MockViewModelFactory()
 
@@ -162,3 +163,4 @@ extension QuoteCollectionCardsView {
   )
   .modelContainer(factory.modelContainer)
 }
+#endif
