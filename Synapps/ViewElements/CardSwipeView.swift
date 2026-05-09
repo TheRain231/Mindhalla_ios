@@ -104,7 +104,7 @@ public struct CardSwiperView<Item, Content: View>: View {
     var body: some View {
       ZStack {
         content()
-          .frame(width: 320, height: 420)
+          .frame(width: 320)
           .offset(x: offset.width * 1, y: extraOffset + offset.height * 0.3)
           .scaleEffect(scale, anchor: .top)
           .rotationEffect(.degrees(Double(offset.width / 40)))
@@ -114,7 +114,7 @@ public struct CardSwiperView<Item, Content: View>: View {
         Rectangle()
           .foregroundColor(overlayColor)
           .opacity(isRemoved ? 0 : (activeCardIndex == index ? 1 : 0))
-          .frame(width: 320, height: 420)
+          .frame(width: 320)
           .cornerRadius(10)
           .blendMode(.overlay)
           .overlay(

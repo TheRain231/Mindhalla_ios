@@ -1,10 +1,3 @@
-//
-//  BookTasksViewModel.swift
-//  Synapps
-//
-//  Created by Codex on 28.04.2026.
-//
-
 import Foundation
 
 extension BookTasksView {
