@@ -6,20 +6,26 @@ import WidgetKit
 /// Embeddings are cached in `CardEmbedding` keyed by `cardId` + `modelVersion`.
 @MainActor
 final class CardClusteringService {
-  static let defaultThreshold: Float = 0.6
+  static let defaultThreshold: Float = 0.45
+
+  struct Result {
+    let clusters: [[Card]]
+    let vectorsById: [String: [Float]]
+  }
 
   private let modelContext: ModelContext
-  private let embeddingService: EmbeddingService
+  let embeddingService: EmbeddingService
 
   init(modelContext: ModelContext, embeddingService: EmbeddingService) {
     self.modelContext = modelContext
     self.embeddingService = embeddingService
   }
 
-  /// Returns groups of cards. Order within each group reflects input order.
-  /// `threshold` is the minimum cosine similarity required to merge into an existing cluster.
-  func cluster(cards: [Card], threshold: Float = CardClusteringService.defaultThreshold) async throws -> [[Card]] {
-    guard !cards.isEmpty else { return [] }
+  /// Returns groups of cards plus the per-card embedding vectors that produced them.
+  /// Mean-link greedy merge: a candidate joins a cluster when its mean cosine to ALL
+  /// existing members is ≥ threshold, avoiding chain-merging from single-link.
+  func cluster(cards: [Card], threshold: Float = CardClusteringService.defaultThreshold) async throws -> Result {
+    guard !cards.isEmpty else { return Result(clusters: [], vectorsById: [:]) }
 
     let vectors = try await embedAll(cards: cards)
 
@@ -29,13 +35,14 @@ final class CardClusteringService {
       var bestCluster = -1
       var bestScore: Float = threshold
       for (idx, cluster) in clusters.enumerated() {
+        var sum: Float = 0
         for member in cluster {
-          let score = CosineSimilarity.cosine(v, vectors[member])
-          if score >= bestScore {
-            bestScore = score
-            bestCluster = idx
-            break
-          }
+          sum += CosineSimilarity.cosine(v, vectors[member])
+        }
+        let mean = sum / Float(cluster.count)
+        if mean >= bestScore {
+          bestScore = mean
+          bestCluster = idx
         }
       }
       if bestCluster >= 0 {
@@ -45,7 +52,14 @@ final class CardClusteringService {
       }
     }
 
-    return clusters.map { idxs in idxs.map { cards[$0] } }
+    var vectorsById: [String: [Float]] = [:]
+    vectorsById.reserveCapacity(cards.count)
+    for (i, card) in cards.enumerated() {
+      vectorsById[card.id] = vectors[i]
+    }
+
+    let grouped = clusters.map { idxs in idxs.map { cards[$0] } }
+    return Result(clusters: grouped, vectorsById: vectorsById)
   }
 
   /// Computes (or fetches from cache) embeddings for the given cards. Persists newly computed ones.
