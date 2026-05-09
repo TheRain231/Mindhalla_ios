@@ -44,14 +44,27 @@ struct CardCardView: View {
   }
 
   private var cardBadge: some View {
-    Text(card.type.localizedName)
-      .foregroundStyle(Color(.systemBackground))
-      .padding(4)
-      .padding(.horizontal, 10)
-      .background {
-        Capsule()
-          .fill(Card.color(for: card.type))
+    let typeColor = Card.color(for: card.type)
+    let autoTags = card.tags.filter { $0.type == AutoTaggingService.autoTagType }
+    return ScrollView(.horizontal, showsIndicators: false) {
+      HStack(spacing: 8) {
+        Text(card.type.localizedName)
+          .foregroundStyle(Color(.systemBackground))
+          .padding(4)
+          .padding(.horizontal, 10)
+          .background { Capsule().fill(typeColor) }
+        ForEach(autoTags, id: \.id) { tag in
+          HStack(spacing: 4) {
+            Image(systemName: "sparkles")
+            Text(tag.name)
+          }
+          .foregroundStyle(MindMapPalette.primary)
+          .padding(4)
+          .padding(.horizontal, 10)
+          .background { Capsule().fill(MindMapPalette.primary.opacity(0.18)) }
+        }
       }
+    }
   }
 }
 
