@@ -23,6 +23,12 @@ struct MindMapEdge: Identifiable, Hashable {
   let to: String
 }
 
+struct MindMapGroup: Identifiable {
+  let id: String
+  let title: String
+  let maps: [MindMap]
+}
+
 struct MindMap: Identifiable, Hashable {
   let id: String
   let title: String
@@ -37,7 +43,7 @@ struct MindMap: Identifiable, Hashable {
 
 @MainActor
 final class MindMapBuilder {
-  static let subTopicThreshold: Float = 0.66
+  static let subTopicThreshold: Float = 0.62
   static let minRootClusterSize = 3
 
   private let clusteringService: CardClusteringService
@@ -122,6 +128,78 @@ final class MindMapBuilder {
 
     let dominantBook = Self.dominantBook(in: cards)
     return MindMap(id: rootId, title: rootTitle, nodes: nodes, edges: edges, cardCount: cards.count, bookId: dominantBook)
+  }
+
+  func groupByMetaTopic(_ maps: [MindMap]) async throws -> [MindMapGroup] {
+    if maps.count < 2 {
+      return [MindMapGroup(id: "general", title: "General", maps: maps)]
+    }
+
+    let titles = maps.map(\.title)
+    let vectors = try await clusteringService.embeddingService.embed(batch: titles)
+    let clusters = Self.meanLinkClusters(vectors: vectors, threshold: 0.45)
+
+    var groups: [MindMapGroup] = []
+    var leftovers: [MindMap] = []
+
+    for indices in clusters where indices.count >= 2 {
+      let memberMaps = indices.map { maps[$0] }
+      let memberTitles = indices.map { titles[$0] }
+      let memberVectors = indices.map { vectors[$0] }
+      let embedder = clusteringService.embeddingService
+      var name: String?
+      do {
+        let topics = try await TopicExtractor.extractTopicsSemantic(
+          clusters: [memberTitles],
+          clusterVectors: [memberVectors],
+          embed: { try await embedder.embed(batch: $0) }
+        )
+        name = topics.first ?? nil
+      } catch {
+        name = TopicExtractor.extractTopics(for: [memberTitles]).first ?? nil
+      }
+      guard let title = name, !title.isEmpty else {
+        leftovers.append(contentsOf: memberMaps)
+        continue
+      }
+      let id = memberMaps.map(\.id).sorted().joined(separator: "|")
+      groups.append(MindMapGroup(id: id, title: title, maps: memberMaps))
+    }
+
+    for indices in clusters where indices.count < 2 {
+      leftovers.append(contentsOf: indices.map { maps[$0] })
+    }
+
+    if !leftovers.isEmpty {
+      groups.append(MindMapGroup(id: "general", title: "General", maps: leftovers))
+    }
+    return groups.sorted { $0.maps.count > $1.maps.count }
+  }
+
+  private static func meanLinkClusters(vectors: [[Float]], threshold: Float) -> [[Int]] {
+    var clusters: [[Int]] = []
+    for i in 0..<vectors.count {
+      let v = vectors[i]
+      var bestCluster = -1
+      var bestScore: Float = threshold
+      for (idx, cluster) in clusters.enumerated() {
+        var sum: Float = 0
+        for member in cluster {
+          sum += CosineSimilarity.cosine(v, vectors[member])
+        }
+        let mean = sum / Float(cluster.count)
+        if mean >= bestScore {
+          bestScore = mean
+          bestCluster = idx
+        }
+      }
+      if bestCluster >= 0 {
+        clusters[bestCluster].append(i)
+      } else {
+        clusters.append([i])
+      }
+    }
+    return clusters
   }
 
   private static func dominantBook(in cards: [Card]) -> String? {

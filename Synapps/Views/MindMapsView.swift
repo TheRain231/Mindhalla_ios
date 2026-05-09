@@ -5,14 +5,13 @@ struct MindMapsView: View {
   @Environment(\.viewModelFactory) var factory
   @ObservedObject var viewModel: ViewModel
   @Query var cards: [Card]
-  @Query var allBooks: [BookMetaResponse]
 
   var body: some View {
     NavigationStack {
       content
         .navigationTitle(Text("mind_maps"))
         .task(id: cards.count) {
-          await viewModel.rebuild(cards: cards, books: allBooks)
+          await viewModel.rebuild(cards: cards)
         }
         .navigationDestination(item: $viewModel.openedMap) { map in
           MindMapDetailView(map: map)
@@ -65,19 +64,43 @@ private struct MindMapPreviewCard: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       Canvas { ctx, size in
-        let center = CGPoint(x: size.width / 2, y: size.height / 2)
-        let subs = map.nodes.filter { $0.kind == .subtopic }.prefix(5)
-        let r: CGFloat = min(size.width, size.height) / 2 - 14
-        for (i, _) in subs.enumerated() {
-          let angle = 2 * Double.pi * Double(i) / Double(max(subs.count, 1))
-          let p = CGPoint(x: center.x + CGFloat(Foundation.cos(angle)) * r, y: center.y + CGFloat(Foundation.sin(angle)) * r)
-          var line = Path()
-          line.move(to: center)
-          line.addLine(to: p)
-          ctx.stroke(line, with: .color(.gray.opacity(0.4)), lineWidth: 1)
-          ctx.fill(Path(ellipseIn: CGRect(x: p.x - 6, y: p.y - 6, width: 12, height: 12)), with: .color(MindMapPalette.secondary))
+        let positions = MindMapLayout.radialPositions(for: map)
+        let pts = Array(positions.values)
+        guard !pts.isEmpty else { return }
+        let minX = pts.map(\.x).min()!
+        let maxX = pts.map(\.x).max()!
+        let minY = pts.map(\.y).min()!
+        let maxY = pts.map(\.y).max()!
+        let bbox = CGRect(x: minX, y: minY, width: max(maxX - minX, 1), height: max(maxY - minY, 1))
+        let scale = min(size.width / bbox.width, size.height / bbox.height) * 0.85
+        let project: (CGPoint) -> CGPoint = { p in
+          CGPoint(
+            x: size.width / 2 + (p.x - bbox.midX) * scale,
+            y: size.height / 2 + (p.y - bbox.midY) * scale
+          )
         }
-        ctx.fill(Path(ellipseIn: CGRect(x: center.x - 12, y: center.y - 12, width: 24, height: 24)), with: .color(MindMapPalette.primary))
+        for edge in map.edges {
+          guard let a = positions[edge.from], let b = positions[edge.to] else { continue }
+          var path = Path()
+          path.move(to: project(a))
+          path.addLine(to: project(b))
+          ctx.stroke(path, with: .color(.gray.opacity(0.45)), lineWidth: 0.8)
+        }
+        for node in map.nodes {
+          guard let p = positions[node.id] else { continue }
+          let r: CGFloat
+          let color: Color
+          switch node.kind {
+          case .root:     r = 8;   color = MindMapPalette.primary
+          case .subtopic: r = 5;   color = MindMapPalette.secondary
+          case .card:     r = 2.5; color = .gray.opacity(0.7)
+          }
+          let pp = project(p)
+          ctx.fill(
+            Path(ellipseIn: CGRect(x: pp.x - r, y: pp.y - r, width: 2 * r, height: 2 * r)),
+            with: .color(color)
+          )
+        }
       }
       .frame(width: 160, height: 130)
       .background(RoundedRectangle(cornerRadius: 14).fill(Color(.secondarySystemBackground)))
@@ -113,7 +136,7 @@ extension MindMapsView {
       self.builder = builder
     }
 
-    func rebuild(cards: [Card], books: [BookMetaResponse]) async {
+    func rebuild(cards: [Card]) async {
       let signature = cards.reduce(into: Hasher()) { hasher, card in
         hasher.combine(card.id)
         for tag in card.tags where tag.type == AutoTaggingService.autoTagType {
@@ -127,16 +150,8 @@ extension MindMapsView {
       defer { isBuilding = false }
       do {
         let maps = try await builder.build(from: cards)
-        let titles = Dictionary(uniqueKeysWithValues: books.map { ($0.id, $0.title) })
-        let grouped = Dictionary(grouping: maps) { $0.bookId ?? "" }
-        let sections = grouped.map { key, value in
-          Section(
-            id: key.isEmpty ? "general" : key,
-            title: key.isEmpty ? "General" : (titles[key] ?? "General"),
-            maps: value
-          )
-        }.sorted { $0.maps.count > $1.maps.count }
-        self.sections = sections
+        let groups = try await builder.groupByMetaTopic(maps)
+        self.sections = groups.map { Section(id: $0.id, title: $0.title, maps: $0.maps) }
       } catch {
         print("[MindMaps] build failed: \(error)")
         self.sections = []
