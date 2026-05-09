@@ -6,7 +6,7 @@ import WidgetKit
 /// Embeddings are cached in `CardEmbedding` keyed by `cardId` + `modelVersion`.
 @MainActor
 final class CardClusteringService {
-  static let defaultThreshold: Float = 0.5
+  static let defaultThreshold: Float = 0.6
 
   private let modelContext: ModelContext
   private let embeddingService: EmbeddingService

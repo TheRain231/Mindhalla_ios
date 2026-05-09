@@ -41,7 +41,11 @@ enum TopicExtractor {
         groups[prefix, default: []].append(term)
       }
       for (_, members) in groups where members.count > 1 {
-        let chosen = members.min(by: { $0.count < $1.count }) ?? members[0]
+        let chosen = members.min(by: { (a, b) in
+          let sa = nominativeScore(a), sb = nominativeScore(b)
+          if sa != sb { return sa > sb }
+          return a.count < b.count
+        }) ?? members[0]
         for m in members { canonical[m] = chosen }
       }
     }
@@ -66,9 +70,13 @@ enum TopicExtractor {
       }
 
       let clusterSize = max(docs.count, 1)
+      let minDF = max(1, clusterSize / 4)
       var bestKey: String?
       var bestScore: Float = 0
-      for (term, df) in clusterDF where df >= 2 {
+      for (term, df) in clusterDF where df >= minDF {
+        let parts = term.split(separator: " ").map(String.init)
+        if parts.contains(where: { stopwords.contains($0) }) { continue }
+        if language == .russian, parts.contains(where: { isVerbalRussian($0, isAdj: false) }) { continue }
         let tfc = Float(df) / Float(clusterSize)
         let gdf = foldedGlobalDF[term] ?? df
         let idf = log((Float(N) + 1) / (Float(gdf) + 1)) + 1
@@ -98,6 +106,7 @@ enum TopicExtractor {
 
     struct Token {
       let lemma: String
+      let surface: String
       let isNoun: Bool
       let isAdj: Bool
     }
@@ -115,8 +124,12 @@ enum TopicExtractor {
           if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
           return true
         }
+        let surface = String(text[range]).lowercased()
         let lemma = lemmatize(tagger: tagger, range: range, original: String(text[range])).lowercased()
-        guard lemma.count >= minLen, !stopwords.contains(lemma), lemma.contains(where: { $0.isLetter }) else {
+        guard lemma.count >= minLen,
+              !stopwords.contains(lemma),
+              !stopwords.contains(surface),
+              lemma.contains(where: { $0.isLetter }) else {
           if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
           return true
         }
@@ -125,7 +138,7 @@ enum TopicExtractor {
           if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
           return true
         }
-        current.append(Token(lemma: lemma, isNoun: isNoun, isAdj: isAdj))
+        current.append(Token(lemma: lemma, surface: surface, isNoun: isNoun, isAdj: isAdj))
         return true
       }
       if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
@@ -148,15 +161,45 @@ enum TopicExtractor {
     return result
   }
 
+  /// Higher = more likely a Russian nominative-case form. Used to pick the
+  /// canonical surface form within a prefix-grouped lemma cluster so that
+  /// "любовь" beats "любви", "люди" beats "людей".
+  private static func nominativeScore(_ word: String) -> Int {
+    let obliqueSuffixes = ["ями","ами","ях","ах","ой","ом","ей","ями","ою","ью","ии","ие","ия"]
+    for s in obliqueSuffixes where word.hasSuffix(s) && word.count > s.count + 1 {
+      return -2
+    }
+    let obliqueShort = ["и","е","у","ю"]
+    if let last = word.last, obliqueShort.contains(String(last)) { return -1 }
+    let nominativeShort: Set<Character> = ["ь","а","я","о"]
+    if let last = word.last, nominativeShort.contains(last) { return 1 }
+    if let last = word.last, last.isLetter,
+       !"аеёиоуыэюяйьъ".contains(last) { return 2 }  // ends in consonant
+    return 0
+  }
+
   /// Heuristic filter for Russian verb infinitives and short past-participles
   /// that NLTagger mistakenly tags as nouns or adjectives.
   private static func isVerbalRussian(_ word: String, isAdj: Bool) -> Bool {
     if word.hasSuffix("ться") || word.hasSuffix("ть") { return true }
+    // Long-form participles (active & passive): работающий, удаленный, объявленный, абстрактным, написанный...
+    let longParticiples = [
+      "ющий","ющая","ющее","ющие","ющим","ющей","ющих","ющую",
+      "ущий","ущая","ущее","ущие","ущим","ущей","ущих","ущую",
+      "ащий","ащая","ащее","ащие","ащим","ащей","ащих","ащую",
+      "ящий","ящая","ящее","ящие","ящим","ящей","ящих","ящую",
+      "вший","вшая","вшее","вшие","вшим","вшей","вших","вшую",
+      "нный","нная","нное","нные","нным","нной","нных","нную",
+      "тый","тая","тое","тые","тым","той","тых","тую",
+      "емый","емая","емое","емые","имый","имая","имое","имые"
+    ]
+    for end in longParticiples where word.hasSuffix(end) && word.count > end.count + 1 {
+      return true
+    }
     if isAdj {
-      // Short-form past passive participles: рассчитан, написана, решено, изучены, etc.
-      let participleEndings = ["ан","ана","ано","аны","ян","яна","яно","яны","ен","ена","ено","ены","т","та","то","ты"]
-      for end in participleEndings {
-        if word.hasSuffix(end) && word.count > end.count + 1 { return true }
+      let shortParticiples = ["ан","ана","ано","аны","ян","яна","яно","яны","ен","ена","ено","ены","т","та","то","ты"]
+      for end in shortParticiples where word.hasSuffix(end) && word.count > end.count + 1 {
+        return true
       }
     }
     return false
@@ -213,7 +256,8 @@ private let STOPWORDS_EN: Set<String> = [
 private let STOPWORDS_RU: Set<String> = [
   "и","в","во","не","что","он","она","они","оно","на","я","с","со","как","а","то","все","так","его","но","да","ты","к","у","же","вы","за","бы","по","только","ее","мне","было","вот","от","меня","еще","нет","о","из","ему","теперь","когда","даже","ну","вдруг","ли","если","уже","или","ни","быть","был","него","до","вас","нибудь","опять","уж","вам","ведь","там","потом","себя","ничего","ей","может","тут","где","есть","надо","ней","для","мы","тебя","их","чем","была","сам","чтоб","без","будто","чего","раз","тоже","себе","под","будет","ж","тогда","кто","этот","того","потому","этого","какой","совсем","ним","здесь","этом","один","почти","мой","тем","чтобы","нее","сейчас","были","куда","зачем","всех","никогда","можно","при","наконец","два","об","другой","хоть","после","над","больше","тот","через","эти","нас","про","всего","них","какая","много","разве","три","эту","моя","впрочем","хорошо","свою","этой","перед","иногда","лучше","чуть","нельзя","такой","им","более","всегда","конечно","всю","между",
   "человек","человека","люди","людей","людях","людьми","год","годы","день","дни","часть","вещь","вещи","способ","способы","место","работа","факт","мир","жизнь","дело","время","момент","сторона","вид","рука","голова","слово","слова","мысль","мысли","мыслью","мыслях","друг","друзья","конец","начало","ребенок","дети","причина","результат","пример","примеры","смысл","значение","опыт","чувство","ощущение","взгляд","точка","зрение","зрения","ситуация","состояние","состояния","состоянии","состоянием","процесс","действие","основа","группа","форма","тип","роль","уровень","количество","число","область","тема","вопрос","ответ","автор","книга","глава","страница","текст","фраза","предложение","новое","старое","большое","маленькое","важное","главное","основной","основное","главный","большой","новый","старый","задача","задачи","элемент","элементы",
-  "это","который","которая","которое","которые","которого","которой","которыми","которым","которых","котором","которому","которую",
+  "это","этот","эта","эти","того","тот","та","те","такой","такая","такое","такие","какой","какая","какое","какие","любой","любая","любое","любые","весь","вся","всё","все","сам","сама","само","сами","свой","своя","своё","свои","мой","моя","моё","мои","твой","твоя","твоё","твои","наш","наша","наше","наши","ваш","ваша","ваше","ваши",
+  "который","которая","которое","которые","которого","которой","которыми","которым","которых","котором","которому","которую",
   "любви","любовью","любимый","любимая","любимое",
   "исключение","исключения","исключений",
   "знание","знания","знаний","знанием"
