@@ -40,9 +40,8 @@ extension Card {
 }
 
 extension Card {
-  func sourceDescription() -> String {
-    "Тут было описание главы до смены модели карточки"
-//    "Глава \(source.chapterNumber) • \(source.chapterName) • с \(source.pageNumber)"
+  func sourceDescription() -> String? {
+    references.chapterTitle
   }
 }
 
@@ -51,13 +50,10 @@ extension Card {
     let type: CardType = dto.tags.first
       .flatMap { CardType(rawValue: $0.type) } ?? .unknown
 
-    let dict = dto.references as [String: Any]
-    let references = if let pages = dict["pages"] as? [Int],
-                        let originalTexts = dict["original_texts"] as? [String] {
-      References(pages: pages, originalTexts: originalTexts)
-    } else {
-      References(pages: [], originalTexts: [])
-    }
+    let chapterTitle = dto.references["chapter_title"]?.value as? String
+    let pages = dto.references["pages"]?.value as? [Int] ?? []
+    let originalTexts = dto.references["original_texts"]?.value as? [String] ?? []
+    let references = References(pages: pages, originalTexts: originalTexts, chapterTitle: chapterTitle)
 
     self.init(
       id: dto.id,
@@ -73,7 +69,8 @@ extension References {
   init(dto: [String: Codable]) {
     let pages = dto["pages"] as? [Int] ?? []
     let texts = dto["original_texts"] as? [String] ?? []
-    self.init(pages: pages, originalTexts: texts)
+    let chapterTitle = dto["chapter_title"] as? String
+    self.init(pages: pages, originalTexts: texts, chapterTitle: chapterTitle)
   }
 }
 
@@ -96,11 +93,9 @@ extension Card {
         type: .thesis,
         content: "The Sorting Hat scene and its moral about choice and courage.",
         references: .init(
-          pages: [
-            88,
-            90,
-          ],
-          originalTexts: ["It is our choices, Harry, that show what we truly are..."]
+          pages: [88, 90],
+          originalTexts: ["It is our choices, Harry, that show what we truly are..."],
+          chapterTitle: "The Sorting Hat"
         ),
         tags: [
           .init(id: "c26b27dc-ef2e-46f9-823f-77afa820c203", type: "system", name: "moral", description: "Central moral lesson of the book."),
@@ -113,11 +108,9 @@ extension Card {
         type: .concept,
         content: "Harry receives his first letter from Hogwarts.",
         references: .init(
-          pages: [
-            45,
-            46,
-          ],
-          originalTexts: ["No post on Sundays... except for one peculiar letter."]
+          pages: [45, 46],
+          originalTexts: ["No post on Sundays... except for one peculiar letter."],
+          chapterTitle: "The Letters from No One"
         ),
         tags: [
           .init(id: "b17b18cc-ef3d-46f9-823f-99afa830c102", type: "custom", name: "letter", description: "First sign of magic entering his life."),
@@ -130,11 +123,9 @@ extension Card {
         type: .idea,
         content: "Introduction to the Dursleys...",
         references: .init(
-          pages: [
-            1,
-            2,
-          ],
-          originalTexts: ["Mr. and Mrs. Dursley of number four..."]
+          pages: [1, 2],
+          originalTexts: ["Mr. and Mrs. Dursley of number four..."],
+          chapterTitle: "The Boy Who Lived"
         ),
         tags: [
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c91a", type: "system", name: "some-tag-1", description: "some description 1"),
@@ -147,7 +138,7 @@ extension Card {
         id: "q-mock-1",
         type: .question,
         content: "Что показывает наш истинный характер?",
-        references: .init(pages: [], originalTexts: []),
+        references: .init(pages: [], originalTexts: [], chapterTitle: "I Является ли любовь искусством?"),
         tags: []
       )
     case .answer:
@@ -155,7 +146,7 @@ extension Card {
         id: "a-mock-1",
         type: .answer,
         content: "Не наши способности определяют, кто мы, а наш выбор.",
-        references: .init(pages: [], originalTexts: []),
+        references: .init(pages: [], originalTexts: [], chapterTitle: "I Является ли любовь искусством?"),
         tags: []
       )
     case .insight:
@@ -163,7 +154,7 @@ extension Card {
         id: "i-mock-1",
         type: .insight,
         content: "Повторение с интервалами работает лучше, чем один длинный сеанс.",
-        references: .init(pages: [54], originalTexts: ["Лучше 15 минут в день, чем 2 часа раз в неделю."]),
+        references: .init(pages: [54], originalTexts: ["Лучше 15 минут в день, чем 2 часа раз в неделю."], chapterTitle: "II Методы обучения"),
         tags: [.init(id: "i-tag-1", type: "system", name: "learning", description: "Practical learning insight")]
       )
     case .principle:
@@ -171,7 +162,7 @@ extension Card {
         id: "p-mock-1",
         type: .principle,
         content: "Сначала понимание смысла, затем запоминание деталей.",
-        references: .init(pages: [73], originalTexts: ["Принцип: от общего к частному."]),
+        references: .init(pages: [73], originalTexts: ["Принцип: от общего к частному."], chapterTitle: "III Принципы запоминания"),
         tags: [.init(id: "p-tag-1", type: "system", name: "principle", description: "General study principle")]
       )
     case .model:
@@ -179,7 +170,7 @@ extension Card {
         id: "m-mock-1",
         type: .model,
         content: "Цикл обучения: прочитал -> сформулировал -> применил -> проверил.",
-        references: .init(pages: [101], originalTexts: ["Рабочая модель закрепления знаний."]),
+        references: .init(pages: [101], originalTexts: ["Рабочая модель закрепления знаний."], chapterTitle: "IV Модели и frameworks"),
         tags: [.init(id: "m-tag-1", type: "system", name: "framework", description: "Learning model")]
       )
     case .unknown:
@@ -189,7 +180,8 @@ extension Card {
         content: "...",
         references: .init(
           pages: [],
-          originalTexts: []
+          originalTexts: [],
+          chapterTitle: nil
         ),
         tags: [
           .init(id: "0", type: "system", name: "some-tag-1", description: "some description 1"),
@@ -211,70 +203,70 @@ extension Card {
         id: "c-1",
         type: .thesis,
         content: "День.",
-        references: .init(pages: [1], originalTexts: []),
+        references: .init(pages: [1], originalTexts: [], chapterTitle: "I Утреннее намерение"),
         tags: []
       ),
       Card(
         id: "c-2",
         type: .idea,
         content: "Первые минуты после пробуждения задают настрой: не телефон, а одна строка в дневнике.",
-        references: .init(pages: [2], originalTexts: []),
+        references: .init(pages: [2], originalTexts: [], chapterTitle: "I Утреннее намерение"),
         tags: [.init(id: "tag-c-2", type: "custom", name: "утро", description: "")]
       ),
       Card(
         id: "c-3",
         type: .concept,
         content: "Свет, вода, тишина — три опоры утреннего внимания без лишних стимулов.",
-        references: .init(pages: [3], originalTexts: []),
+        references: .init(pages: [3], originalTexts: [], chapterTitle: "II Среда для чтения"),
         tags: []
       ),
       Card(
         id: "c-4",
         type: .idea,
         content: "Что сегодня действительно важно — не срочное, а значимое?",
-        references: .init(pages: [4], originalTexts: []),
+        references: .init(pages: [4], originalTexts: [], chapterTitle: "II Среда для чтения"),
         tags: []
       ),
       Card(
         id: "c-5",
         type: .idea,
         content: "Короткая прогулка или растяжка перед чтением снижают «шум» в голове и помогают лучше запоминать смысл, а не отдельные фразы.",
-        references: .init(pages: [5], originalTexts: []),
+        references: .init(pages: [5], originalTexts: [], chapterTitle: "III Тело и внимание"),
         tags: []
       ),
       Card(
         id: "c-6",
         type: .thesis,
         content: "Чтение утром — это не про количество страниц, а про ясность: одна идея, которую можно применить до обеда, ценнее десяти забытых абзацев.",
-        references: .init(pages: [6, 7], originalTexts: []),
+        references: .init(pages: [6, 7], originalTexts: [], chapterTitle: "III Тело и внимание"),
         tags: []
       ),
       Card(
         id: "c-7",
         type: .idea,
         content: "Заметка.",
-        references: .init(pages: [8], originalTexts: []),
+        references: .init(pages: [8], originalTexts: [], chapterTitle: "IV Фиксация мысли"),
         tags: []
       ),
       Card(
         id: "c-8",
         type: .concept,
         content: "Если вчерашний день закончился на раздражении, утреннее чтение можно начать с короткого списка благодарностей — не как ритуал «для галочки», а как способ сместить фокус с оценки себя на наблюдение за тем, что уже есть и что можно бережно развить.",
-        references: .init(pages: [9, 10], originalTexts: []),
+        references: .init(pages: [9, 10], originalTexts: [], chapterTitle: "IV Фиксация мысли"),
         tags: []
       ),
       Card(
         id: "c-9",
         type: .concept,
         content: "Какую одну мысль из прочитанного я хочу проверить в действии сегодня — и как пойму, что эксперимент удался?",
-        references: .init(pages: [11], originalTexts: []),
+        references: .init(pages: [11], originalTexts: [], chapterTitle: "V Применение"),
         tags: []
       ),
       Card(
         id: "c-10",
         type: .thesis,
         content: "Утреннее чтение связывает «кто я хочу быть» с «что я делаю в первый час»: не геройством, а маленькой последовательностью — открыть книгу, прочитать абзац, записать вывод. Так день начинается не из тревоги списка дел, а из выбранного смысла, который потом проще переносить в работу, отношения и отдых без чувства, что жизнь распалась на несовместимые куски.",
-        references: .init(pages: [12, 13, 14], originalTexts: []),
+        references: .init(pages: [12, 13, 14], originalTexts: [], chapterTitle: "V Применение"),
         tags: [.init(id: "tag-c-10", type: "system", name: "ритуал", description: "")]
       ),
     ]
@@ -287,35 +279,35 @@ extension Card {
         id: "c-11",
         type: .thesis,
         content: "Сначала результат, потом процесс: формулируй исход, который можно проверить к пятнице.",
-        references: .init(pages: [20], originalTexts: []),
+        references: .init(pages: [20], originalTexts: [], chapterTitle: "I Фокус и приоритеты"),
         tags: [.init(id: "tag-w-11", type: "custom", name: "фокус", description: "")]
       ),
       Card(
         id: "c-12",
         type: .idea,
         content: "Нет.",
-        references: .init(pages: [21], originalTexts: []),
+        references: .init(pages: [21], originalTexts: [], chapterTitle: "I Фокус и приоритеты"),
         tags: []
       ),
       Card(
         id: "c-13",
         type: .concept,
         content: "Разбей большую задачу на шаги по 25 минут: после каждого блока — одна строка в логе, что изменилось в понимании проблемы, а не только в объёме сделанного.",
-        references: .init(pages: [22, 23], originalTexts: []),
+        references: .init(pages: [22, 23], originalTexts: [], chapterTitle: "II Глубокая работа"),
         tags: []
       ),
       Card(
         id: "c-14",
         type: .thesis,
         content: "Кому нужен этот отчёт через месяц — тебе, команде или формальности? От ответа зависит глубина анализа и границы «достаточно хорошо».",
-        references: .init(pages: [24], originalTexts: []),
+        references: .init(pages: [24], originalTexts: [], chapterTitle: "II Глубокая работа"),
         tags: []
       ),
       Card(
         id: "c-15",
         type: .idea,
         content: "Когда встречи съедают день, оставь два окна без календаря: одно — для глубокой работы с одним документом, другое — для разбора входящих без немедленных ответов. Так ты возвращаешь инициативу: не поток уведомлений решает, что важно, а заранее выбранный приоритет, к которому можно вернуться после шума, не теряя нить рассуждений и не превращая вечер в догоняние задач, которые утром казались мелочами.",
-        references: .init(pages: [25, 26, 27], originalTexts: []),
+        references: .init(pages: [25, 26, 27], originalTexts: [], chapterTitle: "III Управление временем"),
         tags: [.init(id: "tag-w-15", type: "system", name: "время", description: "")]
       ),
     ]

@@ -36,9 +36,12 @@ struct CardsView: View {
     )
     .sheet(isPresented: $viewModel.isSaveViewPresented) {
       if let card = viewModel.topCard {
-        SaveBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel(card: card))
-          .presentationDetents([.medium, .large])
-          .presentationDragIndicator(.visible)
+        SaveBottomsheetView(
+          viewModel: factory.createSaveBottomsheetViewModel(card: card),
+          onSaved: { viewModel.showSavedMessage() }
+        )
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
       }
     }
   }
@@ -49,7 +52,7 @@ extension CardsView {
   private var savedToSectionMessage: some View {
     if viewModel.isSavedMessageVisible {
       HStack {
-        Text("CardsView.SavedToANewSection")
+        Text("CardsView.SavedToANewCollection")
           .foregroundStyle(.black.opacity(0.8))
           .font(.system(size: 13))
           .fontWeight(.regular)

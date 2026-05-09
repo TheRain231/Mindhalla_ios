@@ -78,6 +78,7 @@ extension SavedView {
 
     func toggleSortFilter(_ filter: SortFilter) {
       sortFilter = filter
+      selectedTypeFilter = nil
     }
 
     func clearBookFilter() {
@@ -100,6 +101,15 @@ extension SavedView {
          !presentTypes(from: allCards.filter { $0.id != cardId }).contains(selectedTypeFilter) {
         self.selectedTypeFilter = nil
       }
+    }
+
+    func createCollection(title: String) {
+      let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !trimmed.isEmpty else { return }
+      let collection = QuoteCollection(title: trimmed)
+      modelContext.insert(collection)
+      try? modelContext.save()
+      WidgetCenter.shared.reloadAllTimelines()
     }
 
     func shareText(for card: Card) -> String {

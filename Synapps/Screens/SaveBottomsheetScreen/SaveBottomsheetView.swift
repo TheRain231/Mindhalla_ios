@@ -6,6 +6,7 @@ struct SaveBottomsheetView: View {
   @Environment(\.dismiss) private var dismiss
   @Bindable var viewModel: SaveBottomsheetViewModel
   @Query(sort: \QuoteCollection.title) var collections: [QuoteCollection]
+  var onSaved: (() -> Void)? = nil
 
   var body: some View {
     NavigationStack {
@@ -90,6 +91,7 @@ extension SaveBottomsheetView {
   private var saveCardButton: some View {
     Button {
       viewModel.save()
+      onSaved?()
       dismiss()
     } label: {
       Text("SaveBottomsheetScreen.SaveCard")

@@ -36,7 +36,7 @@ extension FlashCard {
       id: id + "-q",
       type: .question,
       content: question,
-      references: References(pages: [], originalTexts: []),
+      references: References(pages: [], originalTexts: [], chapterTitle: nil),
       tags: []
     )
   }
@@ -46,7 +46,7 @@ extension FlashCard {
       id: id + "-a",
       type: .answer,
       content: answer,
-      references: References(pages: [], originalTexts: []),
+      references: References(pages: [], originalTexts: [], chapterTitle: nil),
       tags: []
     )
   }

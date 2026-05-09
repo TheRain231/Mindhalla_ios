@@ -74,11 +74,10 @@ extension CardsView {
         modelContext.insert(card)
         try? modelContext.save()
         WidgetCenter.shared.reloadAllTimelines()
-        showSavedMessage()
       }
     }
 
-    private func showSavedMessage() {
+    func showSavedMessage() {
       isSavedMessageVisible = true
       Task { @MainActor in
         try? await Task.sleep(for: .seconds(3))

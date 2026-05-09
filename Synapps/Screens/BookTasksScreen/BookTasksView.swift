@@ -1,10 +1,3 @@
-//
-//  BookTasksView.swift
-//  Synapps
-//
-//  Created by Codex on 28.04.2026.
-//
-
 import SwiftUI
 
 struct BookTasksDestination: Hashable {
@@ -81,13 +74,16 @@ struct BookTasksView: View {
         taskCard(task: task)
           .padding(.horizontal, 20)
           .padding(.top, 8)
+          .padding(.bottom, 100)
           .id(task.id)
       }
       .scrollIndicators(.hidden)
-
-      bottomBar(task: task, taskCount: response.tasks.count, isLast: isLast)
     }
     .padding(.vertical, 16)
+    .overlay(alignment: .bottom) {
+      bottomBar(task: task, taskCount: response.tasks.count, isLast: isLast)
+        .padding(.bottom, 16)
+    }
   }
 
   private func progressHeader(current: Int, total: Int) -> some View {
@@ -248,7 +244,7 @@ struct BookTasksView: View {
 
   private func bottomBar(task: BookTask, taskCount: Int, isLast: Bool) -> some View {
     let answered = viewModel.isAnswered(taskId: task.id)
-    let canShowHint = !task.hint.isEmpty && !viewModel.isHintVisible(for: task.id)
+    let canShowHint = !task.hint.isEmpty && !viewModel.isHintVisible(for: task.id) && !answered
     let isMulti = viewModel.isMultipleChoice(task: task)
     let hasSelection = !viewModel.selectedOptionIds(for: task.id).isEmpty
     let needsCheck = isMulti && !answered

@@ -27,10 +27,13 @@ struct CardCardView: View {
     }
   }
 
+  @ViewBuilder
   private var cardSource: some View {
-    Text(card.sourceDescription())
-      .font(.caption)
-      .foregroundStyle(.secondary)
+    if let chapter = card.sourceDescription() {
+      Text(chapter)
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
   }
 
   private var cardText: some View {

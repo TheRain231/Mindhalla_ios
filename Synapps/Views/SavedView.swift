@@ -16,6 +16,7 @@ struct SavedView: View {
   @Query var allBooks: [BookMetaResponse]
   @State private var cardPendingDeletion: Card?
   @State private var navigationPath = NavigationPath()
+  @State private var showNewCollectionSheet = false
   @Binding var deepLink: DeepLink?
 
   var body: some View {
@@ -43,7 +44,9 @@ struct SavedView: View {
       .navigationLinkIndicatorVisibility(.hidden)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
-          addButton
+          if viewModel.pickerState == .collections {
+            addButton
+          }
         }
       }
       .ignoresSafeArea(edges: .bottom)
@@ -117,7 +120,7 @@ extension SavedView {
     let filtered = viewModel.filteredCards(from: cards)
     return VStack {
       cardSearchField
-      filterChips
+      chipsRow(cardTypes: viewModel.presentTypes(from: cards))
       if cards.isEmpty {
         EmptyStateView(
           icon: "rectangle.on.rectangle",
@@ -130,10 +133,6 @@ extension SavedView {
           title: "SavedView.Search.Empty.Title"
         )
       } else {
-        CardTypePaginationView(
-          cardTypes: viewModel.presentTypes(from: cards),
-          onTap: viewModel.toggleTypeFilter
-        )
         ScrollView {
           LazyVStack(spacing: 20) {
             ForEach(filtered) { card in
@@ -149,7 +148,7 @@ extension SavedView {
     }
   }
 
-  private var filterChips: some View {
+  private func chipsRow(cardTypes: [CardType]) -> some View {
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 8) {
         if let bookId = viewModel.bookIdFilter,
@@ -157,8 +156,7 @@ extension SavedView {
           Button { viewModel.clearBookFilter() } label: {
             HStack(spacing: 4) {
               Image(systemName: "bookmark.fill")
-              Text(book.title)
-                .lineLimit(1)
+              Text(book.title).lineLimit(1)
               Image(systemName: "xmark")
                 .font(.system(size: 10, weight: .semibold))
             }
@@ -179,10 +177,19 @@ extension SavedView {
               .foregroundStyle(isSelected ? .white : .primary)
               .padding(.horizontal, 12)
               .padding(.vertical, 7)
-              .background(
-                Capsule()
-                  .fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5))
-              )
+              .background(Capsule().fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5)))
+          }
+          .buttonStyle(.plain)
+        }
+
+        ForEach(cardTypes, id: \.self) { type in
+          Button { viewModel.toggleTypeFilter(type) } label: {
+            Text(type.localizedName)
+              .font(.system(size: 13, weight: .medium))
+              .foregroundStyle(.white)
+              .padding(.horizontal, 12)
+              .padding(.vertical, 7)
+              .background(Capsule().fill(CardType.typeColor(for: type)))
           }
           .buttonStyle(.plain)
         }
@@ -225,9 +232,18 @@ extension SavedView {
 
   private var addButton: some View {
     Button {
-      // TODO: add collection or card?
+      if viewModel.pickerState == .collections {
+        showNewCollectionSheet = true
+      }
     } label: {
       Image(systemName: "plus")
+    }
+    .sheet(isPresented: $showNewCollectionSheet) {
+      NewCollectionSheet(onCreate: { title in
+        viewModel.createCollection(title: title)
+      })
+      .presentationDetents([.medium])
+      .presentationDragIndicator(.visible)
     }
   }
 
@@ -292,6 +308,51 @@ extension SavedView {
       case .byBook: "SavedView.Sort.ByBook"
       }
     }
+  }
+}
+
+private struct NewCollectionSheet: View {
+  let onCreate: (String) -> Void
+  @Environment(\.dismiss) private var dismiss
+  @State private var title = ""
+  @FocusState private var focused: Bool
+
+  var body: some View {
+    NavigationStack {
+      VStack(spacing: 12) {
+        Spacer(minLength: 0)
+        TextField("NewCollectionBottomsheet.CollectionTitle", text: $title, axis: .vertical)
+          .focused($focused)
+          .onSubmit { submit() }
+          .padding()
+          .background(.thinMaterial)
+          .cornerRadius(16)
+          .padding(.horizontal)
+        Button { submit() } label: {
+          Text("NewCollectionBottomsheetScreen.SaveCollection")
+            .blueButtonStyle()
+        }
+        .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+      }
+      .navigationTitle("SaveBottomsheetScreen.NewCollection")
+      .navigationBarTitleDisplayMode(.inline)
+      .padding(.bottom, 8)
+      .toolbar {
+        ToolbarItem(placement: .confirmationAction) {
+          Button { dismiss() } label: {
+            Image(systemName: "xmark").foregroundStyle(.black.opacity(0.8))
+          }
+        }
+      }
+      .onAppear { focused = true }
+    }
+  }
+
+  private func submit() {
+    let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+    onCreate(trimmed)
+    dismiss()
   }
 }
 

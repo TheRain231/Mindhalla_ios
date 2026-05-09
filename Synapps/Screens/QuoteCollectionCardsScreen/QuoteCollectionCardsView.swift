@@ -30,14 +30,30 @@ struct QuoteCollectionCardsView: View {
         cardTypes: viewModel.presentTypes,
         onTap: viewModel.toggleTypeFilter
       )
-      ScrollView {
-        LazyVStack(spacing: 16) {
-          ForEach(viewModel.filteredCards) { card in
-            cardRow(card: card)
+      Group {
+        if viewModel.cards.isEmpty {
+          EmptyStateView(
+            icon: "rectangle.on.rectangle",
+            title: "QuoteCollection.Empty.Title",
+            message: "QuoteCollection.Empty.Message"
+          )
+        } else if viewModel.filteredCards.isEmpty {
+          EmptyStateView(
+            icon: "magnifyingglass",
+            title: "SavedView.Search.Empty.Title"
+          )
+        } else {
+          ScrollView {
+            LazyVStack(spacing: 16) {
+              ForEach(viewModel.filteredCards) { card in
+                cardRow(card: card)
+              }
+            }
+            .animation(.easeInOut(duration: 0.55), value: viewModel.filteredCards.map(\.id))
+            .padding()
           }
+          .scrollDismissesKeyboard(.immediately)
         }
-        .animation(.easeInOut(duration: 0.55), value: viewModel.filteredCards.map(\.id))
-        .padding()
       }
       .task {
         if viewModel.cards.isEmpty {
@@ -45,7 +61,6 @@ struct QuoteCollectionCardsView: View {
         }
       }
       .navigationTitle(quoteCollection.title)
-      .scrollDismissesKeyboard(.immediately)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
           Menu {
@@ -64,8 +79,10 @@ struct QuoteCollectionCardsView: View {
       }
       .alert("RemoveCollectionAlert.Title", isPresented: $viewModel.showDeleteCollectionConfirmation) {
         Button("Remove", role: .destructive) {
-          viewModel.delete(quoteCollection)
           dismiss()
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            viewModel.delete(quoteCollection)
+          }
         }
 
         Button("Cancel", role: .cancel) {}

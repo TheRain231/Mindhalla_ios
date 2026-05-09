@@ -26,14 +26,10 @@ struct QuoteCollectionQuery: EntityQuery {
   }
 
   private func allCollections() throws -> [QuoteCollectionEntity] {
-    #if DEBUG
-    return QuoteCollection.mocks().map { QuoteCollectionEntity(id: $0.id, title: $0.title) }
-    #else
     let container = try SharedModelStore.makeContainer()
     let context = ModelContext(container)
     let collections = try context.fetch(FetchDescriptor<QuoteCollection>())
     return collections.map { QuoteCollectionEntity(id: $0.id, title: $0.title) }
-    #endif
   }
 }
 
