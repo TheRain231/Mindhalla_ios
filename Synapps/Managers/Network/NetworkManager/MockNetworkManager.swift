@@ -7,6 +7,7 @@
 
 import Foundation
 
+#if DEBUG
 final class MockNetworkManager: NetworkManagerProtocol {
   func getAllBooks() async throws -> [BookMetaResponse] {
     try await Task.sleep(for: .seconds(2))
@@ -50,3 +51,4 @@ final class MockNetworkManager: NetworkManagerProtocol {
     )
   }
 }
+#endif

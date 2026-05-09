@@ -133,8 +133,10 @@ struct ProfileView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   let factory = MockViewModelFactory()
   ProfileView()
     .modelContainer(factory.modelContainer)
 }
+#endif

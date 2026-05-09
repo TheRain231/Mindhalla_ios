@@ -67,8 +67,10 @@ struct NewCollectionBottomsheetView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   let factory = MockViewModelFactory()
 
   NewCollectionBottomsheetView(viewModel: factory.createSaveBottomsheetViewModel(card: .mock()))
 }
+#endif
