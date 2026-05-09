@@ -37,7 +37,7 @@ struct MindMap: Identifiable, Hashable {
 
 @MainActor
 final class MindMapBuilder {
-  static let subTopicThreshold: Float = 0.55
+  static let subTopicThreshold: Float = 0.66
   static let minRootClusterSize = 3
 
   private let clusteringService: CardClusteringService
@@ -78,9 +78,14 @@ final class MindMapBuilder {
       topics = []
     } else {
       do {
+        let rootVecBatch = try await embedder.embed(batch: [rootTitle])
+        let anchors = rootVecBatch.isEmpty ? [] : [rootVecBatch[0]]
         topics = try await TopicExtractor.extractTopicsSemantic(
           clusters: texts,
           clusterVectors: vectors,
+          excludedPhrases: [rootTitle],
+          diversityAnchorVectors: anchors,
+          diversityWeight: 0.5,
           embed: { try await embedder.embed(batch: $0) }
         )
       } catch {
@@ -91,10 +96,14 @@ final class MindMapBuilder {
     let rootNodeId = "root-\(rootId)"
     var nodes: [MindMapNode] = [MindMapNode(id: rootNodeId, kind: .root, title: rootTitle, card: nil)]
     var edges: [MindMapEdge] = []
+    let rootLower = rootTitle.lowercased()
+
+    print("[MindMaps] root=\"\(rootTitle)\" subtopics=\(topics.compactMap { $0 })")
 
     for (idx, pair) in multi.enumerated() {
       let topic = topics.indices.contains(idx) ? topics[idx] : nil
-      let subtitle = topic?.isEmpty == false ? topic! : "Подгруппа \(idx + 1)"
+      let cleaned: String? = (topic?.lowercased() == rootLower) ? nil : topic
+      let subtitle = cleaned?.isEmpty == false ? cleaned! : "Подгруппа \(idx + 1)"
       let subId = "sub-\(rootId)-\(idx)"
       nodes.append(MindMapNode(id: subId, kind: .subtopic, title: subtitle, card: nil))
       edges.append(MindMapEdge(id: "e-\(rootNodeId)-\(subId)", from: rootNodeId, to: subId))
