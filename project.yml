@@ -11,6 +11,9 @@ packages:
   Lottie:
     url: https://github.com/airbnb/lottie-ios
     from: 4.6.0
+  Kingfisher:
+    url: https://github.com/onevcat/Kingfisher
+    from: 8.9.0
 settings:
   base:
     GENERATE_INFOPLIST_FILE: NO
@@ -40,6 +43,7 @@ targets:
     dependencies:
       - package: AnyCodable
       - package: Lottie
+      - package: Kingfisher
       - target: QuotesWidgetExtension
         embed: true
   QuotesWidgetExtension:
