@@ -43,7 +43,7 @@ struct MindMap: Identifiable, Hashable {
 
 @MainActor
 final class MindMapBuilder {
-  static let subTopicThreshold: Float = 0.62
+  static let subTopicThreshold: Float = 0.64
   static let minRootClusterSize = 3
 
   private let clusteringService: CardClusteringService
