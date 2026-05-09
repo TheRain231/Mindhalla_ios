@@ -37,7 +37,11 @@ struct SynappsApp: App {
 }
 
 private struct ViewModelFactoryKey: EnvironmentKey {
+  #if DEBUG
   static let defaultValue: ViewModelFactoryProtocol = MockViewModelFactory()
+  #else
+  static let defaultValue: ViewModelFactoryProtocol = ViewModelFactory()
+  #endif
 }
 
 extension EnvironmentValues {

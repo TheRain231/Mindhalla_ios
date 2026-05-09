@@ -30,7 +30,7 @@ targets:
       path: Synapps/Synapps.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.mindhalla.Synapps
+          - group.mindhalla.Synapps
     settings:
       base:
         INFOPLIST_FILE: Synapps/Info.plist
@@ -71,7 +71,7 @@ targets:
       path: QuotesWidget/QuotesWidget.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.com.mindhalla.Synapps
+          - group.mindhalla.Synapps
     settings:
       base:
         INFOPLIST_FILE: QuotesWidget/Info.plist

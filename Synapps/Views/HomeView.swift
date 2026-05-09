@@ -11,7 +11,7 @@ import SwiftUI
 struct HomeView: View {
   @StateObject var viewModel: ViewModel
   @Environment(\.viewModelFactory) var factory
-  var onOpenSavedByBook: ((String) -> Void)? = nil
+  var onOpenSavedByBook: ((String) -> Void)?
   @Query private var books: [BookMetaResponse]
   @State private var bookLoadingViewModel = BookLoadingViewModel()
 
@@ -142,9 +142,11 @@ struct HomeView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   let factory = MockViewModelFactory()
 
   HomeView(viewModel: factory.createHomeViewModel())
     .modelContainer(factory.modelContainer)
 }
+#endif

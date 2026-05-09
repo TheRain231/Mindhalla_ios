@@ -10,8 +10,8 @@ import SwiftUI
 
 struct BookOverview: View {
   let book: BookMetaResponse
-  var onRetry: (() -> Void)? = nil
-  var onSavedTap: (() -> Void)? = nil
+  var onRetry: (() -> Void)?
+  var onSavedTap: (() -> Void)?
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -270,6 +270,7 @@ private struct TextBadgeLabelStyle: LabelStyle {
   }
 }
 
+#if DEBUG
 #Preview("Main") {
   BookOverview(book: BookMetaResponse.mock())
 }
@@ -293,3 +294,4 @@ private struct TextBadgeLabelStyle: LabelStyle {
   BookOverview(book: book, onRetry: {})
     .padding()
 }
+#endif
