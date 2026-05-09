@@ -49,7 +49,12 @@ enum MindMapLayout {
 
     let n = firstRing.count
     let neededR1 = maxWidth * CGFloat(n) / (2 * .pi)
-    let r1 = max(minR1, neededR1)
+    // If any first-ring child is a card (singleton attached directly to root),
+    // push the ring out so the card body doesn't sit on top of the root capsule
+    // and a visible edge segment remains between them.
+    let hasDirectCardChild = firstRing.contains { nodeKind($0) == .card }
+    let cardMinR1: CGFloat = hasDirectCardChild ? cardWidth + 160 : minR1
+    let r1 = max(max(minR1, cardMinR1), neededR1)
 
     for (i, nodeId) in firstRing.enumerated() {
       let angle = 2 * Double.pi * Double(i) / Double(n) - Double.pi / 2
