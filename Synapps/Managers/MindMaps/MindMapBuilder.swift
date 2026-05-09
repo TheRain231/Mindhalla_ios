@@ -1,11 +1,20 @@
 import Foundation
+import SwiftUI
+
+enum MindMapPalette {
+  static let primary = Color(hex: "8B5CF6")
+  static let secondary = Color(hex: "B79CF1")
+}
 
 struct MindMapNode: Identifiable, Hashable {
   enum Kind { case root, subtopic, card }
   let id: String
   let kind: Kind
   let title: String
-  let cardId: String?
+  let card: Card?
+
+  static func == (lhs: MindMapNode, rhs: MindMapNode) -> Bool { lhs.id == rhs.id }
+  func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 struct MindMapEdge: Identifiable, Hashable {
@@ -21,6 +30,9 @@ struct MindMap: Identifiable, Hashable {
   let edges: [MindMapEdge]
   let cardCount: Int
   let bookId: String?
+
+  static func == (lhs: MindMap, rhs: MindMap) -> Bool { lhs.id == rhs.id }
+  func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 @MainActor
@@ -77,25 +89,25 @@ final class MindMapBuilder {
     }
 
     let rootNodeId = "root-\(rootId)"
-    var nodes: [MindMapNode] = [MindMapNode(id: rootNodeId, kind: .root, title: rootTitle, cardId: nil)]
+    var nodes: [MindMapNode] = [MindMapNode(id: rootNodeId, kind: .root, title: rootTitle, card: nil)]
     var edges: [MindMapEdge] = []
 
     for (idx, pair) in multi.enumerated() {
       let topic = topics.indices.contains(idx) ? topics[idx] : nil
       let subtitle = topic?.isEmpty == false ? topic! : "Подгруппа \(idx + 1)"
       let subId = "sub-\(rootId)-\(idx)"
-      nodes.append(MindMapNode(id: subId, kind: .subtopic, title: subtitle, cardId: nil))
+      nodes.append(MindMapNode(id: subId, kind: .subtopic, title: subtitle, card: nil))
       edges.append(MindMapEdge(id: "e-\(rootNodeId)-\(subId)", from: rootNodeId, to: subId))
       for card in pair.element {
         let cardNodeId = "card-\(card.id)"
-        nodes.append(MindMapNode(id: cardNodeId, kind: .card, title: card.content, cardId: card.id))
+        nodes.append(MindMapNode(id: cardNodeId, kind: .card, title: card.content, card: card))
         edges.append(MindMapEdge(id: "e-\(subId)-\(cardNodeId)", from: subId, to: cardNodeId))
       }
     }
 
     for card in singletons {
       let cardNodeId = "card-\(card.id)"
-      nodes.append(MindMapNode(id: cardNodeId, kind: .card, title: card.content, cardId: card.id))
+      nodes.append(MindMapNode(id: cardNodeId, kind: .card, title: card.content, card: card))
       edges.append(MindMapEdge(id: "e-\(rootNodeId)-\(cardNodeId)", from: rootNodeId, to: cardNodeId))
     }
 
