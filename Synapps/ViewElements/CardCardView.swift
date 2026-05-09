@@ -55,6 +55,7 @@ struct CardCardView: View {
   }
 }
 
+#if DEBUG
 #Preview("Thesis") {
   CardCardView(card: Card.mockThesis())
 }
@@ -66,3 +67,4 @@ struct CardCardView: View {
 #Preview("Quote") {
   CardCardView(card: Card.mockQuote())
 }
+#endif

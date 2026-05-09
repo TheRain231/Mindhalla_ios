@@ -356,9 +356,11 @@ private struct NewCollectionSheet: View {
   }
 }
 
+#if DEBUG
 #Preview {
   let factory = MockViewModelFactory()
 
   SavedView(viewModel: factory.createSavedViewModel(), deepLink: .constant(nil))
     .modelContainer(factory.modelContainer)
 }
+#endif
