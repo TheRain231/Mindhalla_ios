@@ -14,8 +14,25 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
   let networkManager: NetworkManagerProtocol = MockNetworkManager()
   @MainActor // для mainContext
   let modelContainer: ModelContainer = {
-    let schema = Schema([BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self])
-    let cfg = ModelConfiguration(for: BookByIdResponse.self, BookMetaResponse.self, QuoteCollection.self, isStoredInMemoryOnly: true)
+    let schema = Schema([
+      BookByIdResponse.self,
+      BookMetaResponse.self,
+      QuoteCollection.self,
+      Card.self,
+      BookTasksResponse.self,
+      BookTask.self,
+      BookTaskOption.self,
+    ])
+    let cfg = ModelConfiguration(
+      for: BookByIdResponse.self,
+      BookMetaResponse.self,
+      QuoteCollection.self,
+      Card.self,
+      BookTasksResponse.self,
+      BookTask.self,
+      BookTaskOption.self,
+      isStoredInMemoryOnly: true
+    )
 
     let container = try! ModelContainer(for: schema, configurations: [cfg])
 
@@ -59,7 +76,12 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createBookTasksViewModel(bookId: String, prefetchedTasks: BookTasksResponse? = nil) -> BookTasksView.ViewModel {
-    BookTasksView.ViewModel(bookId: bookId, networkManager: networkManager, prefetchedTasks: prefetchedTasks)
+    BookTasksView.ViewModel(
+      bookId: bookId,
+      networkManager: networkManager,
+      modelContext: modelContainer.mainContext,
+      prefetchedTasks: prefetchedTasks
+    )
   }
 
   @MainActor

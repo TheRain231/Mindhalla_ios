@@ -44,16 +44,31 @@ extension CardsView {
     func fetch() {
       Task {
         do {
-          let fetchedCards = try await fetchBook().cards
+          let book = try await fetchBook()
           await MainActor.run {
-            cards = fetchedCards // TODO: Надо разобраться и исправить warning
-            topCardIndex = cards.count - 1
+            try? BookByIdResponse.persist(book, modelContext: modelContext)
+            applyCardsFromBook(book)
           }
         } catch {
-          print(error.localizedDescription)
-          // TODO: добавить обработку ошибок
+          await MainActor.run {
+            let descriptor = FetchDescriptor<BookByIdResponse>(predicate: #Predicate { $0.id == cardID })
+            if let local = try? modelContext.fetch(descriptor).first, !local.cards.isEmpty {
+              applyCardsFromBook(local)
+            }
+            print(error.localizedDescription)
+          }
         }
       }
+    }
+
+    func applyPersistedBook(_ book: BookByIdResponse?) {
+      guard let book, book.id == cardID, !book.cards.isEmpty else { return }
+      applyCardsFromBook(book)
+    }
+
+    private func applyCardsFromBook(_ book: BookByIdResponse) {
+      cards = book.cards
+      topCardIndex = max(0, cards.count - 1)
     }
 
     private func fetchBook() async throws -> BookByIdResponse {
@@ -69,12 +84,19 @@ extension CardsView {
       var descriptor: FetchDescriptor<Card> = FetchDescriptor(predicate: predicate)
       descriptor.fetchLimit = 1
 
-      if let existing = try? modelContext.fetch(descriptor), existing.isEmpty {
-        card.bookId = cardID
-        modelContext.insert(card)
-        try? modelContext.save()
-        WidgetCenter.shared.reloadAllTimelines()
+      if let existing = try? modelContext.fetch(descriptor).first {
+        if existing.savedAt == nil {
+          existing.bookId = cardID
+          existing.savedAt = .now
+          try? modelContext.save()
+          WidgetCenter.shared.reloadAllTimelines()
+        }
+        return
       }
+      card.bookId = cardID
+      modelContext.insert(card)
+      try? modelContext.save()
+      WidgetCenter.shared.reloadAllTimelines()
     }
 
     func showSavedMessage() {
