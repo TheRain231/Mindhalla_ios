@@ -40,6 +40,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.mindhalla.Synapps.Synapps
         INFOPLIST_KEY_CFBundleDisplayName: Synapps
         INFOPLIST_KEY_CFBundleName: "$(PRODUCT_NAME)"
+        TARGETED_DEVICE_FAMILY: 1
+        SUPPORTS_MACCATALYST: NO
     dependencies:
       - package: AnyCodable
       - package: Lottie
@@ -81,5 +83,17 @@ targets:
         INFOPLIST_FILE: QuotesWidget/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.mindhalla.Synapps.Synapps.QuotesWidget
         PRODUCT_NAME: QuotesWidgetExtension
+        TARGETED_DEVICE_FAMILY: 1
+        SUPPORTS_MACCATALYST: NO
     dependencies:
       - package: AnyCodable
+schemes:
+  Synapps:
+    build:
+      targets:
+        Synapps: all
+
+  QuotesWidgetExtension:
+    build:
+      targets:
+        QuotesWidgetExtension: all
