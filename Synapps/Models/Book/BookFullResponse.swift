@@ -43,11 +43,4 @@ final class BookByIdResponse {
     self.totalChapters = totalChapters
     self.processedChapters = processedChapters
   }
-
-  enum CodingKeys: String, CodingKey {
-    case id, title, editionNumber = "edition_number", year, publisher, language, pages
-    case cards
-    case authorsBooks = "authors_books"
-    case genresBooks = "genres_books"
-  }
 }
