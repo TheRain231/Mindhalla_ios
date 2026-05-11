@@ -2,115 +2,10 @@ import Foundation
 import NaturalLanguage
 
 enum TopicExtractor {
-  /// Extracts a dominant topic per cluster using c-TF-IDF: rewards terms that are
-  /// frequent within a cluster but rare across the rest of the corpus.
-  /// Returns an array aligned with `clusters` — `nil` for clusters where no candidate qualifies.
-  static func extractTopics(for clusters: [[String]]) -> [String?] {
-    guard !clusters.isEmpty else { return [] }
-
-    // Detect dominant language across the whole corpus once.
-    let combined = clusters.joined().joined(separator: "\n\n")
-    let language = detectLanguage(combined)
-    let stopwords = stopwords(for: language)
-    let minLen = minLength(for: language)
-
-    // Per-document candidate sets + per-cluster fallback (suspect oblique-RU) tokens.
-    var clusterFallbacks: [Set<String>] = Array(repeating: [], count: clusters.count)
-    var docCandidates: [[Set<String>]] = clusters.indices.map { ci in
-      clusters[ci].map { doc -> Set<String> in
-        var fb = Set<String>()
-        let terms = candidates(in: doc, language: language, stopwords: stopwords, minLen: minLen, fallbacks: &fb)
-        clusterFallbacks[ci].formUnion(fb)
-        return Set(terms)
-      }
-    }
-
-    // Global document frequency across the whole corpus (count each card once).
-    var globalDF: [String: Int] = [:]
-    var totalDocs = 0
-    for cluster in docCandidates {
-      for set in cluster {
-        totalDocs += 1
-        for term in set { globalDF[term, default: 0] += 1 }
-      }
-    }
-    let N = max(totalDocs, 1)
-
-    // For Russian single-token candidates, group by 5-char prefix to merge inflected forms;
-    // keep the SHORTEST surface form per group as the canonical label.
-    let useLemmaGrouping = language == .russian
-    var canonical: [String: String] = [:]    // surface form → canonical (shortest in group)
-    if useLemmaGrouping {
-      var groups: [String: [String]] = [:]   // prefix → [surface]
-      for term in globalDF.keys where !term.contains(" ") && term.count >= 5 {
-        let prefix = String(term.prefix(5))
-        groups[prefix, default: []].append(term)
-      }
-      for (_, members) in groups where members.count > 1 {
-        let chosen = members.min(by: { (a, b) in
-          let sa = nominativeScore(a), sb = nominativeScore(b)
-          if sa != sb { return sa > sb }
-          return a.count < b.count
-        }) ?? members[0]
-        for m in members { canonical[m] = chosen }
-      }
-    }
-    let canonicalize: (String) -> String = { useLemmaGrouping ? (canonical[$0] ?? $0) : $0 }
-
-    // Re-fold globalDF by canonical form.
-    var foldedGlobalDF: [String: Int] = [:]
-    for (term, df) in globalDF {
-      foldedGlobalDF[canonicalize(term), default: 0] += df
-    }
-
-    // Score each cluster.
-    return clusters.indices.map { idx in
-      let docs = docCandidates[idx]
-      guard !docs.isEmpty else { return nil }
-      let fallbacks = clusterFallbacks[idx]
-
-      var clusterDF: [String: Int] = [:]
-      for set in docs {
-        for term in set {
-          clusterDF[canonicalize(term), default: 0] += 1
-        }
-      }
-
-      let clusterSize = max(docs.count, 1)
-      let minDF = max(1, clusterSize / 4)
-      var bestKey: String?
-      var bestScore: Float = 0
-      for (term, df) in clusterDF where df >= minDF {
-        let parts = term.split(separator: " ").map(String.init)
-        if parts.contains(where: { stopwords.contains($0) }) { continue }
-        if language == .russian, parts.contains(where: { isVerbalRussian($0, isAdj: false) }) { continue }
-        if parts.count >= 2 {
-          let scripts = Set(parts.map { tokenScript($0) }).subtracting([.other])
-          if scripts.count > 1 { continue }
-        }
-        if parts.contains(where: { fallbacks.contains($0) }) { continue }
-        let tfc = Float(df) / Float(clusterSize)
-        let gdf = foldedGlobalDF[term] ?? df
-        let idf = log((Float(N) + 1) / (Float(gdf) + 1)) + 1
-        let tokens = term.split(separator: " ").count
-        let phraseBonus: Float = 1 + 0.4 * Float(max(tokens - 1, 0))
-        let score = tfc * idf * phraseBonus
-        if score > bestScore || (score == bestScore && (bestKey.map { term.count > $0.count } ?? true)) {
-          bestScore = score
-          bestKey = term
-        }
-      }
-
-      guard let key = bestKey else { return nil }
-      return titleCase(key, language: language)
-    }
-  }
-
-  /// KeyBERT-style topic selection: ranks NP candidates by cosine similarity to the
-  /// cluster centroid (mean of card embeddings), with a small bonus for multi-token
-  /// phrases. Falls back to `nil` when a cluster has no candidates.
-  /// `embed` is called with the deduplicated set of all candidate phrases across
-  /// every cluster so the caller can batch a single embedder pass.
+  /// KeyBERT-style topic selection: ranks unigram + bigram candidates by cosine
+  /// similarity to the cluster centroid. No POS, no lemmatization — semantics
+  /// decide. Stopword filtering removes pure noise; mixed-script bigrams are
+  /// dropped (a Cyrillic+Latin pair is never a real phrase).
   static func extractTopicsSemantic(
     clusters: [[String]],
     clusterVectors: [[[Float]]],
@@ -122,23 +17,10 @@ enum TopicExtractor {
     guard !clusters.isEmpty else { return [] }
     precondition(clusters.count == clusterVectors.count, "clusters/vectors length mismatch")
 
-    let combined = clusters.joined().joined(separator: "\n\n")
-    let language = detectLanguage(combined)
-    let stopwords = stopwords(for: language)
-    let minLen = minLength(for: language)
-
-    // Per-cluster candidate sets + suspect-oblique RU fallbacks per cluster.
-    var clusterFallbacks: [Set<String>] = Array(repeating: [], count: clusters.count)
-    let perClusterDocCandidates: [[Set<String>]] = clusters.indices.map { ci in
-      clusters[ci].map { doc -> Set<String> in
-        var fb = Set<String>()
-        let terms = candidates(in: doc, language: language, stopwords: stopwords, minLen: minLen, fallbacks: &fb)
-        clusterFallbacks[ci].formUnion(fb)
-        return Set(terms)
-      }
+    let perClusterDocCandidates: [[Set<String>]] = clusters.map { docs in
+      docs.map { Set(candidates(in: $0)) }
     }
 
-    // Collect unique candidate phrases across all clusters for one batched embed.
     var uniquePhrases: [String] = []
     var seen = Set<String>()
     for clusterDocs in perClusterDocCandidates {
@@ -151,7 +33,6 @@ enum TopicExtractor {
     }
     guard !uniquePhrases.isEmpty else { return Array(repeating: nil, count: clusters.count) }
 
-    // Batch embed phrases (stride keeps the ONNX session input small).
     var phraseVecs: [String: [Float]] = [:]
     let stride = 64
     var idx = 0
@@ -171,7 +52,6 @@ enum TopicExtractor {
       let vectors = clusterVectors[cIdx]
       guard !docs.isEmpty, !vectors.isEmpty else { results.append(nil); continue }
 
-      // Centroid = normalized mean of card vectors.
       let dim = vectors[0].count
       var centroid = [Float](repeating: 0, count: dim)
       for v in vectors where v.count == dim {
@@ -181,7 +61,6 @@ enum TopicExtractor {
       for h in 0..<dim { centroid[h] *= inv }
       CosineSimilarity.l2Normalize(&centroid)
 
-      // Aggregate candidate df within cluster.
       var clusterDF: [String: Int] = [:]
       for set in docs {
         for term in set { clusterDF[term, default: 0] += 1 }
@@ -205,7 +84,6 @@ enum TopicExtractor {
         return cos + phraseBonus - anchorPenalty
       }
 
-      let fallbacks = clusterFallbacks[cIdx]
       func pickBest(filterExcluded: Bool) -> String? {
         var bestKey: String?
         var bestScore: Float = -.infinity
@@ -217,7 +95,6 @@ enum TopicExtractor {
             let scripts = Set(parts.map { tokenScript($0) }).subtracting([.other])
             if scripts.count > 1 { continue }
           }
-          if parts.contains(where: { fallbacks.contains($0) }) { continue }
           let score = scoreTerm(term, pv)
           if score > bestScore || (score == bestScore && (bestKey.map { term.count > $0.count } ?? true)) {
             bestScore = score
@@ -228,7 +105,7 @@ enum TopicExtractor {
       }
 
       let bestKey = pickBest(filterExcluded: !excludedPhrases.isEmpty) ?? pickBest(filterExcluded: false)
-      results.append(bestKey.map { titleCase($0, language: language) })
+      results.append(bestKey.map { titleCase($0) })
     }
     return results
   }
@@ -237,7 +114,6 @@ enum TopicExtractor {
 
   enum Script { case cyrillic, latin, other }
 
-  /// Returns the dominant script for letter chars in `s` (first letter wins).
   static func tokenScript(_ s: String) -> Script {
     for ch in s where ch.isLetter {
       if ("а"..."я").contains(ch) || ch == "ё" || ("А"..."Я").contains(ch) || ch == "Ё" { return .cyrillic }
@@ -246,192 +122,130 @@ enum TopicExtractor {
     return .other
   }
 
-  /// Single nouns plus 2–3 token noun-phrases (adj/noun runs) found in `text`.
-  /// `fallbacks` accumulates lemmas where NLTagger returned no real lemma — these
-  /// are likely oblique RU forms (e.g. "пакета") masquerading as nominative.
-  private static func candidates(in text: String, language: NLLanguage, stopwords: Set<String>, minLen: Int, fallbacks: inout Set<String>) -> [String] {
-    let tagger = NLTagger(tagSchemes: [.lemma, .lexicalClass])
+  private struct PosToken { let surface: String; let isNoun: Bool; let isAdj: Bool }
+
+  /// Noun unigrams + (adj+noun | noun+noun) bigrams, same script, no verbs, no stopwords.
+  /// For Russian: lemmatizes via NLTagger, rejects oblique-case singletons, and reclassifies
+  /// adj-shaped surfaces that NLTagger mistakenly tags as nouns.
+  private static func candidates(in text: String) -> [String] {
+    let tagger = NLTagger(tagSchemes: [.lexicalClass, .lemma])
     tagger.string = text
-    if language != .undetermined {
-      tagger.setLanguage(language, range: text.startIndex..<text.endIndex)
-    }
-
-    struct Token {
-      let lemma: String
-      let surface: String
-      let isNoun: Bool
-      let isAdj: Bool
-      let isFallback: Bool
-    }
-
     let opts: NLTagger.Options = [.omitWhitespace, .omitPunctuation, .omitOther, .joinNames]
-    var sentenceTokens: [[Token]] = []
-    var current: [Token] = []
 
-    tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .sentence, scheme: .lexicalClass, options: [.omitWhitespace, .omitPunctuation]) { _, sentenceRange in
-      current.removeAll(keepingCapacity: true)
-      tagger.enumerateTags(in: sentenceRange, unit: .word, scheme: .lexicalClass, options: opts) { tag, range in
-        let isNoun = tag == .noun || tag == .placeName || tag == .organizationName || tag == .personalName
-        let isAdj = tag == .adjective
-        if !isNoun && !isAdj {
-          if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
-          return true
-        }
-        let surface = String(text[range]).lowercased()
-        let (rawLemma, lemmaTagFound) = lemmatizeWithFlag(tagger: tagger, range: range, original: String(text[range]))
-        let lemma = rawLemma.lowercased()
-        let isFallback = !lemmaTagFound || lemma == surface
-        let scriptHere = tokenScript(lemma)
-        // Per-token min length: RU=4, EN=3 — applies whatever the corpus-level language was detected as.
-        let perTokenMinLen = scriptHere == .cyrillic ? 4 : 3
-        // Always check union of RU+EN stopwords so Russian function-words don't slip through
-        // when the corpus was detected as English (mixed code-heavy cards).
-        guard lemma.count >= perTokenMinLen,
-              !STOPWORDS_RU.contains(lemma), !STOPWORDS_RU.contains(surface),
-              !STOPWORDS_EN.contains(lemma), !STOPWORDS_EN.contains(surface),
-              lemma.contains(where: { $0.isLetter }) else {
-          if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
-          return true
-        }
-        // Drop RU verb infinitives / participles regardless of corpus-level language.
-        if scriptHere == .cyrillic, isVerbalRussian(lemma, isAdj: isAdj) {
-          if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
-          return true
-        }
-        // Drop RU oblique singletons (e.g. "финансовой", "управляют") here — never let them into the candidate set.
-        if scriptHere == .cyrillic, nominativeScore(lemma) < 0 {
-          if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
-          return true
-        }
-        // Mark RU tokens that NLTagger failed to lemmatize and end in case-ambiguous suffixes.
-        let suspectRU = isFallback && tokenScript(lemma) == .cyrillic
-          && lemma.count <= 8
-          && ["а","я","у","ю"].contains(String(lemma.last ?? Character(" ")))
-        if suspectRU { fallbacks.insert(lemma) }
-        current.append(Token(lemma: lemma, surface: surface, isNoun: isNoun, isAdj: isAdj, isFallback: isFallback))
-        return true
+    var runs: [[PosToken]] = []
+    var current: [PosToken] = []
+    let flush = {
+      if !current.isEmpty { runs.append(current); current.removeAll(keepingCapacity: true) }
+    }
+
+    let recognizer = NLLanguageRecognizer()
+    recognizer.processString(text)
+    if let lang = recognizer.dominantLanguage {
+      tagger.setLanguage(lang, range: text.startIndex..<text.endIndex)
+    }
+
+    tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word, scheme: .lexicalClass, options: opts) { tag, range in
+      let raw = String(text[range]).lowercased()
+      var isNoun = tag == .noun || tag == .placeName || tag == .organizationName || tag == .personalName
+      var isAdj = tag == .adjective
+      let isVerb = tag == .verb
+      let isCyrillic = tokenScript(raw) == .cyrillic
+      // Surface-level verb check — runs before POS so NLTagger's noun-mis-tags don't slip through.
+      if isCyrillic, looksVerbalRussian(raw) { flush(); return true }
+      guard isNoun || isAdj, !isVerb else { flush(); return true }
+      var surface = raw
+      if isCyrillic, let lemma = tagger.tag(at: range.lowerBound, unit: .word, scheme: .lemma).0?.rawValue, !lemma.isEmpty {
+        surface = lemma.lowercased()
       }
-      if !current.isEmpty { sentenceTokens.append(current); current.removeAll(keepingCapacity: true) }
+      if isCyrillic, looksVerbalRussian(surface) { flush(); return true }
+      if isCyrillic, isNoun, looksAdjectiveRussian(surface) { isNoun = false; isAdj = true }
+      if isCyrillic, isObliqueRussian(surface) { flush(); return true }
+      guard isAcceptableToken(surface) else { flush(); return true }
+      current.append(PosToken(surface: surface, isNoun: isNoun, isAdj: isAdj))
       return true
     }
+    flush()
 
-    var result: [String] = []
-    for run in sentenceTokens {
-      for tok in run where tok.isNoun {
-        result.append(tok.lemma)
-      }
-      for i in 0..<(max(run.count - 1, 0)) {
-        let a = run[i], b = run[i + 1]
-        guard b.isNoun else { continue }
-        let sa = tokenScript(a.lemma), sb = tokenScript(b.lemma)
-        if sa != .other, sb != .other, sa != sb { continue }
-        if (a.isAdj && b.isNoun) || (a.isNoun && b.isNoun) {
-          result.append("\(a.lemma) \(b.lemma)")
+    var out: [String] = []
+    for run in runs {
+      for tok in run where tok.isNoun { out.append(tok.surface) }
+      if run.count >= 2 {
+        for i in 0..<(run.count - 1) {
+          let a = run[i], b = run[i + 1]
+          guard b.isNoun else { continue }
+          guard a.isAdj || a.isNoun else { continue }
+          let sa = tokenScript(a.surface), sb = tokenScript(b.surface)
+          if sa != .other, sb != .other, sa != sb { continue }
+          out.append("\(a.surface) \(b.surface)")
         }
       }
     }
-    return result
+    return out
   }
 
-  /// Higher = more likely a Russian nominative-case form. Used to pick the
-  /// canonical surface form within a prefix-grouped lemma cluster so that
-  /// "любовь" beats "любви", "люди" beats "людей".
-  private static func nominativeScore(_ word: String) -> Int {
-    let obliqueSuffixes = ["ями","ами","ях","ах","ой","ом","ей","ями","ою","ью","ии","ие","ия"]
-    for s in obliqueSuffixes where word.hasSuffix(s) && word.count > s.count + 1 {
-      return -2
-    }
-    let obliqueShort = ["и","е","у","ю"]
-    if let last = word.last, obliqueShort.contains(String(last)) { return -1 }
-    let nominativeShort: Set<Character> = ["ь","а","я","о"]
-    if let last = word.last, nominativeShort.contains(last) { return 1 }
-    if let last = word.last, last.isLetter,
-       !"аеёиоуыэюяйьъ".contains(last) { return 2 }  // ends in consonant
-    return 0
+  private static func isAcceptableToken(_ t: String) -> Bool {
+    guard t.count >= 3 else { return false }
+    if STOPWORDS_EN.contains(t) || STOPWORDS_RU.contains(t) { return false }
+    if !t.contains(where: { $0.isLetter }) { return false }
+    return true
   }
 
-  /// Heuristic filter for Russian verb infinitives and short past-participles
-  /// that NLTagger mistakenly tags as nouns or adjectives.
-  private static func isVerbalRussian(_ word: String, isAdj: Bool) -> Bool {
-    if word.hasSuffix("ться") || word.hasSuffix("ть") { return true }
-    // Present-tense personal endings — heuristic, only on long enough surface forms
-    // to avoid clipping short nouns like "уют" (3) / "приют" (5).
-    if word.count >= 7 {
-      let presentEndings = ["ют","ут","ят","ат","ишь","ёшь","ешь","ете","ёте","ите","ишь","ём","ем","им"]
-      for end in presentEndings where word.hasSuffix(end) { return true }
-    }
-    // Long-form participles (active & passive): работающий, удаленный, объявленный, абстрактным, написанный...
-    let longParticiples = [
-      "ющий","ющая","ющее","ющие","ющим","ющей","ющих","ющую",
-      "ущий","ущая","ущее","ущие","ущим","ущей","ущих","ущую",
-      "ащий","ащая","ащее","ащие","ащим","ащей","ащих","ащую",
-      "ящий","ящая","ящее","ящие","ящим","ящей","ящих","ящую",
-      "вший","вшая","вшее","вшие","вшим","вшей","вших","вшую",
-      "нный","нная","нное","нные","нным","нной","нных","нную",
-      "тый","тая","тое","тые","тым","той","тых","тую",
-      "емый","емая","емое","емые","имый","имая","имое","имые"
+  /// Detects Russian adjective surface endings — used to reclassify tokens NLTagger mis-tags as nouns.
+  private static func looksAdjectiveRussian(_ word: String) -> Bool {
+    guard word.count >= 4 else { return false }
+    let endings = [
+      "ыми","ими","ого","его","ому","ему","ую","юю",
+      "ый","ий","ой","ая","яя","ое","ее","ые","ие",
+      "ым","им","ых","их"
     ]
-    for end in longParticiples where word.hasSuffix(end) && word.count > end.count + 1 {
-      return true
-    }
-    if isAdj {
-      let shortParticiples = ["ан","ана","ано","аны","ян","яна","яно","яны","ен","ена","ено","ены","т","та","то","ты"]
-      for end in shortParticiples where word.hasSuffix(end) && word.count > end.count + 1 {
-        return true
-      }
+    for end in endings where word.hasSuffix(end) && word.count > end.count + 1 { return true }
+    return false
+  }
+
+  /// True for clearly-oblique Russian noun surfaces (genitive/dative/instrumental/locative).
+  /// Conservative: only flags unambiguous oblique suffixes so nominative forms like "книга", "вода", "поле" pass.
+  private static func isObliqueRussian(_ word: String) -> Bool {
+    guard word.count >= 4 else { return false }
+    let strongOblique = [
+      "ями","ами","ях","ах","ой","ом","ей","ою","ью",
+      "ии","иям","иях","иями","ев","ов"
+    ]
+    for end in strongOblique where word.hasSuffix(end) && word.count > end.count + 1 { return true }
+    // Short oblique vowels: -и, -е, -у, -ю at the end (genitive sg, dative/locative, accusative fem).
+    // Excludes -ия/-ие which can be nominative neuter (e.g. "решение") — handled above.
+    if let last = word.last, ["и","е","у","ю"].contains(String(last)) { return true }
+    return false
+  }
+
+  /// Backup verb detector for Russian — NLTagger sometimes tags conjugated forms as nouns.
+  private static func looksVerbalRussian(_ word: String) -> Bool {
+    if word.hasSuffix("ться") || word.hasSuffix("ть") { return true }
+    let reflexive = ["ются","ятся","ится","ется","ётся","ишься","ешься","ёшься","лся","лась","лось","лись"]
+    for end in reflexive where word.hasSuffix(end) && word.count > end.count { return true }
+    guard word.count >= 5 else { return false }
+    // Present-tense personal endings.
+    let present = ["ишь","ёшь","ешь","ете","ёте","ите","ают","яют","уют","юют","ует","ьет",
+                   "ют","ут","ят","ат","ит","ет","ёт","ем","им","ём"]
+    for end in present where word.hasSuffix(end) { return true }
+    // Past-tense masculine (-л preceded by typical verb-stem vowel).
+    if word.count >= 5 {
+      let past = ["ал","ял","ел","ил","ыл","ул"]
+      for end in past where word.hasSuffix(end) { return true }
     }
     return false
   }
 
-  private static func lemmatize(tagger: NLTagger, range: Range<String.Index>, original: String) -> String {
-    lemmatizeWithFlag(tagger: tagger, range: range, original: original).0
-  }
-
-  private static func lemmatizeWithFlag(tagger: NLTagger, range: Range<String.Index>, original: String) -> (String, Bool) {
-    let (lemmaTag, _) = tagger.tag(at: range.lowerBound, unit: .word, scheme: .lemma)
-    if let lemma = lemmaTag?.rawValue, !lemma.isEmpty {
-      return (lemma, true)
-    }
-    return (original, false)
-  }
-
-  // MARK: - Language detection
-
-  private static func detectLanguage(_ text: String) -> NLLanguage {
-    let recognizer = NLLanguageRecognizer()
-    recognizer.processString(text)
-    return recognizer.dominantLanguage ?? .undetermined
-  }
-
-  private static func minLength(for language: NLLanguage) -> Int {
-    switch language {
-    case .russian: 4
-    case .english: 3
-    default: 3
-    }
-  }
-
   // MARK: - Title case
 
-  private static func titleCase(_ s: String, language: NLLanguage) -> String {
+  private static func titleCase(_ s: String) -> String {
     s.split(separator: " ").map { word -> String in
       guard let first = word.first else { return String(word) }
       return first.uppercased() + word.dropFirst()
     }.joined(separator: " ")
   }
 
-  // MARK: - Stopwords
+  // MARK: - Exclusion
 
-  private static func stopwords(for language: NLLanguage) -> Set<String> {
-    switch language {
-    case .russian: STOPWORDS_RU
-    case .english: STOPWORDS_EN
-    default: STOPWORDS_EN.union(STOPWORDS_RU)
-    }
-  }
-
-  /// `term` is excluded if its normalized form equals any excluded phrase
-  /// or if the tokens of any excluded phrase are a subset of `term`'s tokens.
   static func isExcluded(_ term: String, by excluded: Set<String>) -> Bool {
     guard !excluded.isEmpty else { return false }
     let normTerm = term.lowercased()
@@ -452,10 +266,6 @@ private let STOPWORDS_EN: Set<String> = [
 
 private let STOPWORDS_RU: Set<String> = [
   "и","в","во","не","что","он","она","они","оно","на","я","с","со","как","а","то","все","так","его","но","да","ты","к","у","же","вы","за","бы","по","только","ее","мне","было","вот","от","меня","еще","нет","о","из","ему","теперь","когда","даже","ну","вдруг","ли","если","уже","или","ни","быть","был","него","до","вас","нибудь","опять","уж","вам","ведь","там","потом","себя","ничего","ей","может","тут","где","есть","надо","ней","для","мы","тебя","их","чем","была","сам","чтоб","без","будто","чего","раз","тоже","себе","под","будет","ж","тогда","кто","этот","того","потому","этого","какой","совсем","ним","здесь","этом","один","почти","мой","тем","чтобы","нее","сейчас","были","куда","зачем","всех","никогда","можно","при","наконец","два","об","другой","хоть","после","над","больше","тот","через","эти","нас","про","всего","них","какая","много","разве","три","эту","моя","впрочем","хорошо","свою","этой","перед","иногда","лучше","чуть","нельзя","такой","им","более","всегда","конечно","всю","между","например","словно","вместо","вдруг","точно","примерно","итак","разновидности","предположим","допустим",
-  "человек","человека","люди","людей","людях","людьми","год","годы","день","дни","часть","вещь","вещи","способ","способы","место","работа","факт","мир","жизнь","дело","время","момент","сторона","вид","рука","голова","слово","слова","мысль","мысли","мыслью","мыслях","друг","друзья","конец","начало","ребенок","дети","причина","результат","пример","примеры","смысл","значение","опыт","чувство","ощущение","взгляд","точка","зрение","зрения","ситуация","состояние","состояния","состоянии","состоянием","процесс","действие","основа","группа","форма","тип","роль","уровень","количество","число","область","тема","вопрос","ответ","автор","книга","глава","страница","текст","фраза","предложение","новое","старое","большое","маленькое","важное","главное","основной","основное","главный","большой","новый","старый","задача","задачи","элемент","элементы",
   "это","этот","эта","эти","того","тот","та","те","такой","такая","такое","такие","какой","какая","какое","какие","любой","любая","любое","любые","весь","вся","всё","все","сам","сама","само","сами","свой","своя","своё","свои","мой","моя","моё","мои","твой","твоя","твоё","твои","наш","наша","наше","наши","ваш","ваша","ваше","ваши",
-  "который","которая","которое","которые","которого","которой","которыми","которым","которых","котором","которому","которую",
-  "любви","любовью","любимый","любимая","любимое",
-  "исключение","исключения","исключений",
-  "знание","знания","знаний","знанием"
+  "который","которая","которое","которые","которого","которой","которыми","которым","которых","котором","которому","которую"
 ]
