@@ -48,5 +48,11 @@
 	<string>Выберите фото для аватара профиля</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+  <key>NSLocalNetworkUsageDescription</key>
+  <string>Atlantis would use Bonjour Service to discover Proxyman app from your local network. Atlantis uses it to transfer the data from your iOS app to Proxyman macOS for debugging purposes.</string>
+  <key>NSBonjourServices</key>
+  <array>
+    <string>_Proxyman._tcp</string>
+  </array>
 </dict>
 </plist>

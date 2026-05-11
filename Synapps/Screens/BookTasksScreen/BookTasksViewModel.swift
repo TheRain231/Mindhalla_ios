@@ -36,8 +36,8 @@ extension BookTasksView {
       self.modelContext = modelContext
       self.prefetchedTasks = prefetchedTasks
       if let prefetchedTasks {
-        try? BookTasksResponse.persist(prefetchedTasks, modelContext: modelContext)
-        applyResponse(prefetchedTasks, shuffleDisplay: true, resetProgress: true)
+        let persisted = try? BookTasksResponse.persist(prefetchedTasks, modelContext: modelContext)
+        applyResponse(persisted ?? prefetchedTasks, shuffleDisplay: true, resetProgress: true)
       }
     }
 
@@ -165,8 +165,8 @@ extension BookTasksView {
       screenState = .loading
       do {
         let response = try await networkManager.getBookTasks(bookId: bookId)
-        try BookTasksResponse.persist(response, modelContext: modelContext)
-        applyResponse(response, shuffleDisplay: true, resetProgress: true)
+        let persisted = try BookTasksResponse.persist(response, modelContext: modelContext)
+        applyResponse(persisted, shuffleDisplay: true, resetProgress: true)
       } catch {
         let bid = bookId
         let descriptor = FetchDescriptor<BookTasksResponse>(predicate: #Predicate { $0.id == bid })
