@@ -95,7 +95,8 @@ final class MindMapBuilder {
           embed: { try await embedder.embed(batch: $0) }
         )
       } catch {
-        topics = TopicExtractor.extractTopics(for: texts)
+        print("[MindMaps] semantic topics failed: \(error)")
+        topics = Array(repeating: nil, count: texts.count)
       }
     }
 
@@ -156,7 +157,8 @@ final class MindMapBuilder {
         )
         name = topics.first ?? nil
       } catch {
-        name = TopicExtractor.extractTopics(for: [memberTitles]).first ?? nil
+        print("[MindMaps] meta-topic semantic failed: \(error)")
+        name = nil
       }
       guard let title = name, !title.isEmpty else {
         leftovers.append(contentsOf: memberMaps)

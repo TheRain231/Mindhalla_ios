@@ -49,8 +49,8 @@ final class AutoTaggingService {
         embed: { try await embedder.embed(batch: $0) }
       )
     } catch {
-      print("[AutoTag] semantic topics failed, falling back to c-TF-IDF: \(error)")
-      topics = TopicExtractor.extractTopics(for: clusterTexts)
+      print("[AutoTag] semantic topics failed: \(error)")
+      topics = Array(repeating: nil, count: clusterTexts.count)
     }
 
     var assigned = 0
