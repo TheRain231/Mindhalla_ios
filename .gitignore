@@ -31,4 +31,4 @@ fastlane/screenshots/**/*.png
 fastlane/test_output/
 
 # Model
-MLModels/Distiluse/
+distiluse-multilingual.onnx
