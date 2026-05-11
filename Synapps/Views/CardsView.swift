@@ -10,8 +10,16 @@ import SwiftUI
 
 struct CardsView: View {
   @Environment(\.viewModelFactory) var factory
-  @StateObject var viewModel: ViewModel
+  @StateObject private var viewModel: ViewModel
+  @Query private var persistedBooks: [BookByIdResponse]
   var onTasksTap: (() -> Void)?
+
+  init(viewModel: ViewModel, onTasksTap: (() -> Void)? = nil) {
+    _viewModel = StateObject(wrappedValue: viewModel)
+    self.onTasksTap = onTasksTap
+    let bookId = viewModel.cardID
+    _persistedBooks = Query(filter: #Predicate<BookByIdResponse> { $0.id == bookId })
+  }
 
   var body: some View {
     CardStackView(
@@ -34,6 +42,9 @@ struct CardsView: View {
         overlayBottomView
       }
     )
+    .onChange(of: persistedBooks.first?.cardIdsSignature) { _, _ in
+      viewModel.applyPersistedBook(persistedBooks.first)
+    }
     .sheet(isPresented: $viewModel.isSaveViewPresented) {
       if let card = viewModel.topCard {
         SaveBottomsheetView(
@@ -135,16 +146,19 @@ extension CardsView.ViewModel {
 
 #if DEBUG
 #Preview("Interactive") {
-  @Previewable var viewModel = MockViewModelFactory().createCardsViewModel(cardID: "insteractive_preview")
-
+  let factory = MockViewModelFactory()
+  let viewModel = factory.createCardsViewModel(cardID: "insteractive_preview")
   ZStack {
     CardsView(viewModel: viewModel)
+      .modelContainer(factory.modelContainer)
       .ignoresSafeArea()
   }
 }
 
 #Preview() {
-  CardsView(viewModel: MockViewModelFactory().createCardsViewModel(cardID: "preview"))
+  let factory = MockViewModelFactory()
+  CardsView(viewModel: factory.createCardsViewModel(cardID: "preview"))
+    .modelContainer(factory.modelContainer)
     .ignoresSafeArea()
 }
 #endif

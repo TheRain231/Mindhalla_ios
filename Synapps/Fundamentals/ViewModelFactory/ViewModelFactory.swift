@@ -60,7 +60,12 @@ final class ViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createBookTasksViewModel(bookId: String, prefetchedTasks: BookTasksResponse? = nil) -> BookTasksView.ViewModel {
-    BookTasksView.ViewModel(bookId: bookId, networkManager: networkManager, prefetchedTasks: prefetchedTasks)
+    BookTasksView.ViewModel(
+      bookId: bookId,
+      networkManager: networkManager,
+      modelContext: modelContainer.mainContext,
+      prefetchedTasks: prefetchedTasks
+    )
   }
 
   @MainActor

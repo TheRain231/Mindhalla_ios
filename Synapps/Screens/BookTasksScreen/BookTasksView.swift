@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 struct BookTasksDestination: Hashable {
@@ -5,7 +6,14 @@ struct BookTasksDestination: Hashable {
 }
 
 struct BookTasksView: View {
-  @StateObject var viewModel: ViewModel
+  @StateObject private var viewModel: ViewModel
+  @Query private var persistedTaskResponses: [BookTasksResponse]
+
+  init(viewModel: ViewModel) {
+    _viewModel = StateObject(wrappedValue: viewModel)
+    let bid = viewModel.bookId
+    _persistedTaskResponses = Query(filter: #Predicate<BookTasksResponse> { $0.id == bid })
+  }
 
   private let accent = Color(hex: "9B60E9")
   private let accentSoft = Color(hex: "F4ECFF")
@@ -34,12 +42,15 @@ struct BookTasksView: View {
           if response.tasks.isEmpty {
             waitingView(response: response)
           } else if viewModel.isCompleted {
-            completionView(tasks: response.tasks)
+            completionView(tasks: viewModel.displayTasks)
           } else {
-            taskFlow(response: response)
+            taskFlow(response: response, tasks: viewModel.displayTasks)
           }
         }
       }
+    }
+    .onChange(of: persistedTaskResponses.first?.tasksSyncSignature) { _, _ in
+      viewModel.applyPersisted(persistedTaskResponses.first)
     }
     .navigationTitle("BookTasks.Navigation.Title")
     .navigationBarTitleDisplayMode(.inline)
@@ -62,13 +73,23 @@ struct BookTasksView: View {
   // MARK: - Task flow
 
   @ViewBuilder
-  private func taskFlow(response: BookTasksResponse) -> some View {
-    let safeIndex = min(max(viewModel.currentIndex, 0), response.tasks.count - 1)
-    let task = response.tasks[safeIndex]
-    let isLast = safeIndex == response.tasks.count - 1
+  private func taskFlow(response: BookTasksResponse, tasks: [BookTask]) -> some View {
+    Group {
+      if tasks.isEmpty {
+        ProgressView("BookTasks.Loading")
+      } else {
+        taskFlowContent(response: response, tasks: tasks)
+      }
+    }
+  }
 
-    VStack(spacing: 20) {
-      progressHeader(current: safeIndex + 1, total: response.tasks.count)
+  private func taskFlowContent(response _: BookTasksResponse, tasks: [BookTask]) -> some View {
+    let safeIndex = min(max(viewModel.currentIndex, 0), tasks.count - 1)
+    let task = tasks[safeIndex]
+    let isLast = safeIndex == tasks.count - 1
+
+    return VStack(spacing: 20) {
+      progressHeader(current: safeIndex + 1, total: tasks.count)
 
       ScrollView {
         taskCard(task: task)
@@ -81,7 +102,7 @@ struct BookTasksView: View {
     }
     .padding(.vertical, 16)
     .overlay(alignment: .bottom) {
-      bottomBar(task: task, taskCount: response.tasks.count, isLast: isLast)
+      bottomBar(task: task, taskCount: tasks.count, isLast: isLast)
         .padding(.bottom, 16)
     }
   }
@@ -378,6 +399,8 @@ struct BookTasksView: View {
 
 #if DEBUG
 #Preview {
-  BookTasksView(viewModel: BookTasksView.ViewModel(bookId: "preview", networkManager: MockNetworkManager()))
+  let factory = MockViewModelFactory()
+  BookTasksView(viewModel: factory.createBookTasksViewModel(bookId: "preview"))
+    .modelContainer(factory.modelContainer)
 }
 #endif

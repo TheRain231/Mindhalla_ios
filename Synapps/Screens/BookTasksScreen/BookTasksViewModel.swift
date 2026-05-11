@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 extension BookTasksView {
   @MainActor
@@ -10,24 +11,33 @@ extension BookTasksView {
       case ready(BookTasksResponse)
     }
 
-    private let bookId: String
+    let bookId: String
     private let networkManager: NetworkManagerProtocol
+    private let modelContext: ModelContext
     private let prefetchedTasks: BookTasksResponse?
 
     @Published var screenState: ScreenState = .loading
+    @Published private(set) var displayTasks: [BookTask] = []
     @Published var currentIndex: Int = 0
     @Published var isCompleted: Bool = false
     @Published private var selectedOptions: [String: Set<String>] = [:]
     @Published private var submittedTasks: Set<String> = []
     @Published private var hintsVisible: Set<String> = []
+    private var lastAppliedTasksSignature: String?
 
-    init(bookId: String, networkManager: NetworkManagerProtocol, prefetchedTasks: BookTasksResponse? = nil) {
+    init(
+      bookId: String,
+      networkManager: NetworkManagerProtocol,
+      modelContext: ModelContext,
+      prefetchedTasks: BookTasksResponse? = nil
+    ) {
       self.bookId = bookId
       self.networkManager = networkManager
+      self.modelContext = modelContext
       self.prefetchedTasks = prefetchedTasks
       if let prefetchedTasks {
-        let shuffled = Self.withShuffledTasks(prefetchedTasks)
-        screenState = shuffled.tasks.isEmpty && shuffled.isReady ? .empty : .ready(shuffled)
+        try? BookTasksResponse.persist(prefetchedTasks, modelContext: modelContext)
+        applyResponse(prefetchedTasks, shuffleDisplay: true, resetProgress: true)
       }
     }
 
@@ -38,6 +48,15 @@ extension BookTasksView {
 
     func forceReload() async {
       await load()
+    }
+
+    func applyPersisted(_ response: BookTasksResponse?) {
+      guard let response, response.id == bookId else { return }
+      let sig = response.tasksSyncSignature
+      if lastAppliedTasksSignature == sig, case .ready = screenState {
+        return
+      }
+      applyResponse(response, shuffleDisplay: true, resetProgress: true)
     }
 
     func isMultipleChoice(task: BookTask) -> Bool {
@@ -102,40 +121,60 @@ extension BookTasksView {
     func restart() {
       currentIndex = 0
       selectedOptions = [:]
-      submittedTasks = []
-      hintsVisible = []
+      submittedTasks.removeAll()
+      hintsVisible.removeAll()
       isCompleted = false
     }
 
     func shuffle() {
       guard case let .ready(response) = screenState else { return }
-      let shuffled = Self.withShuffledTasks(response)
-      screenState = .ready(shuffled)
+      displayTasks = Self.shuffledTasks(from: response.tasks)
       restart()
-    }
-
-    private static func withShuffledTasks(_ response: BookTasksResponse) -> BookTasksResponse {
-      BookTasksResponse(
-        id: response.id,
-        processingStatus: response.processingStatus,
-        totalChapters: response.totalChapters,
-        processedChapters: response.processedChapters,
-        tasks: response.tasks.shuffled()
-      )
     }
 
     func correctAnswersCount(in tasks: [BookTask]) -> Int {
       tasks.filter { isFullyCorrect(task: $0) }.count
     }
 
+    private static func shuffledTasks(from tasks: [BookTask]) -> [BookTask] {
+      tasks.shuffled()
+    }
+
+    private func applyResponse(_ response: BookTasksResponse, shuffleDisplay: Bool, resetProgress: Bool) {
+      lastAppliedTasksSignature = response.tasksSyncSignature
+      if response.tasks.isEmpty, !response.isReady {
+        screenState = .ready(response)
+        displayTasks = []
+        if resetProgress { restart() }
+        return
+      }
+      if response.tasks.isEmpty, response.isReady {
+        screenState = .empty
+        displayTasks = []
+        if resetProgress { restart() }
+        return
+      }
+      screenState = .ready(response)
+      displayTasks = shuffleDisplay ? Self.shuffledTasks(from: response.tasks) : response.tasks
+      if resetProgress {
+        restart()
+      }
+    }
+
     private func load() async {
       screenState = .loading
       do {
         let response = try await networkManager.getBookTasks(bookId: bookId)
-        let shuffled = Self.withShuffledTasks(response)
-        screenState = shuffled.tasks.isEmpty && shuffled.isReady ? .empty : .ready(shuffled)
+        try BookTasksResponse.persist(response, modelContext: modelContext)
+        applyResponse(response, shuffleDisplay: true, resetProgress: true)
       } catch {
-        screenState = .failed
+        let bid = bookId
+        let descriptor = FetchDescriptor<BookTasksResponse>(predicate: #Predicate { $0.id == bid })
+        if let local = try? modelContext.fetch(descriptor).first, !local.tasks.isEmpty || !local.isReady {
+          applyResponse(local, shuffleDisplay: displayTasks.isEmpty, resetProgress: displayTasks.isEmpty)
+        } else {
+          screenState = .failed
+        }
       }
     }
   }

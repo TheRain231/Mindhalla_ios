@@ -78,9 +78,11 @@ extension HomeView {
         let (book, tasks) = await (bookRequest, tasksRequest)
         await MainActor.run {
           if let book {
+            try? BookByIdResponse.persist(book, modelContext: self.modelContext)
             self.prefetchedBooksById[bookId] = book
           }
           if let tasks {
+            try? BookTasksResponse.persist(tasks, modelContext: self.modelContext)
             self.prefetchedTasksById[bookId] = tasks
           }
           self.prefetchTaskByBookId.removeValue(forKey: bookId)
@@ -171,6 +173,7 @@ extension HomeView {
         let detail = try await networkManager.getBook(by: bookId)
         print("[Synapps][BookByIdSync] ok, processingStatus=\(detail.processingStatus)")
         updatePlaceholder(id: bookId, with: detail)
+        try? BookByIdResponse.persist(detail, modelContext: modelContext)
         if detail.processingStatus == "done" || detail.processingStatus == "failed" {
           finishTracking(bookId: bookId)
         }
