@@ -5,6 +5,7 @@
 //  Created by Andrey Stepanov on 29.09.2025.
 //
 
+import Kingfisher
 import SwiftData
 import SwiftUI
 
@@ -148,20 +149,10 @@ struct BookOverview: View {
       }
       .clipShape(RoundedRectangle(cornerRadius: 8))
     } else if let cover = book.coverImageUrl {
-      AsyncImage(url: cover) { phase in
-        if let image = phase.image {
-          image
-            .resizable()
-            .scaledToFit()
-        } else if phase.error != nil {
-          Image(systemName: "book.closed")
-            .font(.system(size: 40))
-            .foregroundStyle(.secondary)
-        } else {
-          ProgressView()
-        }
-      }
-      .clipShape(RoundedRectangle(cornerRadius: 8))
+      KFImage(cover)
+        .resizable()
+        .scaledToFit()
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     } else {
       ZStack {
         Color.gray.opacity(0.3)
