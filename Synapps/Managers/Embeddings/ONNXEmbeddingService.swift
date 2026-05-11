@@ -93,7 +93,7 @@ actor ONNXEmbeddingService: EmbeddingService {
       throw EmbeddingError.modelNotFound
     }
     guard let tokenizerURL = Bundle.main.url(forResource: "tokenizer", withExtension: "json", subdirectory: tokenizerFolderName)
-            ?? Bundle.main.url(forResource: "tokenizer", withExtension: "json") else {
+      ?? Bundle.main.url(forResource: "tokenizer", withExtension: "json") else {
       throw EmbeddingError.tokenizerNotFound
     }
     let tokenizerFolder = tokenizerURL.deletingLastPathComponent()
@@ -161,7 +161,9 @@ actor ONNXEmbeddingService: EmbeddingService {
       }
       if count > 0 {
         let inv: Float = 1 / count
-        for h in 0..<hiddenDim { row[h] *= inv }
+        for h in 0..<hiddenDim {
+          row[h] *= inv
+        }
       }
       CosineSimilarity.l2Normalize(&row)
       pooled.append(row)

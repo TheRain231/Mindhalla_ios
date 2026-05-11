@@ -14,9 +14,9 @@ struct MindMapDetailView: View {
 
   // Card leaves are full CardCardView at this width; subtopics/root sized to text.
   private let cardWidth: CGFloat = 170
-  private let cardScale: CGFloat = 0.7      // visually shrink CardCardView to fit graph density
-  private let cardGap: CGFloat = 24         // min space between adjacent cards
-  private let subFanSpread: Double = 110    // angular spread (deg) of cards around a subtopic
+  private let cardScale: CGFloat = 0.7 // visually shrink CardCardView to fit graph density
+  private let cardGap: CGFloat = 24 // min space between adjacent cards
+  private let subFanSpread: Double = 110 // angular spread (deg) of cards around a subtopic
   private let minR1: CGFloat = 180
   private let minR2: CGFloat = 280
 
@@ -162,5 +162,4 @@ struct MindMapDetailView: View {
     .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
     .foregroundStyle(MindMapPalette.primary)
   }
-
 }

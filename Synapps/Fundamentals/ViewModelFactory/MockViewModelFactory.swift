@@ -20,6 +20,7 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
     let service = AutoTaggingService(modelContext: modelContainer.mainContext, clusteringService: clustering)
     return AutoTagScheduler(service: service)
   }()
+
   @MainActor // для mainContext
   let modelContainer: ModelContainer = {
     let schema = Schema([

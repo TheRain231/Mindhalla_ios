@@ -6,7 +6,7 @@ final class MockEmbeddingService: EmbeddingService, @unchecked Sendable {
   private let dim = 64
 
   func embed(_ text: String) async throws -> [Float] {
-    return makeVector(text)
+    makeVector(text)
   }
 
   func embed(batch texts: [String]) async throws -> [[Float]] {

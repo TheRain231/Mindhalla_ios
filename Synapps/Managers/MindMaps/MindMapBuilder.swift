@@ -13,7 +13,7 @@ struct MindMapNode: Identifiable, Hashable {
   let title: String
   let card: Card?
 
-  static func == (lhs: MindMapNode, rhs: MindMapNode) -> Bool { lhs.id == rhs.id }
+  static func ==(lhs: MindMapNode, rhs: MindMapNode) -> Bool { lhs.id == rhs.id }
   func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
@@ -37,7 +37,7 @@ struct MindMap: Identifiable, Hashable {
   let cardCount: Int
   let bookId: String?
 
-  static func == (lhs: MindMap, rhs: MindMap) -> Bool { lhs.id == rhs.id }
+  static func ==(lhs: MindMap, rhs: MindMap) -> Bool { lhs.id == rhs.id }
   func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 

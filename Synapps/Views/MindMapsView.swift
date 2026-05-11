@@ -21,7 +21,7 @@ struct MindMapsView: View {
 
   @ViewBuilder
   private var content: some View {
-    if viewModel.isBuilding && viewModel.sections.isEmpty {
+    if viewModel.isBuilding, viewModel.sections.isEmpty {
       ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
     } else if viewModel.sections.isEmpty {
       VStack(spacing: 12) {
@@ -91,9 +91,9 @@ private struct MindMapPreviewCard: View {
           let r: CGFloat
           let color: Color
           switch node.kind {
-          case .root:     r = 8;   color = MindMapPalette.primary
-          case .subtopic: r = 5;   color = MindMapPalette.secondary
-          case .card:     r = 2.5; color = .gray.opacity(0.7)
+          case .root: r = 8; color = MindMapPalette.primary
+          case .subtopic: r = 5; color = MindMapPalette.secondary
+          case .card: r = 2.5; color = .gray.opacity(0.7)
           }
           let pp = project(p)
           ctx.fill(

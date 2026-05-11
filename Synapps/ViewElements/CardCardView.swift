@@ -71,7 +71,7 @@ private struct WrapHStack: Layout {
   var spacing: CGFloat
   var lineSpacing: CGFloat
 
-  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
     let maxWidth = proposal.width ?? .infinity
     var rowWidth: CGFloat = 0
     var rowHeight: CGFloat = 0
@@ -95,7 +95,7 @@ private struct WrapHStack: Layout {
     return CGSize(width: min(totalWidth, maxWidth), height: totalHeight)
   }
 
-  func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+  func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
     let maxWidth = bounds.width
     var x: CGFloat = bounds.minX
     var y: CGFloat = bounds.minY

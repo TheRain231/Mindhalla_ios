@@ -81,7 +81,7 @@ final class CardClusteringService {
     }
 
     if !missing.isEmpty {
-      let texts = missing.map { $0.card.content }
+      let texts = missing.map(\.card.content)
       let computed = try await embeddingService.embed(batch: texts)
       for (j, pair) in missing.enumerated() {
         let vec = computed[j]

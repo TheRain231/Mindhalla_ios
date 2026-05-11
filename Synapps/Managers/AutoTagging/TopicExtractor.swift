@@ -36,7 +36,7 @@ enum TopicExtractor {
     }
     // Fold a surface to its consonant-ending base ONLY when the base also appears in the corpus
     // and the surface is base + a known oblique suffix. Avoids cross-stem collisions like "компоновщик"/"компромисс".
-    let obliqueSuffixes = ["а","я","у","ю","ом","ой","ем","ей","е","и","ами","ями","ах","ях","ов","ев","ью","ою"]
+    let obliqueSuffixes = ["а", "я", "у", "ю", "ом", "ой", "ем", "ей", "е", "и", "ами", "ями", "ах", "ях", "ов", "ев", "ью", "ою"]
     var canonical: [String: String] = RU_IRREGULAR_LEMMAS
     for tok in allRussianTokens {
       guard let last = tok.last, "аеёиоуыэюя".contains(last) || tok.hasSuffix("ом") || tok.hasSuffix("ой") || tok.hasSuffix("ем") || tok.hasSuffix("ей") || tok.hasSuffix("ами") || tok.hasSuffix("ями") || tok.hasSuffix("ах") || tok.hasSuffix("ях") || tok.hasSuffix("ов") || tok.hasSuffix("ев") || tok.hasSuffix("ью") || tok.hasSuffix("ою") else { continue }
@@ -93,15 +93,21 @@ enum TopicExtractor {
       let dim = vectors[0].count
       var centroid = [Float](repeating: 0, count: dim)
       for v in vectors where v.count == dim {
-        for h in 0..<dim { centroid[h] += v[h] }
+        for h in 0..<dim {
+          centroid[h] += v[h]
+        }
       }
       let inv = 1 / Float(vectors.count)
-      for h in 0..<dim { centroid[h] *= inv }
+      for h in 0..<dim {
+        centroid[h] *= inv
+      }
       CosineSimilarity.l2Normalize(&centroid)
 
       var clusterDF: [String: Int] = [:]
       for set in docs {
-        for term in set { clusterDF[term, default: 0] += 1 }
+        for term in set {
+          clusterDF[term, default: 0] += 1
+        }
       }
       let clusterSize = max(docs.count, 1)
       let minDF = clusterSize >= 5 ? 2 : 1
@@ -206,7 +212,9 @@ enum TopicExtractor {
 
     var out: [String] = []
     for run in runs {
-      for tok in run where tok.isNoun { out.append(tok.surface) }
+      for tok in run where tok.isNoun {
+        out.append(tok.surface)
+      }
       if run.count >= 2 {
         for i in 0..<(run.count - 1) {
           let a = run[i], b = run[i + 1]
@@ -225,7 +233,7 @@ enum TopicExtractor {
     guard t.count >= 3 else { return false }
     if STOPWORDS_EN.contains(t) || STOPWORDS_RU.contains(t) { return false }
     if EN_VERBS.contains(t) { return false }
-    if !t.contains(where: { $0.isLetter }) { return false }
+    if !t.contains(where: \.isLetter) { return false }
     // English -ing / -ed forms (gerunds, participles) — block when long enough to avoid "ring", "thing".
     if tokenScript(t) == .latin, t.count >= 6 {
       if t.hasSuffix("ing") || t.hasSuffix("ed") { return false }
@@ -237,11 +245,13 @@ enum TopicExtractor {
   private static func looksAdjectiveRussian(_ word: String) -> Bool {
     guard word.count >= 4 else { return false }
     let endings = [
-      "ыми","ими","ого","его","ому","ему","ую","юю",
-      "ый","ий","ой","ая","яя","ое","ее","ые","ие",
-      "ым","им","ых","их"
+      "ыми", "ими", "ого", "его", "ому", "ему", "ую", "юю",
+      "ый", "ий", "ой", "ая", "яя", "ое", "ее", "ые", "ие",
+      "ым", "им", "ых", "их",
     ]
-    for end in endings where word.hasSuffix(end) && word.count > end.count + 1 { return true }
+    for end in endings where word.hasSuffix(end) && word.count > end.count + 1 {
+      return true
+    }
     return false
   }
 
@@ -250,30 +260,62 @@ enum TopicExtractor {
   private static func isObliqueRussian(_ word: String) -> Bool {
     guard word.count >= 4 else { return false }
     let strongOblique = [
-      "ями","ами","ях","ах","ой","ом","ей","ою","ью",
-      "ии","иям","иях","иями","ев","ов"
+      "ями", "ами", "ях", "ах", "ой", "ом", "ей", "ою", "ью",
+      "ии", "иям", "иях", "иями", "ев", "ов",
     ]
-    for end in strongOblique where word.hasSuffix(end) && word.count > end.count + 1 { return true }
+    for end in strongOblique where word.hasSuffix(end) && word.count > end.count + 1 {
+      return true
+    }
     // Short oblique vowels: -и, -е, -у, -ю at the end (genitive sg, dative/locative, accusative fem).
     // Excludes -ия/-ие which can be nominative neuter (e.g. "решение") — handled above.
-    if let last = word.last, ["и","е","у","ю"].contains(String(last)) { return true }
+    if let last = word.last, ["и", "е", "у", "ю"].contains(String(last)) { return true }
     return false
   }
 
   /// Backup verb detector for Russian — NLTagger sometimes tags conjugated forms as nouns.
   private static func looksVerbalRussian(_ word: String) -> Bool {
     if word.hasSuffix("ться") || word.hasSuffix("ть") { return true }
-    let reflexive = ["ются","ятся","ится","ется","ётся","ишься","ешься","ёшься","лся","лась","лось","лись"]
-    for end in reflexive where word.hasSuffix(end) && word.count > end.count { return true }
+    let reflexive = ["ются", "ятся", "ится", "ется", "ётся", "ишься", "ешься", "ёшься", "лся", "лась", "лось", "лись"]
+    for end in reflexive where word.hasSuffix(end) && word.count > end.count {
+      return true
+    }
     // Gerunds (деепричастия): "увеличивая", "делая", "читая", "сделав", "уйдя".
-    let gerunds = ["вая","ивая","ывая","уя","юя","вши","вшись","ючи","учи"]
-    for end in gerunds where word.hasSuffix(end) && word.count > end.count + 1 { return true }
+    let gerunds = ["вая", "ивая", "ывая", "уя", "юя", "вши", "вшись", "ючи", "учи"]
+    for end in gerunds where word.hasSuffix(end) && word.count > end.count + 1 {
+      return true
+    }
     guard word.count >= 5 else { return false }
-    let present = ["ишь","ёшь","ешь","ете","ёте","ите","ают","яют","уют","юют","ует","ьет",
-                   "ют","ут","ят","ат","ит","ет","ёт","ем","им","ём"]
-    for end in present where word.hasSuffix(end) { return true }
-    let past = ["ал","ял","ел","ил","ыл","ул"]
-    for end in past where word.hasSuffix(end) { return true }
+    let present = [
+      "ишь",
+      "ёшь",
+      "ешь",
+      "ете",
+      "ёте",
+      "ите",
+      "ают",
+      "яют",
+      "уют",
+      "юют",
+      "ует",
+      "ьет",
+      "ют",
+      "ут",
+      "ят",
+      "ат",
+      "ит",
+      "ет",
+      "ёт",
+      "ем",
+      "им",
+      "ём",
+    ]
+    for end in present where word.hasSuffix(end) {
+      return true
+    }
+    let past = ["ал", "ял", "ел", "ил", "ыл", "ул"]
+    for end in past where word.hasSuffix(end) {
+      return true
+    }
     return false
   }
 
@@ -316,23 +358,23 @@ private let RU_IRREGULAR_LEMMAS: [String: String] = [
   "детей": "дети",
   "детям": "дети",
   "детьми": "дети",
-  "детях": "дети"
+  "детях": "дети",
 ]
 
 private let EN_VERBS: Set<String> = [
-  "consists","contains","computes","depends","shows","means","represents","generates","increases","decreases",
-  "includes","provides","returns","creates","makes","gives","takes","sends","receives","calls","sets","gets",
-  "adds","removes","deletes","updates","reads","writes","stores","loads","initializes","destroys","starts","stops",
-  "uses","using","builds","runs","handles","performs","executes","accepts","rejects","emits","fires","triggers",
-  "subscribes","publishes","wraps","unwraps","maps","filters","reduces","collects","produces","consumes"
+  "consists", "contains", "computes", "depends", "shows", "means", "represents", "generates", "increases", "decreases",
+  "includes", "provides", "returns", "creates", "makes", "gives", "takes", "sends", "receives", "calls", "sets", "gets",
+  "adds", "removes", "deletes", "updates", "reads", "writes", "stores", "loads", "initializes", "destroys", "starts", "stops",
+  "uses", "using", "builds", "runs", "handles", "performs", "executes", "accepts", "rejects", "emits", "fires", "triggers",
+  "subscribes", "publishes", "wraps", "unwraps", "maps", "filters", "reduces", "collects", "produces", "consumes",
 ]
 
 private let STOPWORDS_EN: Set<String> = [
-  "the","a","an","and","or","but","if","then","else","when","while","of","in","on","at","by","for","to","from","with","about","into","through","during","before","after","above","below","up","down","out","off","over","under","again","further","is","am","are","was","were","be","been","being","have","has","had","having","do","does","did","doing","this","that","these","those","i","you","he","she","it","we","they","them","their","our","my","your","his","her","its","what","which","who","whom","why","how","all","any","both","each","few","more","most","other","some","such","no","nor","not","only","own","same","so","than","too","very","can","will","just","should","now","one","two","three","thing","things","way","ways","time","times","day","days","year","years","people","person","man","men","woman","women","child","children","life","world","place","work","fact","kind","sort","point","case","part","side","end","beginning","matter","reason","result","example","instance","number","amount","level","group","type","form","sense","idea","meaning","value","experience","feeling","important","good","bad","new","old","big","small","high","low","right","wrong"
+  "the", "a", "an", "and", "or", "but", "if", "then", "else", "when", "while", "of", "in", "on", "at", "by", "for", "to", "from", "with", "about", "into", "through", "during", "before", "after", "above", "below", "up", "down", "out", "off", "over", "under", "again", "further", "is", "am", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "this", "that", "these", "those", "i", "you", "he", "she", "it", "we", "they", "them", "their", "our", "my", "your", "his", "her", "its", "what", "which", "who", "whom", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "can", "will", "just", "should", "now", "one", "two", "three", "thing", "things", "way", "ways", "time", "times", "day", "days", "year", "years", "people", "person", "man", "men", "woman", "women", "child", "children", "life", "world", "place", "work", "fact", "kind", "sort", "point", "case", "part", "side", "end", "beginning", "matter", "reason", "result", "example", "instance", "number", "amount", "level", "group", "type", "form", "sense", "idea", "meaning", "value", "experience", "feeling", "important", "good", "bad", "new", "old", "big", "small", "high", "low", "right", "wrong",
 ]
 
 private let STOPWORDS_RU: Set<String> = [
-  "и","в","во","не","что","он","она","они","оно","на","я","с","со","как","а","то","все","так","его","но","да","ты","к","у","же","вы","за","бы","по","только","ее","мне","было","вот","от","меня","еще","нет","о","из","ему","теперь","когда","даже","ну","вдруг","ли","если","уже","или","ни","быть","был","него","до","вас","нибудь","опять","уж","вам","ведь","там","потом","себя","ничего","ей","может","тут","где","есть","надо","ней","для","мы","тебя","их","чем","была","сам","чтоб","без","будто","чего","раз","тоже","себе","под","будет","ж","тогда","кто","этот","того","потому","этого","какой","совсем","ним","здесь","этом","один","почти","мой","тем","чтобы","нее","сейчас","были","куда","зачем","всех","никогда","можно","при","наконец","два","об","другой","хоть","после","над","больше","тот","через","эти","нас","про","всего","них","какая","много","разве","три","эту","моя","впрочем","хорошо","свою","этой","перед","иногда","лучше","чуть","нельзя","такой","им","более","всегда","конечно","всю","между","например","словно","вместо","вдруг","точно","примерно","итак","разновидности","предположим","допустим",
-  "это","этот","эта","эти","того","тот","та","те","такой","такая","такое","такие","какой","какая","какое","какие","любой","любая","любое","любые","весь","вся","всё","все","сам","сама","само","сами","свой","своя","своё","свои","мой","моя","моё","мои","твой","твоя","твоё","твои","наш","наша","наше","наши","ваш","ваша","ваше","ваши",
-  "который","которая","которое","которые","которого","которой","которыми","которым","которых","котором","которому","которую"
+  "и", "в", "во", "не", "что", "он", "она", "они", "оно", "на", "я", "с", "со", "как", "а", "то", "все", "так", "его", "но", "да", "ты", "к", "у", "же", "вы", "за", "бы", "по", "только", "ее", "мне", "было", "вот", "от", "меня", "еще", "нет", "о", "из", "ему", "теперь", "когда", "даже", "ну", "вдруг", "ли", "если", "уже", "или", "ни", "быть", "был", "него", "до", "вас", "нибудь", "опять", "уж", "вам", "ведь", "там", "потом", "себя", "ничего", "ей", "может", "тут", "где", "есть", "надо", "ней", "для", "мы", "тебя", "их", "чем", "была", "сам", "чтоб", "без", "будто", "чего", "раз", "тоже", "себе", "под", "будет", "ж", "тогда", "кто", "этот", "того", "потому", "этого", "какой", "совсем", "ним", "здесь", "этом", "один", "почти", "мой", "тем", "чтобы", "нее", "сейчас", "были", "куда", "зачем", "всех", "никогда", "можно", "при", "наконец", "два", "об", "другой", "хоть", "после", "над", "больше", "тот", "через", "эти", "нас", "про", "всего", "них", "какая", "много", "разве", "три", "эту", "моя", "впрочем", "хорошо", "свою", "этой", "перед", "иногда", "лучше", "чуть", "нельзя", "такой", "им", "более", "всегда", "конечно", "всю", "между", "например", "словно", "вместо", "вдруг", "точно", "примерно", "итак", "разновидности", "предположим", "допустим",
+  "это", "этот", "эта", "эти", "того", "тот", "та", "те", "такой", "такая", "такое", "такие", "какой", "какая", "какое", "какие", "любой", "любая", "любое", "любые", "весь", "вся", "всё", "все", "сам", "сама", "само", "сами", "свой", "своя", "своё", "свои", "мой", "моя", "моё", "мои", "твой", "твоя", "твоё", "твои", "наш", "наша", "наше", "наши", "ваш", "ваша", "ваше", "ваши",
+  "который", "которая", "которое", "которые", "которого", "которой", "которыми", "которым", "которых", "котором", "которому", "которую",
 ]
