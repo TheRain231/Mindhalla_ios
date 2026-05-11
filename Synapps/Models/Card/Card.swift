@@ -13,6 +13,7 @@ enum CardType: String, Codable, CaseIterable {
   case thesis
   case concept
   case idea
+  case quote
   case question
   case answer
   case insight
@@ -64,6 +65,8 @@ extension CardType {
       [Color(UIColor(red: 228 / 255, green: 221 / 255, blue: 234 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 243 / 255, blue: 243 / 255, alpha: 1.0))]
     case .idea:
       [Color(UIColor(red: 245 / 255, green: 237 / 255, blue: 227 / 255, alpha: 1.0)), Color(UIColor(red: 243 / 255, green: 241 / 255, blue: 238 / 255, alpha: 1.0))]
+    case .quote:
+      [Color(UIColor(red: 224 / 255, green: 228 / 255, blue: 234 / 255, alpha: 1.0)), Color(UIColor(red: 240 / 255, green: 241 / 255, blue: 243 / 255, alpha: 1.0))]
     case .question:
       [Color(UIColor(red: 220 / 255, green: 225 / 255, blue: 240 / 255, alpha: 1.0)), Color(UIColor(red: 240 / 255, green: 240 / 255, blue: 243 / 255, alpha: 1.0))]
     case .answer:
@@ -89,6 +92,8 @@ extension CardType {
       "CardType.Concept"
     case .idea:
       "CardType.Idea"
+    case .quote:
+      "CardType.Quote"
     case .question:
       "CardType.Question"
     case .answer:
@@ -116,6 +121,8 @@ extension CardType {
       Color(hex: "B785C6")
     case .idea:
       Color(hex: "E6A63F")
+    case .quote:
+      Color(hex: "8E9BAD")
     case .question:
       Color(hex: "DCE1F0")
     case .answer:

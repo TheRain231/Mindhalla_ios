@@ -14,6 +14,7 @@ extension CardsView {
     let cardID: String
     let networkManager: NetworkManagerProtocol
     let modelContext: ModelContext
+    let autoTagScheduler: AutoTagScheduler
     private let prefetchedBook: BookByIdResponse?
 
     @Published var cards: [Card]
@@ -22,11 +23,12 @@ extension CardsView {
     @Published var isSaveViewPresented: Bool = false
     @Published var isSavedMessageVisible: Bool = false
 
-    init(cardID: String, networkManager: NetworkManagerProtocol, modelContext: ModelContext, prefetchedBook: BookByIdResponse? = nil) {
+    init(cardID: String, networkManager: NetworkManagerProtocol, modelContext: ModelContext, prefetchedBook: BookByIdResponse? = nil, autoTagScheduler: AutoTagScheduler) {
       self.cardID = cardID
       self.networkManager = networkManager
       self.modelContext = modelContext
       self.prefetchedBook = prefetchedBook
+      self.autoTagScheduler = autoTagScheduler
 
       self.cards = [] // Обязательно вызвать fetch() на onAppear
       self.topCardIndex = 0
@@ -78,6 +80,7 @@ extension CardsView {
       return try await networkManager.getBook(by: cardID)
     }
 
+    @MainActor
     func saveCard(_ card: Card) {
       let targetId = card.id
       let predicate = #Predicate<Card> { $0.id == targetId }

@@ -25,6 +25,12 @@ struct ContentView: View {
           Text("saved_books")
         }
         .tag(TabItem.saved)
+      MindMapsView(viewModel: factory.createMindMapsViewModel())
+        .tabItem {
+          Image(systemName: "brain")
+          Text("mind_maps")
+        }
+        .tag(TabItem.mindmaps)
       ProfileView()
         .tabItem {
           Image(systemName: "person")

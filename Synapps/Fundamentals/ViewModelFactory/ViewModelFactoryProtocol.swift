@@ -10,6 +10,8 @@ import SwiftUI
 
 protocol ViewModelFactoryProtocol: AnyObject {
   var modelContainer: ModelContainer { get }
+  var embeddingService: EmbeddingService { get }
+  @MainActor var autoTagScheduler: AutoTagScheduler { get }
 
   func createContentViewModel() -> ContentView.ViewModel
   func createCardsViewModel(cardID: String, prefetchedBook: BookByIdResponse?) -> CardsView.ViewModel
@@ -19,4 +21,6 @@ protocol ViewModelFactoryProtocol: AnyObject {
   func createQuizViewModel() -> QuizView.ViewModel
   func createQuoteCollectionCardsViewModel() -> QuoteCollectionCardsViewModel
   func createSaveBottomsheetViewModel(card: Card) -> SaveBottomsheetViewModel
+  @MainActor func createCardClusteringService() -> CardClusteringService
+  @MainActor func createMindMapsViewModel() -> MindMapsView.ViewModel
 }

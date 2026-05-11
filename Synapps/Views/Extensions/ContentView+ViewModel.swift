@@ -28,5 +28,6 @@ extension ContentView {
 enum TabItem {
   case home
   case saved
+  case mindmaps
   case profile
 }

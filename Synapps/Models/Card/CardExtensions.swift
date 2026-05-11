@@ -23,6 +23,8 @@ extension Card {
       .purple
     case .idea:
       .orange
+    case .quote:
+      .gray
     case .question:
       .indigo
     case .answer:
@@ -132,6 +134,14 @@ extension Card {
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c912", type: "system", name: "some-tag-2", description: "some description 2"),
           .init(id: "f8f4b3cc-ef8d-46f9-823f-89afae30c913", type: "system", name: "some-tag-3", description: "some description 3"),
         ]
+      )
+    case .quote:
+      Card(
+        id: "qt-mock-1",
+        type: .quote,
+        content: "Не наши способности определяют, кто мы, а наш выбор.",
+        references: .init(pages: [92], originalTexts: ["It is our choices, Harry, that show what we truly are..."], chapterTitle: "The Sorting Hat"),
+        tags: [.init(id: "qt-tag-1", type: "system", name: "quote", description: "Direct quote from the text")]
       )
     case .question:
       Card(

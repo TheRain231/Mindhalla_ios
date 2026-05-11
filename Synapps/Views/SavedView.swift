@@ -46,6 +46,12 @@ struct SavedView: View {
         ToolbarItem(placement: .confirmationAction) {
           if viewModel.pickerState == .collections {
             addButton
+          } else {
+            Button {
+              factory.autoTagScheduler.runImmediately()
+            } label: {
+              Image(systemName: "wand.and.stars")
+            }
           }
         }
       }
@@ -120,7 +126,7 @@ extension SavedView {
     let filtered = viewModel.filteredCards(from: cards)
     return VStack {
       cardSearchField
-      chipsRow(cardTypes: viewModel.presentTypes(from: cards))
+      chipsRow(cardTypes: viewModel.presentTypes(from: cards), autoTags: viewModel.presentAutoTags(from: cards))
       if cards.isEmpty {
         EmptyStateView(
           icon: "rectangle.on.rectangle",
@@ -148,54 +154,81 @@ extension SavedView {
     }
   }
 
-  private func chipsRow(cardTypes: [CardType]) -> some View {
-    ScrollView(.horizontal, showsIndicators: false) {
-      HStack(spacing: 8) {
-        if let bookId = viewModel.bookIdFilter,
-           let book = allBooks.first(where: { $0.id == bookId }) {
-          Button { viewModel.clearBookFilter() } label: {
-            HStack(spacing: 4) {
-              Image(systemName: "bookmark.fill")
-              Text(book.title).lineLimit(1)
-              Image(systemName: "xmark")
-                .font(.system(size: 10, weight: .semibold))
-            }
-            .font(.system(size: 13, weight: .medium))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(Capsule().fill(Color(hex: "9B60E9")))
-          }
-          .buttonStyle(.plain)
-        }
-
-        ForEach(SortFilter.allCases) { filter in
-          let isSelected = viewModel.sortFilter == filter
-          Button { viewModel.toggleSortFilter(filter) } label: {
-            Text(filter.localizedTitle)
-              .font(.system(size: 13, weight: .medium))
-              .foregroundStyle(isSelected ? .white : .primary)
-              .padding(.horizontal, 12)
-              .padding(.vertical, 7)
-              .background(Capsule().fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5)))
-          }
-          .buttonStyle(.plain)
-        }
-
-        ForEach(cardTypes, id: \.self) { type in
-          Button { viewModel.toggleTypeFilter(type) } label: {
-            Text(type.localizedName)
+  private func chipsRow(cardTypes: [CardType], autoTags: [String]) -> some View {
+    VStack(spacing: 0) {
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: 8) {
+          if let bookId = viewModel.bookIdFilter,
+             let book = allBooks.first(where: { $0.id == bookId }) {
+            Button { viewModel.clearBookFilter() } label: {
+              HStack(spacing: 4) {
+                Image(systemName: "bookmark.fill")
+                Text(book.title).lineLimit(1)
+                Image(systemName: "xmark")
+                  .font(.system(size: 10, weight: .semibold))
+              }
               .font(.system(size: 13, weight: .medium))
               .foregroundStyle(.white)
               .padding(.horizontal, 12)
               .padding(.vertical, 7)
-              .background(Capsule().fill(CardType.typeColor(for: type)))
+              .background(Capsule().fill(Color(hex: "9B60E9")))
+            }
+            .buttonStyle(.plain)
           }
-          .buttonStyle(.plain)
+
+          ForEach(SortFilter.allCases) { filter in
+            let isSelected = viewModel.sortFilter == filter
+            Button { viewModel.toggleSortFilter(filter) } label: {
+              Text(filter.localizedTitle)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Capsule().fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5)))
+            }
+            .buttonStyle(.plain)
+          }
+
+          ForEach(cardTypes, id: \.self) { type in
+            Button { viewModel.toggleTypeFilter(type) } label: {
+              Text(type.localizedName)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Capsule().fill(CardType.typeColor(for: type)))
+            }
+            .buttonStyle(.plain)
+          }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+      }
+
+      if !autoTags.isEmpty {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 8) {
+            ForEach(autoTags, id: \.self) { tag in
+              let isSelected = viewModel.selectedAutoTag == tag
+              Button { viewModel.toggleAutoTag(tag) } label: {
+                HStack(spacing: 4) {
+                  Image(systemName: "sparkles")
+                    .font(.system(size: 11, weight: .semibold))
+                  Text(tag)
+                }
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Capsule().fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5)))
+              }
+              .buttonStyle(.plain)
+            }
+          }
+          .padding(.horizontal)
+          .padding(.bottom, 6)
         }
       }
-      .padding(.horizontal)
-      .padding(.vertical, 6)
     }
   }
 

@@ -12,6 +12,15 @@ import SwiftUI
 #if DEBUG
 final class MockViewModelFactory: ViewModelFactoryProtocol {
   let networkManager: NetworkManagerProtocol = MockNetworkManager()
+  let embeddingService: EmbeddingService = MockEmbeddingService()
+
+  @MainActor
+  private(set) lazy var autoTagScheduler: AutoTagScheduler = {
+    let clustering = CardClusteringService(modelContext: modelContainer.mainContext, embeddingService: embeddingService)
+    let service = AutoTaggingService(modelContext: modelContainer.mainContext, clusteringService: clustering)
+    return AutoTagScheduler(service: service)
+  }()
+
   @MainActor // для mainContext
   let modelContainer: ModelContainer = {
     let schema = Schema([
@@ -56,7 +65,7 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createCardsViewModel(cardID: String, prefetchedBook: BookByIdResponse? = nil) -> CardsView.ViewModel {
-    CardsView.ViewModel(cardID: cardID, networkManager: networkManager, modelContext: modelContainer.mainContext, prefetchedBook: prefetchedBook)
+    CardsView.ViewModel(cardID: cardID, networkManager: networkManager, modelContext: modelContainer.mainContext, prefetchedBook: prefetchedBook, autoTagScheduler: autoTagScheduler)
   }
 
   @MainActor
@@ -91,7 +100,19 @@ final class MockViewModelFactory: ViewModelFactoryProtocol {
 
   @MainActor
   func createSaveBottomsheetViewModel(card: Card) -> SaveBottomsheetViewModel {
-    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext, card: card)
+    SaveBottomsheetViewModel(modelContext: modelContainer.mainContext, card: card, autoTagScheduler: autoTagScheduler)
+  }
+
+  @MainActor
+  func createCardClusteringService() -> CardClusteringService {
+    CardClusteringService(modelContext: modelContainer.mainContext, embeddingService: embeddingService)
+  }
+
+  @MainActor
+  func createMindMapsViewModel() -> MindMapsView.ViewModel {
+    let clustering = CardClusteringService(modelContext: modelContainer.mainContext, embeddingService: embeddingService)
+    let builder = MindMapBuilder(clusteringService: clustering)
+    return MindMapsView.ViewModel(builder: builder)
   }
 }
 #endif

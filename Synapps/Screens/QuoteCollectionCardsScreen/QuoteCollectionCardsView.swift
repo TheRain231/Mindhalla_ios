@@ -26,10 +26,7 @@ struct QuoteCollectionCardsView: View {
   var body: some View {
     VStack {
       searchField
-      CardTypePaginationView(
-        cardTypes: viewModel.presentTypes,
-        onTap: viewModel.toggleTypeFilter
-      )
+      chipsRow
       Group {
         if viewModel.cards.isEmpty {
           EmptyStateView(
@@ -114,6 +111,65 @@ struct QuoteCollectionCardsView: View {
 }
 
 extension QuoteCollectionCardsView {
+  private var chipsRow: some View {
+    VStack(spacing: 0) {
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: 8) {
+          ForEach(CollectionSortFilter.allCases) { filter in
+            let isSelected = viewModel.sortFilter == filter
+            Button { viewModel.toggleSortFilter(filter) } label: {
+              Text(filter.localizedTitle)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Capsule().fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5)))
+            }
+            .buttonStyle(.plain)
+          }
+          ForEach(viewModel.presentTypes, id: \.self) { type in
+            Button { viewModel.toggleTypeFilter(type) } label: {
+              Text(type.localizedName)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Capsule().fill(CardType.typeColor(for: type)))
+            }
+            .buttonStyle(.plain)
+          }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+      }
+
+      if !viewModel.presentAutoTags.isEmpty {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 8) {
+            ForEach(viewModel.presentAutoTags, id: \.self) { tag in
+              let isSelected = viewModel.selectedAutoTag == tag
+              Button { viewModel.toggleAutoTag(tag) } label: {
+                HStack(spacing: 4) {
+                  Image(systemName: "sparkles")
+                    .font(.system(size: 11, weight: .semibold))
+                  Text(tag)
+                }
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Capsule().fill(isSelected ? Color(hex: "9B60E9") : Color(.systemGray5)))
+              }
+              .buttonStyle(.plain)
+            }
+          }
+          .padding(.horizontal)
+          .padding(.bottom, 6)
+        }
+      }
+    }
+  }
+
   private var searchField: some View {
     HStack {
       Image(systemName: "magnifyingglass")
