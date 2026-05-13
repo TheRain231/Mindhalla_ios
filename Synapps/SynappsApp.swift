@@ -9,12 +9,20 @@ import SwiftData
 import SwiftUI
 import UserNotifications
 
+#if DEBUG
+import Atlantis
+#endif
+
 @main
 struct SynappsApp: App {
   let viewModelFactory: ViewModelFactoryProtocol
   let contentViewModel: ContentView.ViewModel
 
   init() {
+    #if DEBUG
+    Atlantis.start()
+    #endif
+
     viewModelFactory = ViewModelFactory()
     contentViewModel = viewModelFactory.createContentViewModel()
   }

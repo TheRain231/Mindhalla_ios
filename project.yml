@@ -20,6 +20,9 @@ packages:
   swift-transformers:
     url: https://github.com/huggingface/swift-transformers
     from: 0.1.17
+  Atlantis:
+    url: https://github.com/ProxymanApp/atlantis
+    from: 1.24.0
 settings:
   base:
     GENERATE_INFOPLIST_FILE: NO
@@ -56,6 +59,7 @@ targets:
         product: onnxruntime
       - package: swift-transformers
         product: Transformers
+      - package: Atlantis
       - target: QuotesWidgetExtension
         embed: true
   QuotesWidgetExtension:

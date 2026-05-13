@@ -93,6 +93,9 @@ extension HomeView {
     func onAddBookCompletion(result: Result<URL, Error>) {
       switch result {
       case let .success(url):
+        guard url.startAccessingSecurityScopedResource() else {
+          return
+        }
         let selectedFilename = url.lastPathComponent
         guard !isDuplicate(filename: selectedFilename) else {
           showDuplicateBookAlert = true
@@ -100,6 +103,9 @@ extension HomeView {
         }
         lastUploadURL = url
         Task { @MainActor in
+          defer {
+            url.stopAccessingSecurityScopedResource()
+          }
           uploadState = .loading
           do {
             let uploadInfo = try await networkManager.uploadBook(url)
