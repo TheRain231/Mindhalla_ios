@@ -16,7 +16,7 @@ final class AutoTaggingService {
 
   func runFullPass() async throws {
     print("[AutoTag v6] runFullPass start (mean-link clustering + KeyBERT-style topics)")
-    let descriptor = FetchDescriptor<Card>()
+    let descriptor = FetchDescriptor<Card>(predicate: #Predicate { $0.savedAt != nil })
     let cards = (try? modelContext.fetch(descriptor)) ?? []
     print("[AutoTag] fetched \(cards.count) cards")
     guard cards.count >= 2 else {

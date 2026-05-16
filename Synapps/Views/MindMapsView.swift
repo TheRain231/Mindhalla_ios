@@ -4,7 +4,7 @@ import SwiftUI
 struct MindMapsView: View {
   @Environment(\.viewModelFactory) var factory
   @ObservedObject var viewModel: ViewModel
-  @Query var cards: [Card]
+  @Query(filter: #Predicate<Card> { $0.savedAt != nil }) var cards: [Card]
 
   var body: some View {
     NavigationStack {
