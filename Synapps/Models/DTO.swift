@@ -202,6 +202,10 @@ struct ValidationErrorDTO: Codable {
   let type: String
 }
 
+struct ErrorDetailDTO: Codable {
+  let detail: String?
+}
+
 // MARK: - Other
 
 struct AuthTokenResponseDTO: Codable {
