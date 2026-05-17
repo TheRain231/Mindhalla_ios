@@ -117,6 +117,7 @@ targets:
           - AppGroupIdentifier.swift
           - BookFileFormat.swift
           - PendingUploadStore.swift
+      - path: Synapps/Localizable.xcstrings
     entitlements:
       path: SynappsShareExtension/SynappsShareExtension.entitlements
       properties:
