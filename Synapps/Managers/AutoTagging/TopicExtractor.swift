@@ -222,7 +222,13 @@ enum TopicExtractor {
           guard a.isAdj || a.isNoun else { continue }
           let sa = tokenScript(a.surface), sb = tokenScript(b.surface)
           if sa != .other, sb != .other, sa != sb { continue }
-          out.append("\(a.surface) \(b.surface)")
+          let aSurface: String
+          if a.isAdj, sa == .cyrillic, sb == .cyrillic {
+            aSurface = agreeRussianAdjective(a.surface, with: b.surface)
+          } else {
+            aSurface = a.surface
+          }
+          out.append("\(aSurface) \(b.surface)")
         }
       }
     }
@@ -239,6 +245,63 @@ enum TopicExtractor {
       if t.hasSuffix("ing") || t.hasSuffix("ed") { return false }
     }
     return true
+  }
+
+  // MARK: - Adjective–noun agreement (Russian)
+
+  private enum RussianGender { case masculine, feminine, neuter }
+
+  /// Грубая эвристика рода по окончанию существительного в начальной форме (после лемматизации).
+  /// Покрывает основной случай: -а/-я → ж, -о/-е/-ё → ср, остальное → м.
+  /// Слова на -ь (день/ночь) считаем мужскими — без словаря не различить.
+  private static func russianNounGender(_ noun: String) -> RussianGender {
+    guard let last = noun.last else { return .masculine }
+    switch last {
+    case "а", "я": return .feminine
+    case "о", "е", "ё": return .neuter
+    default: return .masculine
+    }
+  }
+
+  /// Меняет окончание прилагательного м.р. на согласованное с родом существительного.
+  /// Лемма NLTagger всегда даёт м.р. им.п. (-ый/-ий/-ой), что после склейки с леммой
+  /// существительного даёт нелепые "математический статистика". Корректируем:
+  ///   математический + статистика → математическая статистика
+  ///   арестантский   + дело        → арестантское дело
+  ///   синий          + море        → синее море
+  private static func agreeRussianAdjective(_ adj: String, with noun: String) -> String {
+    let gender = russianNounGender(noun)
+    guard gender != .masculine else { return adj }
+
+    func replaceSuffix(_ old: String, with new: String) -> String? {
+      guard adj.hasSuffix(old), adj.count > old.count else { return nil }
+      return String(adj.dropLast(old.count)) + new
+    }
+
+    // -ой (молодой, дорогой) — всегда hard stem: молодой → молодая/молодое.
+    if let r = replaceSuffix("ой", with: gender == .feminine ? "ая" : "ое") { return r }
+    // -ый — hard stem: новый → новая/новое.
+    if let r = replaceSuffix("ый", with: gender == .feminine ? "ая" : "ое") { return r }
+    // -ий — три варианта в зависимости от предпоследнего согласного:
+    //   • шипящие (ж/ш/ч/щ) и ц: ж.р. -ая, ср.р. -ее (правило «о/е после шипящих»
+    //     в безударной позиции: хороший → хорошее, общий → общее, рыжий → рыжее).
+    //     Ударные исключения типа «большой» идут через -ой и обрабатываются выше.
+    //   • hard velar (г/к/х): ж.р. -ая, ср.р. -ое (русский → русское, тихий → тихое).
+    //   • soft stem (остальные согласные): ж.р. -яя, ср.р. -ее (синий → синее, средний → среднее).
+    if adj.hasSuffix("ий"), adj.count > 2 {
+      let beforeIy = adj.dropLast(2).last
+      let stem = String(adj.dropLast(2))
+      if let bl = beforeIy {
+        if "жшчщц".contains(bl) {
+          return stem + (gender == .feminine ? "ая" : "ее")
+        }
+        if "гкх".contains(bl) {
+          return stem + (gender == .feminine ? "ая" : "ое")
+        }
+      }
+      return stem + (gender == .feminine ? "яя" : "ее")
+    }
+    return adj
   }
 
   /// Detects Russian adjective surface endings — used to reclassify tokens NLTagger mis-tags as nouns.

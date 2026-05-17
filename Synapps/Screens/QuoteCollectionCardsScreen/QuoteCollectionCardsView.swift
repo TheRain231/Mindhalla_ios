@@ -61,9 +61,14 @@ struct QuoteCollectionCardsView: View {
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
           Menu {
-//              ShareLink(item: sharePayload(for: quoteCollection)) {
-//                Label("Поделиться", systemImage: "square.and.arrow.up")
-//              }
+            if let url = try? SynappsBundleExporter.export(collection: quoteCollection, cards: viewModel.cards) {
+              ShareLink(
+                item: url,
+                preview: SharePreview(quoteCollection.title, image: Image("AppIcon"))
+              ) {
+                Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
+              }
+            }
             Button(role: .destructive) {
               viewModel.showDeleteCollectionConfirmation = true
             } label: {
@@ -187,10 +192,13 @@ extension QuoteCollectionCardsView {
   private func cardRow(card: Card) -> some View {
     CardCardView(card: card)
       .contextMenu {
-        Button {
-          // TODO: airdrop?
-        } label: {
-          Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
+        if let url = try? SynappsBundleExporter.export(card: card) {
+          ShareLink(
+            item: url,
+            preview: SharePreview(card.content.prefix(60).description, image: Image("AppIcon"))
+          ) {
+            Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
+          }
         }
 
         Button {

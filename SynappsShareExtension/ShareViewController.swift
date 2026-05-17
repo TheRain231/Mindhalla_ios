@@ -44,7 +44,7 @@ final class ShareViewController: UIViewController {
       }
     }
 
-    await presentError("Поделитесь файлом в формате PDF, EPUB или FB2.")
+    await presentError(String(localized: "Share.Error.UnsupportedFormat"))
   }
 
   private func matchingFormat(in provider: NSItemProvider) -> BookFileFormat? {
@@ -91,7 +91,7 @@ final class ShareViewController: UIViewController {
         return BookFileFormat.detect(from: head)
       }()
       guard let format = byExtension ?? byMagic else {
-        await presentError("Не удалось определить формат локального файла.")
+        await presentError(String(localized: "Share.Error.LocalUnknownFormat"))
         return true
       }
       return await enqueueAndComplete(sourceURL: webURL, displayFilename: webURL.lastPathComponent, format: format)
@@ -116,14 +116,14 @@ final class ShareViewController: UIViewController {
       guard let format else {
         try? FileManager.default.removeItem(at: downloadURL)
         let hint = "Content-Type: \(contentType)"
-        await presentError("Не удалось определить формат файла (\(hint)). Поддерживаются PDF, EPUB, FB2.")
+        await presentError(String(format: String(localized: "Share.Error.UnknownFormat"), hint))
         return true
       }
       let displayName = suggested.isEmpty ? "book.\(format.fileExtension)" : suggested
       return await enqueueAndComplete(sourceURL: downloadURL, displayFilename: displayName, format: format)
     } catch {
       print("[Synapps][Share] download error: \(error)")
-      await presentError("Не удалось скачать файл: \(error.localizedDescription)")
+      await presentError(String(format: String(localized: "Share.Error.DownloadFailed"), error.localizedDescription))
       return true
     }
   }
@@ -156,7 +156,7 @@ final class ShareViewController: UIViewController {
     do {
       _ = try PendingUploadStore.enqueue(fileURL: sourceURL, suggestedTitle: displayFilename, format: format)
     } catch {
-      await presentError("Не удалось сохранить файл для загрузки.")
+      await presentError(String(localized: "Share.Error.SaveFailed"))
       return true
     }
     openHostApp()

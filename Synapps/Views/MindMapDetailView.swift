@@ -3,19 +3,17 @@ import SwiftUI
 struct MindMapDetailView: View {
   let map: MindMap
 
-  @Environment(\.viewModelFactory) private var factory
   @State private var scale: CGFloat = 1
   @GestureState private var pinch: CGFloat = 1
   @State private var offset: CGSize = .zero
   @GestureState private var dragOffset: CGSize = .zero
-  @State private var openCardId: CardLink?
-
-  private struct CardLink: Identifiable, Hashable { let id: String }
 
   // Card leaves are full CardCardView at this width; subtopics/root sized to text.
   private let cardWidth: CGFloat = 170
   private let cardScale: CGFloat = 0.7 // visually shrink CardCardView to fit graph density
-  private let cardGap: CGFloat = 24 // min space between adjacent cards
+  private let cardGap: CGFloat = 140 // min space between adjacent cards — needs to exceed
+                                     // typical card height after `cardScale` (cards on a fan
+                                     // aren't rotated, so tall cards overlap when too close).
   private let subFanSpread: Double = 110 // angular spread (deg) of cards around a subtopic
   private let minR1: CGFloat = 180
   private let minR2: CGFloat = 280
@@ -101,8 +99,15 @@ struct MindMapDetailView: View {
     }
     .navigationTitle(map.title)
     .navigationBarTitleDisplayMode(.inline)
-    .navigationDestination(item: $openCardId) { link in
-      CardsView(viewModel: factory.createCardsViewModel(cardID: link.id, prefetchedBook: nil))
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        if let url = try? SynappsBundleExporter.export(mindMap: map, sourceCards: map.nodes.compactMap(\.card)) {
+          ShareLink(
+            item: url,
+            preview: SharePreview(map.title, image: Image("AppIcon"))
+          )
+        }
+      }
     }
   }
 
@@ -139,7 +144,6 @@ struct MindMapDetailView: View {
           .frame(width: cardWidth / cardScale)
           .fixedSize(horizontal: true, vertical: true)
           .scaleEffect(cardScale, anchor: .center)
-          .onTapGesture { openCardId = CardLink(id: card.id) }
       }
     }
   }
