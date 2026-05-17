@@ -62,6 +62,8 @@ targets:
       - package: Atlantis
       - target: QuotesWidgetExtension
         embed: true
+      - target: SynappsShareExtension
+        embed: true
   QuotesWidgetExtension:
     platform: iOS
     type: app-extension
@@ -101,6 +103,34 @@ targets:
         SUPPORTS_MACCATALYST: NO
     dependencies:
       - package: AnyCodable
+  SynappsShareExtension:
+    platform: iOS
+    type: app-extension
+    deploymentTarget: "17"
+    sources:
+      - path: SynappsShareExtension
+        excludes:
+          - Info.plist
+          - SynappsShareExtension.entitlements
+      - path: Synapps/Fundamentals
+        includes:
+          - AppGroupIdentifier.swift
+          - BookFileFormat.swift
+          - PendingUploadStore.swift
+    entitlements:
+      path: SynappsShareExtension/SynappsShareExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.mariamayorova.Synapps
+    settings:
+      base:
+        INFOPLIST_FILE: SynappsShareExtension/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.mariamayorova.Synapps.ShareExtension
+        PRODUCT_NAME: SynappsShareExtension
+        INFOPLIST_KEY_CFBundleDisplayName: Synapps
+        TARGETED_DEVICE_FAMILY: 1
+        SUPPORTS_MACCATALYST: NO
+    dependencies: []
 schemes:
   Synapps:
     build:
@@ -111,3 +141,8 @@ schemes:
     build:
       targets:
         QuotesWidgetExtension: all
+
+  SynappsShareExtension:
+    build:
+      targets:
+        SynappsShareExtension: all

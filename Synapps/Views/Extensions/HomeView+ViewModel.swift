@@ -15,6 +15,7 @@ extension HomeView {
 
     private var lastUploadURL: URL?
     private var uploadedBookPollTasks: [String: Task<Void, Never>] = [:]
+    private var isDraining = false
 
     // bookId → filename, persisted across app launches to resume polling after restart
     private var pendingBooks: [String: String] {
@@ -98,29 +99,91 @@ extension HomeView {
         }
         let selectedFilename = url.lastPathComponent
         guard !isDuplicate(filename: selectedFilename) else {
+          url.stopAccessingSecurityScopedResource()
           showDuplicateBookAlert = true
           return
         }
         lastUploadURL = url
         Task { @MainActor in
-          defer {
-            url.stopAccessingSecurityScopedResource()
-          }
-          uploadState = .loading
-          do {
-            let uploadInfo = try await networkManager.uploadBook(url)
-            var pending = pendingBooks
-            pending[uploadInfo.id] = uploadInfo.filename
-            pendingBooks = pending
-            insertPlaceholder(id: uploadInfo.id, filename: uploadInfo.filename)
-            uploadState = .success
-            startPeriodicUploadedBookDetailSync(bookId: uploadInfo.id)
-          } catch {
-            uploadState = uploadState(from: error)
-          }
+          try? await uploadBook(at: url, displayFilename: selectedFilename, isSecurityScoped: true)
         }
       default:
         break
+      }
+    }
+
+    @MainActor
+    func uploadBook(at url: URL, displayFilename: String, isSecurityScoped: Bool) async throws {
+      defer {
+        if isSecurityScoped { url.stopAccessingSecurityScopedResource() }
+      }
+      uploadState = .loading
+      do {
+        let uploadURL = try makeUploadURL(source: url, displayFilename: displayFilename)
+        defer {
+          if uploadURL != url {
+            try? FileManager.default.removeItem(at: uploadURL)
+          }
+        }
+        let uploadInfo = try await networkManager.uploadBook(uploadURL)
+        var pending = pendingBooks
+        pending[uploadInfo.id] = uploadInfo.filename
+        pendingBooks = pending
+        insertPlaceholder(id: uploadInfo.id, filename: uploadInfo.filename)
+        uploadState = .success
+        startPeriodicUploadedBookDetailSync(bookId: uploadInfo.id)
+      } catch {
+        uploadState = uploadState(from: error)
+        throw error
+      }
+    }
+
+    /// Если у файла на диске имя отличается от displayFilename — копируем во временный файл
+    /// с правильным именем, чтобы multipart filename и серверный `BookMetaResponse.filename`
+    /// были человекочитаемыми (а не `<UUID>.pdf` для drained pending uploads).
+    private func makeUploadURL(source: URL, displayFilename: String) throws -> URL {
+      if source.lastPathComponent == displayFilename {
+        return source
+      }
+      let tmp = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+      try FileManager.default.createDirectory(at: tmp, withIntermediateDirectories: true)
+      let dest = tmp.appendingPathComponent(displayFilename)
+      try FileManager.default.copyItem(at: source, to: dest)
+      return dest
+    }
+
+    @MainActor
+    func drainPendingUploads() async {
+      guard !isDraining else { return }
+      isDraining = true
+      defer { isDraining = false }
+
+      let cutoff = Date().addingTimeInterval(-14 * 24 * 60 * 60)
+      for upload in PendingUploadStore.peekAll() {
+        if upload.enqueuedAt < cutoff {
+          PendingUploadStore.remove(upload)
+          continue
+        }
+        guard let fileURL = PendingUploadStore.fileURL(for: upload),
+              FileManager.default.fileExists(atPath: fileURL.path) else {
+          PendingUploadStore.remove(upload)
+          continue
+        }
+        if isDuplicate(filename: upload.displayFilename) {
+          PendingUploadStore.remove(upload)
+          continue
+        }
+        do {
+          try await uploadBook(
+            at: fileURL,
+            displayFilename: upload.displayFilename,
+            isSecurityScoped: false
+          )
+          PendingUploadStore.remove(upload)
+        } catch {
+          break
+        }
       }
     }
 
@@ -139,6 +202,7 @@ extension HomeView {
     /// Первый запрос + опрос каждые 30 с (`getAllBooks`), пока экран открыт. Отменяется при уходе с `HomeView` или смене `loadTrigger`.
     @MainActor
     func startPeriodicBooksSync() async {
+      await drainPendingUploads()
       await fetch(silent: false)
       resumePendingBookPollingIfNeeded()
       let intervalNs: UInt64 = 30 * 1_000_000_000

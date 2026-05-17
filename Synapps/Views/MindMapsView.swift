@@ -24,16 +24,11 @@ struct MindMapsView: View {
     if viewModel.isBuilding, viewModel.sections.isEmpty {
       ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
     } else if viewModel.sections.isEmpty {
-      VStack(spacing: 12) {
-        Image(systemName: "brain")
-          .font(.system(size: 48))
-          .foregroundStyle(.secondary)
-        Text("mind_maps.empty")
-          .multilineTextAlignment(.center)
-          .foregroundStyle(.secondary)
-          .padding(.horizontal, 32)
-      }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      EmptyStateView(
+        icon: "brain",
+        title: "mind_maps.empty.title",
+        message: "mind_maps.empty"
+      )
     } else {
       ScrollView {
         LazyVStack(alignment: .leading, spacing: 24) {

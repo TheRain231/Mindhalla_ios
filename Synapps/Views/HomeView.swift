@@ -12,6 +12,7 @@ struct HomeView: View {
   @StateObject var viewModel: ViewModel
   @Environment(\.viewModelFactory) var factory
   var onOpenSavedByBook: ((String) -> Void)?
+  var pendingDrainToken: UUID = UUID()
   @Query private var books: [BookMetaResponse]
   @State private var bookLoadingViewModel = BookLoadingViewModel()
 
@@ -44,7 +45,7 @@ struct HomeView: View {
           }
         }
       }
-      .fileImporter(isPresented: $viewModel.showAddBookModal, allowedContentTypes: [.pdf], onCompletion: viewModel.onAddBookCompletion)
+      .fileImporter(isPresented: $viewModel.showAddBookModal, allowedContentTypes: BookFileFormat.allowedUTTypes, onCompletion: viewModel.onAddBookCompletion)
       .alert("HomeView.DuplicateBook.Title", isPresented: $viewModel.showDuplicateBookAlert) {
         Button("OK", role: .cancel) {}
       } message: {
@@ -134,6 +135,9 @@ struct HomeView: View {
       }
       .task(id: viewModel.loadTrigger) {
         await viewModel.startPeriodicBooksSync()
+      }
+      .task(id: pendingDrainToken) {
+        await viewModel.drainPendingUploads()
       }
       .refreshable {
         viewModel.reload()

@@ -11,11 +11,16 @@ extension ContentView {
   final class ViewModel: ObservableObject {
     @Published var selectedTab: TabItem = .home
     @Published var deepLink: DeepLink?
+    @Published var pendingDrainToken = UUID()
 
     func handle(url: URL) {
       guard let link = DeepLink(url: url) else { return }
       deepLink = link
       selectedTab = .saved
+    }
+
+    func triggerPendingDrain() {
+      pendingDrainToken = UUID()
     }
 
     func openSavedByBook(bookId: String) {

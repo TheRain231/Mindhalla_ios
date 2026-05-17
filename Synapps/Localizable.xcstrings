@@ -1493,13 +1493,30 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No mind maps yet — tap the wand on Saved to generate."
+            "value" : "No mind maps yet — they will be generated based on your saved cards."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пока нет карт ума — нажмите палочку на «Сохранённых», чтобы создать."
+            "value" : "Пока нет графов знаний - они будут сгенерированы на основе сохранённых карточек."
+          }
+        }
+      }
+    },
+    "mind_maps.empty.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No mind maps yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Графов знаний пока нет"
           }
         }
       }

@@ -33,12 +33,21 @@ struct SynappsApp: App {
         .modelContainer(viewModelFactory.modelContainer)
         .environment(\.viewModelFactory, viewModelFactory)
         .onOpenURL { url in
-          contentViewModel.handle(url: url)
+          if url.scheme == "synapps", url.host == "import-pending" {
+            contentViewModel.triggerPendingDrain()
+          } else {
+            contentViewModel.handle(url: url)
+          }
         }
         .onReceive(
           NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
         ) { _ in
           SpacedRepetitionScheduler.rescheduleIfNeeded()
+        }
+        .onReceive(
+          NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+        ) { _ in
+          contentViewModel.triggerPendingDrain()
         }
     }
   }
