@@ -159,9 +159,11 @@ extension MindMapsView {
   }
 }
 
+#if DEBUG
 #Preview {
   let factory = MockViewModelFactory()
   return MindMapsView(viewModel: factory.createMindMapsViewModel())
     .modelContainer(factory.modelContainer)
     .environment(\.viewModelFactory, factory)
 }
+#endif

@@ -20,11 +20,11 @@ struct ContentView: View {
         onOpenSavedByBook: viewModel.openSavedByBook,
         pendingDrainToken: viewModel.pendingDrainToken
       )
-        .tabItem {
-          Image(systemName: "book.closed")
-          Text("my_books")
-        }
-        .tag(TabItem.home)
+      .tabItem {
+        Image(systemName: "book.closed")
+        Text("my_books")
+      }
+      .tag(TabItem.home)
       SavedView(viewModel: factory.createSavedViewModel(), deepLink: $viewModel.deepLink)
         .tabItem {
           Image(systemName: "bookmark")
@@ -40,7 +40,7 @@ struct ContentView: View {
       ProfileView()
         .tabItem {
           Image(systemName: "person")
-          Text(verbatim: "Profile")
+          Text("Profile.Title")
         }
         .tag(TabItem.profile)
     }
