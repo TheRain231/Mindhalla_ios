@@ -7,6 +7,7 @@ enum SharedModelStore {
     BookMetaResponse.self,
     QuoteCollection.self,
     Card.self,
+    CardEmbedding.self,
     BookTasksResponse.self,
     BookTask.self,
     BookTaskOption.self,
@@ -20,6 +21,7 @@ enum SharedModelStore {
         BookMetaResponse.self,
         QuoteCollection.self,
         Card.self,
+        CardEmbedding.self,
         BookTasksResponse.self,
         BookTask.self,
         BookTaskOption.self

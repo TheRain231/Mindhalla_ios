@@ -115,7 +115,7 @@ enum TopicExtractor {
       let scoreTerm: (String, [Float]) -> Float = { term, pv in
         let cos = CosineSimilarity.cosine(centroid, pv)
         let tokens = term.split(separator: " ").count
-        let phraseBonus: Float = 0.15 * Float(max(tokens - 1, 0))
+        let phraseBonus: Float = 0.10 * Float(max(tokens - 1, 0))
         var anchorPenalty: Float = 0
         if !diversityAnchorVectors.isEmpty {
           var maxAnchor: Float = 0
@@ -129,9 +129,10 @@ enum TopicExtractor {
       }
 
       func pickBest(filterExcluded: Bool) -> String? {
-        var bestKey: String?
-        var bestScore: Float = -.infinity
-        for (term, df) in clusterDF where df >= minDF {
+        // Pass 1: отобрать top-8 по score = cos + phraseBonus - anchorPenalty.
+        // df=1 пропускается, если cosine к центроиду ≥ 0.55 (явно специфичный термин).
+        var shortlistCandidates: [(term: String, pv: [Float], score: Float)] = []
+        for (term, df) in clusterDF {
           guard let pv = phraseVecs[term] else { continue }
           if filterExcluded, isExcluded(term, by: excludedPhrases) { continue }
           let parts = term.split(separator: " ").map(String.init)
@@ -139,10 +140,21 @@ enum TopicExtractor {
             let scripts = Set(parts.map { tokenScript($0) }).subtracting([.other])
             if scripts.count > 1 { continue }
           }
-          let score = scoreTerm(term, pv)
-          if score > bestScore || (score == bestScore && (bestKey.map { term.count > $0.count } ?? true)) {
-            bestScore = score
-            bestKey = term
+          let pureCos = CosineSimilarity.cosine(centroid, pv)
+          guard df >= minDF || pureCos >= 0.55 else { continue }
+          shortlistCandidates.append((term, pv, scoreTerm(term, pv)))
+        }
+        shortlistCandidates.sort { $0.score > $1.score }
+        let shortlist = shortlistCandidates.prefix(8)
+
+        // Pass 2: внутри shortlist — argmax по чистому cosine. Тай-брейк — длина.
+        var bestKey: String?
+        var bestCos: Float = -.infinity
+        for cand in shortlist {
+          let c = CosineSimilarity.cosine(centroid, cand.pv)
+          if c > bestCos || (c == bestCos && (bestKey.map { cand.term.count > $0.count } ?? true)) {
+            bestCos = c
+            bestKey = cand.term
           }
         }
         return bestKey
@@ -236,7 +248,7 @@ enum TopicExtractor {
   }
 
   private static func isAcceptableToken(_ t: String) -> Bool {
-    guard t.count >= 3 else { return false }
+    guard t.count >= 4 else { return false }
     if STOPWORDS_EN.contains(t) || STOPWORDS_RU.contains(t) { return false }
     if EN_VERBS.contains(t) { return false }
     if !t.contains(where: \.isLetter) { return false }

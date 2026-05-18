@@ -16,9 +16,7 @@ enum SpacedRepetitionScheduler {
     let center = UNUserNotificationCenter.current()
     removeAll(from: center)
 
-    let bodies: [String] = (1...7).map {
-      String(localized: String.LocalizationValue("Profile.Notifications.Content.Body.\($0)"))
-    }
+    let bodies = localizedBodies()
 
     for (index, days) in settings.intervals.sorted().enumerated() {
       guard let fireDate = Calendar.current.date(byAdding: .day, value: days, to: referenceDate)
@@ -78,5 +76,19 @@ enum SpacedRepetitionScheduler {
   private static func removeAll(from center: UNUserNotificationCenter) {
     let ids = availableIntervals.map { "\(idPrefix).\($0)" }
     center.removePendingNotificationRequests(withIdentifiers: ids)
+  }
+
+  /// Литеральные ключи нужны, чтобы `String.LocalizationValue` не пытался превратить
+  /// интерполяцию `\(i)` в format-плейсхолдер `%lld` и сломать поиск перевода.
+  private static func localizedBodies() -> [String] {
+    [
+      String(localized: "Profile.Notifications.Content.Body.1"),
+      String(localized: "Profile.Notifications.Content.Body.2"),
+      String(localized: "Profile.Notifications.Content.Body.3"),
+      String(localized: "Profile.Notifications.Content.Body.4"),
+      String(localized: "Profile.Notifications.Content.Body.5"),
+      String(localized: "Profile.Notifications.Content.Body.6"),
+      String(localized: "Profile.Notifications.Content.Body.7"),
+    ]
   }
 }
