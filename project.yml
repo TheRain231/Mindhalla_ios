@@ -16,7 +16,7 @@ packages:
     from: 8.9.0
   onnxruntime:
     url: https://github.com/microsoft/onnxruntime-swift-package-manager
-    from: 1.20.0
+    from: 1.24.0
   swift-transformers:
     url: https://github.com/huggingface/swift-transformers
     from: 0.1.17

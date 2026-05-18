@@ -36,8 +36,7 @@ extension BookTasksView {
       self.modelContext = modelContext
       self.prefetchedTasks = prefetchedTasks
       if let prefetchedTasks {
-        let persisted = try? BookTasksResponse.persist(prefetchedTasks, modelContext: modelContext)
-        applyResponse(persisted ?? prefetchedTasks, shuffleDisplay: true, resetProgress: true)
+        applyResponse(prefetchedTasks, shuffleDisplay: true, resetProgress: true)
       }
     }
 
