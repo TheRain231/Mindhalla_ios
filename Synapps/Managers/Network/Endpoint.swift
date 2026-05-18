@@ -79,7 +79,7 @@ enum Endpoint {
     }
 
     let filename = fileURL.lastPathComponent
-    let mimeType = "application/pdf"
+    let mimeType = BookFileFormat.detect(from: fileURL)?.mimeType ?? "application/octet-stream"
 
     var body = Data()
 

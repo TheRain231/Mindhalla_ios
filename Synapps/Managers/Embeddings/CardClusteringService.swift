@@ -81,14 +81,24 @@ final class CardClusteringService {
     }
 
     if !missing.isEmpty {
-      let texts = missing.map(\.card.content)
-      let computed = try await embeddingService.embed(batch: texts)
-      for (j, pair) in missing.enumerated() {
-        let vec = computed[j]
-        result[pair.index] = vec
-        let entry = CardEmbedding(cardId: pair.card.id, vector: vec, modelVersion: version)
-        modelContext.insert(entry)
-        byId[pair.card.id] = entry
+      // Чанкуем embed(batch:) — ONNX inference с большим batch'ем создаёт
+      // огромный hidden tensor (batch × seqLen × hidden_dim × 4 байта) и крашит
+      // приложение по jetsam memory limit на больших библиотеках (500+ карточек).
+      let chunkSize = 32
+      var index = 0
+      while index < missing.count {
+        let end = min(index + chunkSize, missing.count)
+        let slice = Array(missing[index..<end])
+        let texts = slice.map(\.card.content)
+        let computed = try await embeddingService.embed(batch: texts)
+        for (j, pair) in slice.enumerated() {
+          let vec = computed[j]
+          result[pair.index] = vec
+          let entry = CardEmbedding(cardId: pair.card.id, vector: vec, modelVersion: version)
+          modelContext.insert(entry)
+          byId[pair.card.id] = entry
+        }
+        index = end
       }
       try? modelContext.save()
       WidgetCenter.shared.reloadAllTimelines()

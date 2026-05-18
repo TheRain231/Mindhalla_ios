@@ -251,8 +251,13 @@ extension SavedView {
   private func cardRow(_ card: Card) -> some View {
     CardCardView(card: card)
       .contextMenu {
-        ShareLink(item: viewModel.shareText(for: card)) {
-          Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
+        if let url = try? SynappsBundleExporter.export(card: card) {
+          ShareLink(
+            item: url,
+            preview: SharePreview(card.content.prefix(60).description, image: Image("AppIcon"))
+          ) {
+            Label("QuoteCollectionCardsView.Menu.Share", systemImage: "square.and.arrow.up")
+          }
         }
 
         Button(role: .destructive) {

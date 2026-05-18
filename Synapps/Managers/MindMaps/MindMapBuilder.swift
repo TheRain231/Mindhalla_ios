@@ -132,6 +132,7 @@ final class MindMapBuilder {
   }
 
   func groupByMetaTopic(_ maps: [MindMap]) async throws -> [MindMapGroup] {
+    if maps.isEmpty { return [] }
     if maps.count < 2 {
       return [MindMapGroup(id: "general", title: "General", maps: maps)]
     }

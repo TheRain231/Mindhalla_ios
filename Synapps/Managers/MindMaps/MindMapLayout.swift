@@ -39,13 +39,13 @@ enum MindMapLayout {
     }
 
     func fanWidth(parentId: String) -> CGFloat {
-      let kids = childrenByParent[parentId] ?? []
       let kind = nodeKind(parentId)
       if kind == .card { return cardWidth + cardGap }
-      if kids.isEmpty { return cardWidth + cardGap }
-      let r2 = r2For(parentId: parentId)
-      let halfChord = r2 * CGFloat(Foundation.sin(spreadRad / 2))
-      return 2 * halfChord + cardWidth + cardGap
+      // r1 разводит только сами капсулы подтем; веера соседних подтем могут
+      // перекрываться по углу — это принятый трейдоф ради коротких r1-рёбер.
+      let subtopicWidth: CGFloat = 180
+      let gap: CGFloat = 24
+      return subtopicWidth + gap
     }
 
     let widths = firstRing.map { fanWidth(parentId: $0) }
@@ -61,7 +61,30 @@ enum MindMapLayout {
     // and a visible edge segment remains between them.
     let hasDirectCardChild = firstRing.contains { nodeKind($0) == .card }
     let cardMinR1: CGFloat = hasDirectCardChild ? cardWidth + 160 : minR1
-    let r1 = max(max(minR1, cardMinR1), neededR1)
+    // Когда первое кольцо содержит подтемы — у каждой свой веер карточек уходит
+    // наружу. Подтянем r1 так чтобы между корневой капсулой и капсулой подтемы
+    // оставался видимый сегмент ребра (иначе они визуально слипаются).
+    let hasSubtopicChild = firstRing.contains { nodeKind($0) == .subtopic }
+    let subtopicMinR1: CGFloat = hasSubtopicChild ? 400 : minR1
+    // Анти-коллизия: крайние карточки соседних подтем разнесены минимум на cardArc.
+    // Подтемы A и B расположены под углом ±h от оси (h = π/n) на радиусе r1.
+    // Крайняя карточка A имеет y = -r1·sin(h) + r2·sin(spread/2 - h), для B — зеркально.
+    // Расстояние между ними = 2·|r1·sin(h) - r2·sin(spread/2 - h)|, требуем ≥ cardArc.
+    let h = Double.pi / Double(n)
+    let sinH = Foundation.sin(h)
+    let sinDiff = Foundation.sin(spreadRad / 2 - h)
+    var collisionR1: CGFloat = 0
+    if sinDiff > 0, sinH > 1e-3 {
+      for i in 0..<n {
+        let a = firstRing[i]
+        let b = firstRing[(i + 1) % n]
+        guard nodeKind(a) == .subtopic, nodeKind(b) == .subtopic else { continue }
+        let r2 = max(r2For(parentId: a), r2For(parentId: b))
+        let required = (r2 * CGFloat(sinDiff) + cardArc / 2) / CGFloat(sinH)
+        collisionR1 = max(collisionR1, required)
+      }
+    }
+    let r1 = max(max(max(max(minR1, cardMinR1), subtopicMinR1), neededR1), collisionR1)
 
     for (i, nodeId) in firstRing.enumerated() {
       let angle = 2 * Double.pi * Double(i) / Double(n) - Double.pi / 2

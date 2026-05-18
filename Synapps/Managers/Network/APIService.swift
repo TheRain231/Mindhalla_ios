@@ -52,7 +52,19 @@ class APIService: Service {
           return
 
         case 401:
-          completion(nil, .serverError())
+          if let dto = try? JSONDecoder().decode(ErrorDetailDTO.self, from: data),
+             let detail = dto.detail {
+            switch detail {
+            case "invalid_or_expired_token":
+              completion(nil, .invalidOrExpiredAccessToken)
+            case "invalid_or_expired_refresh_token":
+              completion(nil, .invalidOrExpiredRefreshToken)
+            default:
+              completion(nil, .serverError(detail))
+            }
+          } else {
+            completion(nil, .serverError())
+          }
           return
 
         case 422:

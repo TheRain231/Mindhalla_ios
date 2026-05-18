@@ -145,15 +145,6 @@ extension SavedView {
       WidgetCenter.shared.reloadAllTimelines()
     }
 
-    func shareText(for card: Card) -> String {
-      let referenceText = card.references.originalTexts.joined(separator: "\n")
-      if referenceText.isEmpty {
-        return card.content
-      } else {
-        return "\(card.content)\n\n\(referenceText)"
-      }
-    }
-
     private static func matchesSearch(_ card: Card, needle: String) -> Bool {
       var parts: [String] = [
         card.content,
